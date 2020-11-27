@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="color_arr">
+        <item>#F2F2F2</item>
+        <item>#2B2B2B</item>
+        <item>#FA5051</item>
+        <item>#FFC300</item>
+        <item>#04C160</item>
+        <item>#11AEFF</item>
+        <item>#6467F0</item>
+    </string-array>
+</resources>
