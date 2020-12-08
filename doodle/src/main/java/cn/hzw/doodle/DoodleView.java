@@ -34,6 +34,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Looper;
@@ -76,7 +77,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     public static final int ERROR_SAVE = -2;
 
     private static final int FLAG_RESET_BACKGROUND = 1 << 1;
-    private static final int FLAG_DRAW_PENDINGS_TO_BACKGROUND = 1 << 2;
+    public static final int FLAG_DRAW_PENDINGS_TO_BACKGROUND = 1 << 2;
     private static final int FLAG_REFRESH_BACKGROUND = 1 << 3;
 
     private IDoodleListener mDoodleListener;
@@ -97,6 +98,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     private float mSize;
     private IDoodleColor mColor; // 画笔底色
+    private boolean isDrawTextBg;
+    private Rect resultTextRect;
 
     private boolean isJustDrawOriginal; // 是否只绘制原图
 
@@ -134,6 +137,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     private boolean mIsEditMode = false; //是否是编辑模式，可移动缩放涂鸦
     private boolean mIsSaving = false;
+
+    private boolean mIsRest = true;
 
     /**
      * Whether or not to optimize drawing, it is suggested to open, which can optimize the drawing speed and performance.
@@ -257,6 +262,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
         return handled;
     }
 
+
+    public void setIsRest(boolean isRest){
+        mIsRest = isRest;
+    }
+
     @Override
     public void setOnTouchListener(OnTouchListener l) {
         mOnTouchListener = l;
@@ -294,8 +304,9 @@ public class DoodleView extends FrameLayout implements IDoodle {
         // 居中适应屏幕
         mTransX = mTransY = 0;
         mScale = 1;
-
-        initDoodleBitmap();
+        if (mIsRest) {
+            initDoodleBitmap();
+        }
 
         refreshWithBackground();
     }
@@ -495,7 +506,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         return (mFlags & flag) != 0;
     }
 
-    private void addFlag(int flag) {
+    public void addFlag(int flag) {
         mFlags = mFlags | flag;
     }
 
@@ -641,6 +652,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     private void refreshWithBackground() {
         addFlag(FLAG_REFRESH_BACKGROUND);
+
+        mIsRest = true;
         refresh();
     }
 
@@ -895,6 +908,31 @@ public class DoodleView extends FrameLayout implements IDoodle {
     public void setColor(IDoodleColor color) {
         mColor = color;
         refresh();
+    }
+
+    @Override
+    public void setIsDrawTextBg(boolean isDrawTextBg) {
+        isDrawTextBg = isDrawTextBg;
+    }
+
+    @Override
+    public boolean getIsDrawTextBg(){
+        return isDrawTextBg;
+    }
+
+    @Override
+    public void setTextRect(Rect rect) {
+        resultTextRect = new Rect();
+        //resultTextRect = rect;
+        resultTextRect.left = 0;
+        resultTextRect.top = 0;
+        resultTextRect.right = rect.right - rect.left;
+        resultTextRect.bottom = rect.bottom - rect.top;
+    }
+
+    @Override
+    public Rect getTextRect() {
+        return resultTextRect;
     }
 
     @Override
@@ -1377,9 +1415,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     if (canvasClipped) {
                         canvas.restore();
                     }
-
                     item.draw(canvas);
-
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
                         canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
@@ -1396,7 +1432,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
                         canvas.restore();
                     }
                     item.drawAtTheTop(canvas);
-
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
                         canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());

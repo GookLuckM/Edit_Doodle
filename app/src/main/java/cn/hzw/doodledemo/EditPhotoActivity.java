@@ -5,8 +5,10 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -229,10 +231,7 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
                 mDoodle.setZoomerScale(mDoodleParams.mZoomerScale);
                 mTouchGestureListener.setSupportScaleItem(mDoodleParams.mSupportScaleItem);
 
-                // 每个画笔的初始值
-                mPenSizeMap.put(DoodlePen.BRUSH, mDoodle.getSize());
-                mPenSizeMap.put(DoodlePen.MOSAIC, DEFAULT_MOSAIC_SIZE * mDoodle.getUnitSize());
-                mPenSizeMap.put(DoodlePen.TEXT, getResources().getDimension(R.dimen.sp_28));
+
             }
         });
 
@@ -337,7 +336,7 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
             @Override
             public void onCreateSelectableItem(IDoodle doodle, float x, float y) {
                 if (mDoodle.getPen() == DoodlePen.TEXT) {
-                    createDoodleText(null, x, y, "");
+                    createDoodleText(null, x, y, "", false);
                 }
 
             }
@@ -403,19 +402,20 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
                         mDoodle.setShape(DoodleShape.HAND_WRITE);
                         rlScrawlColor.setVisibility(View.VISIBLE);
                         rlMosaic.setVisibility(View.GONE);
+                        resetBitmap(true);
                         break;
                     case R.id.rb_text:
                         CURRENT_MODE = MODE_TEXT;
                         rlScrawlColor.setVisibility(View.GONE);
                         rlMosaic.setVisibility(View.GONE);
                         mDoodle.setPen(DoodlePen.TEXT);
-                        startActivityForResult(new Intent(EditPhotoActivity.this,AddTextActivity.class),EDIT_TEXT_REQUEST_CODE);
+                        startActivityForResult(new Intent(EditPhotoActivity.this, AddTextActivity.class), EDIT_TEXT_REQUEST_CODE);
                         break;
                     case R.id.rb_crop:
                         CURRENT_MODE = MODE_CROP;
                         rlScrawlColor.setVisibility(View.GONE);
                         rlMosaic.setVisibility(View.GONE);
-
+                        resetBitmap(false);
                         break;
                     case R.id.rb_mosaic:
                         CURRENT_MODE = MODE_MOSAIC;
@@ -570,12 +570,12 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
             } else if (pen == DoodlePen.MOSAIC) {
                 rlMosaic.setVisibility(VISIBLE);
                 rlScrawlColor.setVisibility(GONE);
-            }else if (pen == DoodlePen.BRUSH){
+            } else if (pen == DoodlePen.BRUSH) {
                 rlMosaic.setVisibility(View.GONE);
                 rlScrawlColor.setVisibility(View.GONE);
             }
 
-            if (mTouchGestureListener.getSelectedItem() == null) {
+            /*if (mTouchGestureListener.getSelectedItem() == null) {
                 mPenSizeMap.put(oldPen, getSize()); // save
                 Float size = mPenSizeMap.get(pen); // restore
                 if (size != null) {
@@ -590,13 +590,15 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
             } else {
                 //mShapeContainer.setVisibility(GONE);
                 return;
-            }
-
+            }*/
             if (pen == DoodlePen.BRUSH) {
+                mDoodle.setSize(DoodleView.DEFAULT_SIZE);
                 mDoodle.setColor(new DoodleColor(selectedColor));
             } else if (pen == DoodlePen.MOSAIC) {
+                mDoodle.setSize(DEFAULT_MOSAIC_SIZE * mDoodle.getUnitSize());
                 mDoodle.setColor(DoodlePath.getMosaicColor(mDoodle, mMosaicLevel));
             } else if (pen == DoodlePen.TEXT) {
+                mDoodle.setSize(getResources().getDimensionPixelSize(R.dimen.sp_28) / mDoodleView.getAllScale());
                 mDoodle.setColor(new DoodleColor(textSelectedColor));
             } /*else if (pen == DoodlePen.BITMAP) {
                 Drawable colorBg = mBtnColor.getBackground();
@@ -709,7 +711,7 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
 
 
     // 添加文字
-    private void createDoodleText(final DoodleText doodleText, final float x, final float y, String text) {
+    private void createDoodleText(final DoodleText doodleText, final float x, final float y, String text, boolean isShowTextbg) {
         if (isFinishing()) {
             return;
         }
@@ -718,7 +720,7 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
             return;
         }
         if (doodleText == null) {
-            IDoodleSelectableItem item = new DoodleText(mDoodle, text, mDoodle.getSize(), mDoodle.getColor().copy(), x, y);
+            IDoodleSelectableItem item = new DoodleText(mDoodle, text, mDoodle.getSize(), mDoodle.getColor().copy(), x, y, isShowTextbg);
             mDoodle.addItem(item);
             mTouchGestureListener.setSelectedItem(item);
         } else {
@@ -774,9 +776,27 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
             if (data != null) {
                 String text = data.getStringExtra(AddTextActivity.RESULT_TEXT);
                 textSelectedColor = data.getIntExtra(AddTextActivity.RESULT_COLOR, Color.parseColor(colorArr[0]));
+                boolean isShowTextBg = data.getBooleanExtra(AddTextActivity.RESULT_IS_DRAW_TEXT_BG, false);
+                Rect resultTextRect = data.getParcelableExtra(AddTextActivity.RESULT_RECT);
                 mDoodle.setColor(new DoodleColor(textSelectedColor));
-                createDoodleText(null, -1, -1, text);
+                mDoodle.setTextRect(resultTextRect);
+                mDoodle.setIsDrawTextBg(isShowTextBg);
+                createDoodleText(null, -1, -1, text, isShowTextBg);
             }
         }
+    }
+
+
+    public void resetBitmap(boolean isScale) {
+        mDoodleView.setIsRest(false);
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mDoodleView.getLayoutParams();
+        int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        if (isScale) {
+            int switchScreenHeight = (int) (screenHeight * 0.79 + 0.5f);
+            layoutParams.height = switchScreenHeight;
+        }else {
+            layoutParams.height = screenHeight;
+        }
+        mDoodleView.setLayoutParams(layoutParams);
     }
 }

@@ -3,6 +3,7 @@ package cn.hzw.doodledemo;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -19,15 +20,20 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import cn.hzw.doodle.util.DrawUtil;
+
 public class AddTextActivity extends Activity {
 
     public static final String RESULT_TEXT = "result_text";
     public static final String RESULT_COLOR = "result_color";
+    public static final String RESULT_IS_DRAW_TEXT_BG = "result_is_draw_text_bg";
+    public static final String RESULT_RECT = "result_rect";
     private String[] colorArr;
     private int selectedColor;
     private boolean isShowEditBg;
     private boolean isChangedColor;
     private EditText etInput;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,14 +139,19 @@ public class AddTextActivity extends Activity {
 
             }
         });
-
         tvDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("height" + etInput.getMeasuredHeight());
+                System.out.println("width" + etInput.getMeasuredWidth());
                 String text = etInput.getText().toString().trim();
                 Intent intent = new Intent();
                 intent.putExtra(RESULT_TEXT,text);
                 intent.putExtra(RESULT_COLOR,selectedColor);
+                intent.putExtra(RESULT_IS_DRAW_TEXT_BG,isShowEditBg);
+                Rect rect = new Rect();
+                etInput.getDrawingRect(rect);
+                intent.putExtra(RESULT_RECT,rect);
                 setResult(RESULT_OK,intent);
                 finish();
             }
@@ -161,7 +172,7 @@ public class AddTextActivity extends Activity {
                     drawable1.setColor(selectedColor);
                     etInput.setBackground(drawable1);
                 }
-                if (selectedColor == Color.parseColor(colorArr[0])){
+                if (DrawUtil.isLightColor(selectedColor)){
                     etInput.setTextColor(Color.BLACK);
                 }else {
                     etInput.setTextColor(Color.WHITE);

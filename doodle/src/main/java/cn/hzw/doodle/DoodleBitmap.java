@@ -3,6 +3,7 @@ package cn.hzw.doodle;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.view.ViewGroup;
 
 import cn.hzw.doodle.core.IDoodle;
 
@@ -59,6 +60,10 @@ public class DoodleBitmap extends DoodleRotatableItemBase {
         canvas.drawBitmap(mBitmap, mSrcRect, mDstRect, null);
     }
 
+    @Override
+    public void insert(ViewGroup viewGroup) {
+
+    }
 }
 
 

@@ -2,6 +2,7 @@ package cn.hzw.doodle.core;
 
 import android.graphics.Canvas;
 import android.graphics.PointF;
+import android.view.ViewGroup;
 
 /**
  * Created on 27/06/2018.
@@ -75,6 +76,9 @@ public interface IDoodleItem {
      * @param canvas
      */
     public void draw(Canvas canvas);
+
+
+    public void insert(ViewGroup viewGroup);
 
     /**
      * 画在所有item的上面

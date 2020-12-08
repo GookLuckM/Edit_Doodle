@@ -88,6 +88,7 @@ public class DoodleColor implements IDoodleColor {
         mTileY = tileY;
     }
 
+
     public void setMatrix(Matrix matrix) {
         mMatrix = matrix;
     }

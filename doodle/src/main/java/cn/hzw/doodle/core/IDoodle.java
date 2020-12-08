@@ -1,6 +1,7 @@
 package cn.hzw.doodle.core;
 
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 
 import java.util.List;
 
@@ -125,6 +126,25 @@ public interface IDoodle {
      * @param color
      */
     public void setColor(IDoodleColor color);
+
+    /**
+     * 设置是否显示文字背景
+     *
+     * @param isDrawTextBg
+     */
+    public void setIsDrawTextBg(boolean isDrawTextBg);
+
+    /**
+     * 设置是否显示文字背景
+     *
+     * @return
+     */
+    public boolean getIsDrawTextBg();
+
+
+    public void setTextRect(Rect rect);
+
+    public Rect getTextRect();
 
     /**
      * 获取颜色

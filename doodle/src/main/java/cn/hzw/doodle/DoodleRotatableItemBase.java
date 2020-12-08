@@ -16,7 +16,7 @@ import static cn.hzw.doodle.util.DrawUtil.rotatePoint;
 public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
 
     private PointF mTemp = new PointF();
-    private Rect mRectTemp = new Rect();
+    protected Rect mRectTemp = new Rect();
     private boolean mIsRotating = false;
     private Paint mPaint = new Paint();
 

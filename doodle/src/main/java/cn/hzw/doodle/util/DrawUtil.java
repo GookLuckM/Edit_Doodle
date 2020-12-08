@@ -1,6 +1,7 @@
 package cn.hzw.doodle.util;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -218,5 +219,15 @@ public class DrawUtil {
         rect.right = (int) (px - scale * (px - rect.right) + 0.5f);
         rect.top = (int) (py - scale * (py - rect.top) + 0.5f);
         rect.bottom = (int) (py - scale * (py - rect.bottom) + 0.5f);
+    }
+
+
+    public static boolean isLightColor(int color) {
+        double darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
+        if (darkness < 0.5) {
+            return true; // It's a light color
+        } else {
+            return false; // It's a dark color
+        }
     }
 }

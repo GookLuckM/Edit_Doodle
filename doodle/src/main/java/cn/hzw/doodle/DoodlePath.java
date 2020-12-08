@@ -9,6 +9,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.view.ViewGroup;
 
 import java.util.HashMap;
 import java.util.WeakHashMap;
@@ -272,6 +273,11 @@ public class DoodlePath extends DoodleRotatableItemBase {
             setLocation(getLocation().x, getLocation().y, false);
         }
         adjustPath(false);
+    }
+
+    @Override
+    public void insert(ViewGroup viewGroup) {
+
     }
 
     @Override

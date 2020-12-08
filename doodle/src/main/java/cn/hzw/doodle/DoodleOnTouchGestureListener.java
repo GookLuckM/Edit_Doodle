@@ -262,7 +262,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
                 item = (IDoodleSelectableItem) elem;
 
-                if (item.contains(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY))) {
+                if (item.contains(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)) && item instanceof DoodleText) {
                     found = true;
                     setSelectedItem(item);
                     PointF xy = item.getLocation();
