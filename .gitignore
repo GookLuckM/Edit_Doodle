@@ -1,4 +1,13 @@
-/build
+*.iml
 .gradle
 local.properties
-gradle
+.idea/*
+.DS_Store
+/build
+/reports
+*/build
+/captures
+/projectFilesBackup
+/.idea/encodings.xml
+/.idea/*
+gradle.properties
