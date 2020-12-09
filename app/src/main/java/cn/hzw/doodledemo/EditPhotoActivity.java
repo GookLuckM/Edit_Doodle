@@ -25,6 +25,7 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -95,11 +96,7 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
     private int textSelectedColor = Color.WHITE;
 
     private Map<IDoodlePen, Float> mPenSizeMap = new HashMap<>(); //保存每个画笔对应的最新大小
-    private RelativeLayout rlMosaic;
-    private RelativeLayout rlScrawlColor;
-    private RadioGroup tabMode;
-    private RadioGroup rgColor;
-    private RadioGroup rgMosaic;
+
 
 
     private int mMosaicLevel = DoodlePath.MOSAIC_LEVEL_3;
@@ -246,29 +243,11 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
                 if (mDoodleParams.mChangePanelVisibilityDelay > 0) {
                     switch (event.getAction() & MotionEvent.ACTION_MASK) {
                         case MotionEvent.ACTION_DOWN:
-                            rlMosaic.removeCallbacks(mHideDelayRunnable);
-                            rlMosaic.removeCallbacks(mShowDelayRunnable);
-                            rlScrawlColor.removeCallbacks(mHideDelayRunnable);
-                            rlScrawlColor.removeCallbacks(mShowDelayRunnable);
-                            tabMode.removeCallbacks(mHideDelayRunnable);
-                            tabMode.removeCallbacks(mShowDelayRunnable);
-                            //触摸屏幕超过一定时间才判断为需要隐藏设置面板
-                            tabMode.postDelayed(mHideDelayRunnable, mDoodleParams.mChangePanelVisibilityDelay);
-                            rlScrawlColor.postDelayed(mHideDelayRunnable, mDoodleParams.mChangePanelVisibilityDelay);
-                            rlMosaic.postDelayed(mHideDelayRunnable, mDoodleParams.mChangePanelVisibilityDelay);
+
                             break;
                         case MotionEvent.ACTION_CANCEL:
                         case MotionEvent.ACTION_UP:
-                            rlMosaic.removeCallbacks(mHideDelayRunnable);
-                            rlMosaic.removeCallbacks(mShowDelayRunnable);
-                            rlScrawlColor.removeCallbacks(mHideDelayRunnable);
-                            rlScrawlColor.removeCallbacks(mShowDelayRunnable);
-                            tabMode.removeCallbacks(mHideDelayRunnable);
-                            tabMode.removeCallbacks(mShowDelayRunnable);
-                            //离开屏幕超过一定时间才判断为需要显示设置面板
-                            tabMode.postDelayed(mShowDelayRunnable, mDoodleParams.mChangePanelVisibilityDelay);
-                            rlScrawlColor.postDelayed(mShowDelayRunnable, mDoodleParams.mChangePanelVisibilityDelay);
-                            rlMosaic.postDelayed(mShowDelayRunnable, mDoodleParams.mChangePanelVisibilityDelay);
+
                             break;
                     }
                 }
@@ -359,12 +338,13 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
     }
 
     public void initView() {
-        rlMosaic = findViewById(R.id.rl_mosaic);
-        rlScrawlColor = findViewById(R.id.rl_scrawl_color);
-        tabMode = findViewById(R.id.tab_group);
-        rgColor = findViewById(R.id.rg_scrawl_color);
-        rgMosaic = findViewById(R.id.rg_mosaic);
 
+        LinearLayout llEdit = findViewById(R.id.ll_edit);
+        ImageView ivScrawl =findViewById(R.id.iv_scrawl);
+        ImageView ivText =findViewById(R.id.iv_text);
+        ImageView ivMosaic =findViewById(R.id.iv_mosaic);
+        ImageView ivCrop =findViewById(R.id.iv_crop);
+        FrameLayout edit_frag  = findViewById(R.id.edit_frag);
 
         mViewShowAnimation = new AlphaAnimation(0, 1);
         mViewShowAnimation.setDuration(150);
@@ -372,133 +352,66 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
         mViewHideAnimation.setDuration(150);
         mHideDelayRunnable = new Runnable() {
             public void run() {
-                hideView(tabMode);
-                hideView(rlMosaic);
-                hideView(rlScrawlColor);
+
             }
 
         };
         mShowDelayRunnable = new Runnable() {
             public void run() {
-                showView(tabMode);
-                if (MODE_SCRAWL.equals(CURRENT_MODE)) {
-                    showView(rlScrawlColor);
-                }
-                if (MODE_MOSAIC.equals(CURRENT_MODE)) {
-                    showView(rlMosaic);
-                }
 
 
             }
         };
 
-        tabMode.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.rb_scrawl:
+
                         CURRENT_MODE = MODE_SCRAWL;
                         mDoodle.setPen(DoodlePen.BRUSH);
                         mDoodle.setShape(DoodleShape.HAND_WRITE);
-                        rlScrawlColor.setVisibility(View.VISIBLE);
-                        rlMosaic.setVisibility(View.GONE);
+
                         resetBitmap(true);
-                        break;
-                    case R.id.rb_text:
+
+
                         CURRENT_MODE = MODE_TEXT;
-                        rlScrawlColor.setVisibility(View.GONE);
-                        rlMosaic.setVisibility(View.GONE);
+
                         mDoodle.setPen(DoodlePen.TEXT);
                         startActivityForResult(new Intent(EditPhotoActivity.this, AddTextActivity.class), EDIT_TEXT_REQUEST_CODE);
-                        break;
-                    case R.id.rb_crop:
+
+
                         CURRENT_MODE = MODE_CROP;
-                        rlScrawlColor.setVisibility(View.GONE);
-                        rlMosaic.setVisibility(View.GONE);
                         resetBitmap(false);
-                        break;
-                    case R.id.rb_mosaic:
+
+
                         CURRENT_MODE = MODE_MOSAIC;
                         mDoodle.setPen(DoodlePen.MOSAIC);
-                        rlScrawlColor.setVisibility(View.GONE);
-                        rlMosaic.setVisibility(View.VISIBLE);
-                        break;
-                }
-            }
-        });
 
 
-        rgColor.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.rb_scrawl_grey:
-                        selectedColor = Color.parseColor(colorArr[0]);
-                        break;
-                    case R.id.rb_scrawl_black:
-                        selectedColor = Color.parseColor(colorArr[1]);
-                        break;
-                    case R.id.rb_scrawl_red:
-                        selectedColor = Color.parseColor(colorArr[2]);
-                        break;
-                    case R.id.rb_scrawl_yellow:
-                        selectedColor = Color.parseColor(colorArr[3]);
-                        break;
-                    case R.id.rb_scrawl_green:
-                        selectedColor = Color.parseColor(colorArr[4]);
-                        break;
-                    case R.id.rb_scrawl_blue:
-                        selectedColor = Color.parseColor(colorArr[5]);
-                        break;
-                    case R.id.rb_scrawl_purple:
-                        selectedColor = Color.parseColor(colorArr[6]);
-                        break;
-
-                }
-                mDoodle.setColor(new DoodleColor(selectedColor));
-            }
-        });
 
 
-        rgMosaic.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.rb_large_mosaic:
+
+
+
+
 
                         mMosaicLevel = DoodlePath.MOSAIC_LEVEL_3;
                         mDoodle.setColor(DoodlePath.getMosaicColor(mDoodle, mMosaicLevel));
                         if (mTouchGestureListener.getSelectedItem() != null) {
                             mTouchGestureListener.getSelectedItem().setColor(mDoodle.getColor().copy());
                         }
-                        break;
-                    case R.id.rb_small_mosaic:
+
                         mMosaicLevel = DoodlePath.MOSAIC_LEVEL_2;
                         mDoodle.setColor(DoodlePath.getMosaicColor(mDoodle, mMosaicLevel));
                         if (mTouchGestureListener.getSelectedItem() != null) {
                             mTouchGestureListener.getSelectedItem().setColor(mDoodle.getColor().copy());
                         }
-                        break;
 
-                }
-            }
-        });
 
-        ImageView ivScrawlBack = findViewById(R.id.iv_scrawl_back);
-        ivScrawlBack.setOnClickListener(this);
-        ImageView ivMosaicBack = findViewById(R.id.iv_mosaic_back);
-        ivMosaicBack.setOnClickListener(this);
-        TextView tvDone = findViewById(R.id.tv_done);
-        tvDone.setOnClickListener(this);
+
+
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.iv_scrawl_back) {
-            mDoodle.undo();
-        } else if (v.getId() == R.id.iv_mosaic_back) {
-            mDoodle.undo();
-        } else if (v.getId() == R.id.tv_done) {
+        if (v.getId() == R.id.tv_done) {
             mDoodle.save();
         } /*else if (v.getId() == R.id.doodle_btn_back) {
             if (mDoodle.getAllItem() == null || mDoodle.getItemCount() == 0) {
@@ -565,14 +478,11 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
             super.setPen(pen);
 
             if (pen == DoodlePen.TEXT) {
-                rlMosaic.setVisibility(GONE);
-                rlScrawlColor.setVisibility(GONE);
+
             } else if (pen == DoodlePen.MOSAIC) {
-                rlMosaic.setVisibility(VISIBLE);
-                rlScrawlColor.setVisibility(GONE);
+
             } else if (pen == DoodlePen.BRUSH) {
-                rlMosaic.setVisibility(View.GONE);
-                rlScrawlColor.setVisibility(View.GONE);
+
             }
 
             /*if (mTouchGestureListener.getSelectedItem() == null) {
@@ -681,9 +591,7 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
                 Toast.makeText(getApplicationContext(), cn.hzw.doodle.R.string.doodle_edit_mode, Toast.LENGTH_SHORT).show();
                 mLastIsDrawableOutside = mDoodle.isDrawableOutside(); // save
                 mDoodle.setIsDrawableOutside(true);
-                rlMosaic.setVisibility(GONE);
-                rlScrawlColor.setVisibility(GONE);
-                tabMode.setVisibility(GONE);
+
 
             } else {
                 if (mLastIsDrawableOutside != null) { // restore
@@ -696,14 +604,14 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
 
                 switch (CURRENT_MODE) {
                     case MODE_SCRAWL:
-                        rlScrawlColor.setVisibility(View.VISIBLE);
+
                         break;
                     case MODE_MOSAIC:
-                        rlMosaic.setVisibility(View.VISIBLE);
+
                         break;
                 }
                 mTouchGestureListener.setSelectedItem(null);
-                tabMode.setVisibility(View.VISIBLE);
+
             }
         }
 
@@ -729,7 +637,7 @@ public class EditPhotoActivity extends Activity implements View.OnClickListener 
         mDoodle.refresh();
 
         if (doodleText == null) {
-            tabMode.removeCallbacks(mHideDelayRunnable);
+
         }
 
     }
