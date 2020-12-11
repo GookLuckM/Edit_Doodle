@@ -45,6 +45,7 @@ import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     public static final String TAG = "DoodleView";
     public final static float MAX_SCALE = 5f; // 最大缩放倍数
     public final static float MIN_SCALE = 0.25f; // 最小缩放倍数
-    public final static int DEFAULT_SIZE = 6; // 默认画笔大小
+    public final static int DEFAULT_SIZE = 7; // 默认画笔大小
 
     public static final int ERROR_INIT = -1;
     public static final int ERROR_SAVE = -2;
@@ -263,7 +264,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
-    public void setIsRest(boolean isRest){
+    public void setIsRest(boolean isRest) {
         mIsRest = isRest;
     }
 
@@ -421,11 +422,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         super.dispatchDraw(canvas);
         canvas.restoreToCount(count);
 
-        /*// test
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setColor(Color.BLUE);
-        mPaint.setStrokeWidth(20);
-        canvas.drawRect(getDoodleBound(), mPaint);*/
 
         if (mIsScrollingDoodle
                 && mEnableZoomer && mZoomerScale > 0) { //启用放大镜
@@ -852,11 +848,33 @@ public class DoodleView extends FrameLayout implements IDoodle {
     @Override
     public boolean undo(int step) {
         if (mItemStack.size() > 0) {
-            step = Math.min(mItemStack.size(), step);
-            List<IDoodleItem> list = new ArrayList<IDoodleItem>(mItemStack.subList(mItemStack.size() - step, mItemStack.size()));
+            List<IDoodleItem> list = new ArrayList<>(mItemStack);
+            for (int i = list.size() - 1; i >= 0 ; i--) {
+                IDoodleItem item = list.get(i);
+                if (getPen() != null && item.getPen() != null && getPen() instanceof DoodlePen && item.getPen() instanceof DoodlePen && ((DoodlePen) getPen()).name().equals(((DoodlePen) item.getPen()).name())) {
+                    removeItem(item);
+                    mRedoItemStack.add(0, item);
+                    break;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+    public boolean cleanCurrentMode() {
+        if (mItemStack.size() > 0) {
+           // step = Math.min(mItemStack.size(), step);
+            List<IDoodleItem> list = new ArrayList<IDoodleItem>(mItemStack);
             for (IDoodleItem item : list) {
-                removeItem(item);
-                mRedoItemStack.add(0, item);
+                IDoodlePen current = item.getPen();
+                if (getPen() instanceof DoodlePen && current instanceof DoodlePen) {
+                    if (((DoodlePen) current).name().equals(((DoodlePen) getPen()).name())) {
+                        removeItem(item);
+                        mRedoItemStack.add(0, item);
+                    }
+                }
             }
             return true;
         }
@@ -864,13 +882,19 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
     @Override
-    public boolean redo(int step) {
+    public boolean redo() {
         if (mRedoItemStack.isEmpty()) {
             return false;
         }
+        Iterator<IDoodleItem> iterator = mRedoItemStack.iterator();
+        while (iterator.hasNext()) {
+            IDoodleItem item = iterator.next();
+            if (getPen() != null && item.getPen() != null && getPen() instanceof DoodlePen && item.getPen() instanceof DoodlePen && ((DoodlePen) getPen()).name().equals(((DoodlePen) item.getPen()).name())) {
+                iterator.remove();
+                addItemInner(item);
+                break;
 
-        for (int i = 0; i < step && !mRedoItemStack.isEmpty(); i++) {
-            addItemInner(mRedoItemStack.remove(0));
+            }
         }
         return true;
     }
@@ -916,7 +940,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
     @Override
-    public boolean getIsDrawTextBg(){
+    public boolean getIsDrawTextBg() {
         return isDrawTextBg;
     }
 

@@ -15,7 +15,7 @@ public class ScrawlEditFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View inflate = LayoutInflater.from(container.getContext()).inflate(R.layout.frag_edit_scrawl, container, false);
-        return super.onCreateView(inflater, container, savedInstanceState);
+        View view = LayoutInflater.from(container.getContext()).inflate(R.layout.frag_edit_scrawl, container, false);
+        return view;
     }
 }

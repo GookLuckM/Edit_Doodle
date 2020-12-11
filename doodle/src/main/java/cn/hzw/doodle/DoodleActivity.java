@@ -730,7 +730,7 @@ public class DoodleActivity extends Activity {
                 mTouchGestureListener.getSelectedItem().setColor(mDoodle.getColor().copy());
             }
         } else if (v.getId() == R.id.btn_redo) {
-            if (!mDoodle.redo(1)) {
+            if (!mDoodle.redo()) {
                 mRedoBtn.setVisibility(View.GONE);
             }
         }

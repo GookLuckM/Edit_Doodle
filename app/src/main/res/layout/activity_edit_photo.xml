@@ -10,7 +10,7 @@
         android:id="@+id/doodle_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/edit_frag"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -77,14 +77,31 @@
 
     </LinearLayout>
 
-    <FrameLayout
+    <ViewStub
+        android:layout="@layout/frag_edit_scrawl"
         android:id="@+id/edit_frag"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/doodle_container" />
+        android:layout_marginTop="@dimen/dp_9"
+        android:background="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@+id/doodle_container"
+        />
+
+    <ViewStub
+        android:layout="@layout/layout_scrawl_shape"
+        android:id="@+id/scrawl_shape_edit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="@dimen/dp_9"
+        android:background="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@+id/doodle_container"
+        />
+
+
 
 
 </android.support.constraint.ConstraintLayout>

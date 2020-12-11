@@ -305,10 +305,10 @@ public interface IDoodle {
     /**
      * 指定重做的步数
      *
-     * @param step
+     *
      * @return
      */
-    public boolean redo(int step);
+    public boolean redo();
 
     /**
      * 获取当前显示的图片(无涂鸦)
@@ -328,5 +328,8 @@ public interface IDoodle {
      * 刷新
      */
     public void refresh();
+
+
+    public boolean cleanCurrentMode();
 
 }

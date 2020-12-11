@@ -9,4 +9,14 @@
         <item>#11AEFF</item>
         <item>#6467F0</item>
     </string-array>
+
+    <string-array name="color_names">
+        <item>浅灰</item>
+        <item>黑色</item>
+        <item>红色</item>
+        <item>黄色</item>
+        <item>绿色</item>
+        <item>蓝色</item>
+        <item>紫色</item>
+    </string-array>
 </resources>

@@ -27,4 +27,8 @@ public interface IDoodlePen {
      */
     public void drawHelpers(Canvas canvas, IDoodle doodle);
 
+
+
+
+
 }

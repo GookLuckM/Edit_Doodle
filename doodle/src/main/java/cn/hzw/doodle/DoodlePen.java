@@ -14,6 +14,7 @@ import cn.hzw.doodle.core.IDoodlePen;
  */
 public enum DoodlePen implements IDoodlePen {
 
+    NONE,
     BRUSH, // 画笔
     COPY, // 仿制
     ERASER, // 橡皮擦
