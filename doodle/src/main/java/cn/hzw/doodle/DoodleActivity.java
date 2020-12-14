@@ -254,10 +254,10 @@ public class DoodleActivity extends Activity {
                 mDoodle.setPen(DoodlePen.BRUSH);
                 mDoodle.setShape(DoodleShape.HAND_WRITE);
                 mDoodle.setColor(new DoodleColor(mDoodleParams.mPaintColor));
-                if (mDoodleParams.mZoomerScale <= 0) {
+                /*if (mDoodleParams.mZoomerScale <= 0) {
                     findViewById(R.id.btn_zoomer).setVisibility(View.GONE);
                 }
-                mDoodle.setZoomerScale(mDoodleParams.mZoomerScale);
+                mDoodle.setZoomerScale(mDoodleParams.mZoomerScale);*/
                 mTouchGestureListener.setSupportScaleItem(mDoodleParams.mSupportScaleItem);
 
                 // 每个画笔的初始值
@@ -581,7 +581,7 @@ public class DoodleActivity extends Activity {
         } else if (v.getId() == R.id.btn_undo) {
             mDoodle.undo();
         } else if (v.getId() == R.id.btn_zoomer) {
-            mDoodleView.enableZoomer(!mDoodleView.isEnableZoomer());
+            //mDoodleView.enableZoomer(!mDoodleView.isEnableZoomer());
         } else if (v.getId() == R.id.btn_set_color_container) {
             DoodleColor color = null;
             if (mDoodle.getColor() instanceof DoodleColor) {
@@ -940,14 +940,14 @@ public class DoodleActivity extends Activity {
             }
         }
 
-        @Override
+       /* @Override
         public void enableZoomer(boolean enable) {
             super.enableZoomer(enable);
             DoodleActivity.this.findViewById(R.id.btn_zoomer).setSelected(enable);
             if (enable) {
                 Toast.makeText(DoodleActivity.this, "x" + mDoodleParams.mZoomerScale, Toast.LENGTH_SHORT).show();
             }
-        }
+        }*/
 
         @Override
         public boolean undo() {

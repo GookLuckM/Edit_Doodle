@@ -115,14 +115,14 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private IDoodleShape mShape;
 
     private float mTouchX, mTouchY;
-    private boolean mEnableZoomer = false; // 放大镜功能
+   /* private boolean mEnableZoomer = false; // 放大镜功能
     private boolean mEnableOverview = true; // 全图预览功能，建立在放大镜功能开启的前提下
     private float mLastZoomerY;
     private float mZoomerRadius;
     private Path mZoomerPath;
     private float mZoomerScale = 0; // 放大镜的倍数
     private Paint mZooomerPaint, mZoomerTouchPaint;
-    private int mZoomerHorizonX; // 放大器的位置的x坐标，使其水平居中
+    private int mZoomerHorizonX; // 放大器的位置的x坐标，使其水平居中*/
     private boolean mIsScrollingDoodle = false; // 是否正在滑动，只要用于标志触摸时才显示放大镜
 
     private float mDoodleSizeUnit = 1; // 长度单位，不同大小的图片的长度单位不一样。该单位的意义同dp的作用类似，独立于图片之外的单位长度
@@ -139,7 +139,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private boolean mIsEditMode = false; //是否是编辑模式，可移动缩放涂鸦
     private boolean mIsSaving = false;
 
-    private boolean mIsRest = true;
+    private boolean mIsReset = true;
 
     /**
      * Whether or not to optimize drawing, it is suggested to open, which can optimize the drawing speed and performance.
@@ -204,7 +204,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mPen = DoodlePen.BRUSH;
         mShape = DoodleShape.HAND_WRITE;
 
-        mZooomerPaint = new Paint();
+        /*mZooomerPaint = new Paint();
         mZooomerPaint.setColor(0xaaffffff);
         mZooomerPaint.setStyle(Paint.Style.STROKE);
         mZooomerPaint.setAntiAlias(true);
@@ -216,7 +216,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mZoomerTouchPaint.setStyle(Paint.Style.STROKE);
         mZoomerTouchPaint.setAntiAlias(true);
         mZoomerTouchPaint.setStrokeJoin(Paint.Join.ROUND);
-        mZoomerTouchPaint.setStrokeCap(Paint.Cap.ROUND);// 圆滑
+        mZoomerTouchPaint.setStrokeCap(Paint.Cap.ROUND);// 圆滑*/
 
         mDefaultTouchDetector = defaultDetector;
 
@@ -264,8 +264,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
-    public void setIsRest(boolean isRest) {
-        mIsRest = isRest;
+    public void setIsReset(boolean isReset) {
+        mIsReset = isReset;
     }
 
     @Override
@@ -292,10 +292,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mCentreTranX = (getWidth() - mCenterWidth) / 2f;
         mCentreTranY = (getHeight() - mCenterHeight) / 2f;
 
-        mZoomerRadius = Math.min(getWidth(), getHeight()) / 4;
+        /*mZoomerRadius = Math.min(getWidth(), getHeight()) / 4;
         mZoomerPath = new Path();
         mZoomerPath.addCircle(mZoomerRadius, mZoomerRadius, mZoomerRadius, Path.Direction.CCW);
-        mZoomerHorizonX = (int) (Math.min(getWidth(), getHeight()) / 2 - mZoomerRadius);
+        mZoomerHorizonX = (int) (Math.min(getWidth(), getHeight()) / 2 - mZoomerRadius);*/
 
         mDoodleSizeUnit = Util.dp2px(getContext(), 1) / mCenterScale;
 
@@ -305,7 +305,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         // 居中适应屏幕
         mTransX = mTransY = 0;
         mScale = 1;
-        if (mIsRest) {
+        if (mIsReset) {
             initDoodleBitmap();
         }
 
@@ -423,7 +423,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         canvas.restoreToCount(count);
 
 
-        if (mIsScrollingDoodle
+        /*if (mIsScrollingDoodle
                 && mEnableZoomer && mZoomerScale > 0) { //启用放大镜
             canvas.save(); // ***
 
@@ -494,7 +494,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
             mZoomerTouchPaint.setColor(0xaaffffff);
             drawRect(canvas, strokeWidth, strokeWidth, getWidth() - strokeWidth, getHeight() - strokeWidth, mZoomerTouchPaint);
             canvas.restore();
-        }
+        }*/
 
     }
 
@@ -649,7 +649,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private void refreshWithBackground() {
         addFlag(FLAG_REFRESH_BACKGROUND);
 
-        mIsRest = true;
+        mIsReset = true;
         refresh();
     }
 
@@ -1105,7 +1105,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
      *
      * @param scale
      */
-    @Override
+   /* @Override
     public void setZoomerScale(float scale) {
         mZoomerScale = scale;
         refresh();
@@ -1116,39 +1116,39 @@ public class DoodleView extends FrameLayout implements IDoodle {
         return mZoomerScale;
     }
 
-    /**
+    *//**
      * 设置是否开启放大镜
      *
      * @param enable
-     */
+     *//*
     public void enableZoomer(boolean enable) {
         mEnableZoomer = enable;
     }
 
-    /**
+    *//**
      * 是否开启放大镜
-     */
+     *//*
     public boolean isEnableZoomer() {
         return mEnableZoomer;
-    }
+    }*/
 
     /**
      * 设置是否开启全图预览功能，开启后可以在放大镜功能下显示全图涂鸦
      *
      * @param enableOverview
-     */
+     *//*
     public void enableOverview(boolean enableOverview) {
         mEnableOverview = enableOverview;
     }
 
-    /**
+    *//**
      * 是否开启全图预览功能
      *
      * @return
-     */
+     *//*
     public boolean isEnableOverview() {
         return mEnableOverview;
-    }
+    }*/
 
     /**
      * 是否正在滚动涂鸦，只要用于标志触摸时才显示放大镜

@@ -1,5 +1,7 @@
 package cn.hzw.doodledemo;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -7,14 +9,13 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.os.Environment;
 import android.os.PersistableBundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,7 +32,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +59,7 @@ import cn.hzw.doodle.core.IDoodleSelectableItem;
 import cn.hzw.doodle.core.IDoodleShape;
 import cn.hzw.doodle.core.IDoodleTouchDetector;
 
-public class EditPhotoActivity extends AppCompatActivity implements View.OnClickListener , ScrawlColorsAdapter.OnColorClickListener {
+public class EditPhotoActivity extends AppCompatActivity implements View.OnClickListener, ScrawlColorsAdapter.OnColorClickListener ,IEditListener{
 
     private static final int EDIT_TEXT_REQUEST_CODE = 9999;
 
@@ -72,7 +72,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public static final String MODE_CROP = "mode_crop";
     public static final String MODE_MOSAIC = "mode_mosaic";
 
-    private String[] colorArr;
 
     public final static int DEFAULT_MOSAIC_SIZE = 20; // 默认马赛克大小
     public final static int DEFAULT_TEXT_SIZE = 28; // 默认文字大小
@@ -105,13 +104,13 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     private ImageButton btnScrawlWipe;
     private ImageButton btnScrawlShape;
     private ImageButton btnScrawlPaintSize;
-    private String[] colorNames;
-    private List<String> colorList;
-    private List<String> colorNamesList;
+
     private ScrawlColorsAdapter scrawlColorsAdapter;
     private ViewStub shapeStubView;
     private View shapeEditView;
     private List<Integer> shapeIds;
+    private EditScrawlFragment editScrawlFragment;
+    private FragmentTransaction fragmentTransaction;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -158,16 +157,13 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_edit_photo);
-        colorArr = getResources().getStringArray(R.array.color_arr);
-        colorNames = getResources().getStringArray(R.array.color_names);
-        if (colorArr != null && colorArr.length > 1 && colorNames != null && colorNames.length > 1 && colorArr.length == colorNames.length) {
-            colorList = Arrays.asList(colorArr);
-            colorNamesList = Arrays.asList(colorNames);
-        }
+
 
 
         mFrameLayout = (FrameLayout) findViewById(cn.hzw.doodle.R.id.doodle_container);
-
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        // 设置动画
+        fragmentTransaction.setCustomAnimations(R.anim.edit_fragment_in, R.anim.edit_fragment_out);
         /*
         Whether or not to optimize drawing, it is suggested to open, which can optimize the drawing speed and performance.
         Note: When item is selected for editing after opening, it will be drawn at the top level, and not at the corresponding level until editing is completed.
@@ -235,7 +231,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 mDoodle.setPen(DoodlePen.BRUSH);
                 mDoodle.setShape(DoodleShape.HAND_WRITE);
                 mDoodle.setColor(new DoodleColor(mDoodleParams.mPaintColor));
-                mDoodle.setZoomerScale(mDoodleParams.mZoomerScale);
                 mTouchGestureListener.setSupportScaleItem(mDoodleParams.mSupportScaleItem);
 
 
@@ -341,7 +336,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         mDoodleView.setDefaultTouchDetector(detector);
 
         mDoodle.setIsDrawableOutside(mDoodleParams.mIsDrawableOutside);
-        mFrameLayout.addView(mDoodleView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mFrameLayout.addView(mDoodleView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mDoodle.setDoodleMinScale(mDoodleParams.mMinScale);
         mDoodle.setDoodleMaxScale(mDoodleParams.mMaxScale);
 
@@ -354,8 +349,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         ImageView ivText = findViewById(R.id.iv_text);
         ImageView ivMosaic = findViewById(R.id.iv_mosaic);
         ImageView ivCrop = findViewById(R.id.iv_crop);
-        edit_frag = findViewById(R.id.edit_frag);
-        shapeStubView = findViewById(R.id.scrawl_shape_edit);
+       /* edit_frag = findViewById(R.id.edit_frag);
+        shapeStubView = findViewById(R.id.scrawl_shape_edit);*/
         ivScrawl.setOnClickListener(this);
 
 
@@ -389,6 +384,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
     }
 
+
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.tv_done) {
@@ -398,7 +394,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             mDoodle.setPen(DoodlePen.BRUSH);
             mDoodle.setShape(DoodleShape.HAND_WRITE);
             llEdit.setVisibility(View.GONE);
-            if (scrawlEditView == null) {
+            showFragment(MODE_SCRAWL);
+            /*if (scrawlEditView == null) {
                 scrawlEditView = edit_frag.inflate();
                 initScrawlEditView();
             }
@@ -406,11 +403,12 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             scrawlEditView.post(new Runnable() {
                 @Override
                 public void run() {
-                    resetBitmap(true,scrawlEditView.getMeasuredHeight());
-                    scrawlEditView.setTranslationY(-scrawlEditView.getMeasuredHeight());
+                    //resetBitmap(true,scrawlEditView.getMeasuredHeight());
+                    //scrawlEditView.setTranslationY(-scrawlEditView.getMeasuredHeight());
                     editViewAnimIn(scrawlEditView);
                 }
-            });
+            });*/
+
 
 
 
@@ -461,6 +459,68 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         mDoodle.setColor(new DoodleColor(Color.parseColor(color)));
     }
 
+    @Override
+    public void setColor(int color) {
+
+    }
+
+    @Override
+    public void setSize(int size) {
+
+    }
+
+    @Override
+    public void setShape(DoodleShape doodleShape) {
+
+    }
+
+    @Override
+    public void onClose() {
+        switch (CURRENT_MODE){
+            case MODE_SCRAWL:
+                hideFragment(MODE_SCRAWL);
+                break;
+        }
+    }
+
+
+    public void showFragment(String showTag) {
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        for (Fragment fragment1 : fragments){
+            fragmentTransaction.hide(fragment1);
+        }
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(showTag);
+        if (fragment == null) {
+            switch (showTag){
+                case MODE_SCRAWL:
+                    // 没有找到表示没有被创建过
+                    fragment = new ScrawlEditFragment();
+                    break;
+            }
+            // 直接add
+            fragmentTransaction.add(R.id.frag_view, fragment, showTag);
+        } else {
+            // 找到了，表示已经被add了，所以直接show
+            fragmentTransaction.show(fragment);
+        }
+
+        fragmentTransaction.commit();
+    }
+
+
+    public void hideFragment(String hideTag) {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(hideTag);
+        if (fragment != null) {
+            fragmentTransaction.hide(fragment);
+            fragmentTransaction.commit();
+        }
+    }
+
+    @Override
+    public void onDown() {
+
+    }
+
 
     /**
      * 包裹DoodleView，监听相应的设置接口，以改变UI状态
@@ -509,7 +569,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 return;
             }*/
             if (pen == DoodlePen.BRUSH) {
-                mDoodle.setSize( getResources().getDimensionPixelSize(R.dimen.dp_7));
+                mDoodle.setSize(getResources().getDimensionPixelSize(R.dimen.dp_7));
                 mDoodle.setColor(new DoodleColor(selectedColor));
             } else if (pen == DoodlePen.MOSAIC) {
                 mDoodle.setSize(DEFAULT_MOSAIC_SIZE * mDoodle.getUnitSize());
@@ -561,11 +621,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
         }
 
-        @Override
-        public void enableZoomer(boolean enable) {
-            super.enableZoomer(enable);
-
-        }
 
         @Override
         public boolean undo() {
@@ -663,25 +718,25 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == EDIT_TEXT_REQUEST_CODE && resultCode == RESULT_OK) {
             if (data != null) {
-                String text = data.getStringExtra(AddTextActivity.RESULT_TEXT);
+                /*String text = data.getStringExtra(AddTextActivity.RESULT_TEXT);
                 textSelectedColor = data.getIntExtra(AddTextActivity.RESULT_COLOR, Color.parseColor(colorArr[0]));
                 boolean isShowTextBg = data.getBooleanExtra(AddTextActivity.RESULT_IS_DRAW_TEXT_BG, false);
                 Rect resultTextRect = data.getParcelableExtra(AddTextActivity.RESULT_RECT);
                 mDoodle.setColor(new DoodleColor(textSelectedColor));
                 mDoodle.setTextRect(resultTextRect);
                 mDoodle.setIsDrawTextBg(isShowTextBg);
-                createDoodleText(null, -1, -1, text, isShowTextBg);
+                createDoodleText(null, -1, -1, text, isShowTextBg);*/
             }
         }
     }
 
 
     public void resetBitmap(boolean isScale, int height) {
-        mDoodleView.setIsRest(false);
+        mDoodleView.setIsReset(false);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mDoodleView.getLayoutParams();
         int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        int switchScreenHeight = screenHeight - height - getResources().getDimensionPixelOffset(R.dimen.dp_9);
         if (isScale) {
-            int switchScreenHeight = screenHeight - height - getResources().getDimensionPixelOffset(R.dimen.dp_9);
             layoutParams.height = switchScreenHeight;
         } else {
             layoutParams.height = screenHeight;
@@ -690,17 +745,82 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     }
 
 
-    public void editViewAnimIn(View view){
-        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0,-view.getMeasuredHeight()).setDuration(1000);
-        translateAnimator.start();
+    public void editViewAnimIn(final View view) {
+        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0, -view.getMeasuredHeight()).setDuration(1000);
+        int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        int switchScreenHeight = screenHeight - view.getMeasuredHeight() - getResources().getDimensionPixelOffset(R.dimen.dp_9);
+        float scale = switchScreenHeight * 1f / screenHeight * 1f;
+        ObjectAnimator scaleXAnimator = ObjectAnimator.ofFloat(mDoodleView, "scaleX", 1, scale).setDuration(1000);
+        ObjectAnimator scaleYAnimator = ObjectAnimator.ofFloat(mDoodleView, "scaleY", 1, scale).setDuration(1000);
+        AnimatorSet animatorSet = new AnimatorSet();
+        ObjectAnimator doodleTranslateAnimator = ObjectAnimator.ofFloat(mDoodleView, "translationY", 0, -view.getMeasuredHeight()).setDuration(1000);
+        animatorSet.playTogether(translateAnimator);
+        //animatorSet.playTogether(translateAnimator, scaleXAnimator,scaleYAnimator,doodleTranslateAnimator);
+        animatorSet.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                resetBitmap(true, view.getMeasuredHeight());
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animatorSet.start();
+
+
     }
 
-    public void editViewAnimOut(View view){
-        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY",-view.getMeasuredHeight(), 0).setDuration(1000);
-        translateAnimator.start();
+    public void editViewAnimOut(View view) {
+        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", -view.getMeasuredHeight() , 0).setDuration(1000);
+
+
+        int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        int switchScreenHeight = screenHeight - view.getMeasuredHeight() - getResources().getDimensionPixelOffset(R.dimen.dp_9);
+        float scale = switchScreenHeight * 1f / screenHeight * 1f;
+        ObjectAnimator scaleXAnimator = ObjectAnimator.ofFloat(mDoodleView, "scaleX", scale, 1).setDuration(1000);
+        ObjectAnimator scaleYAnimator = ObjectAnimator.ofFloat(mDoodleView, "scaleY", scale, 1).setDuration(1000);
+        AnimatorSet animatorSet = new AnimatorSet();
+        ObjectAnimator doodleTranslateAnimator = ObjectAnimator.ofFloat(mDoodleView, "translationY", -view.getMeasuredHeight(), 0).setDuration(1000);
+        animatorSet.playTogether(translateAnimator);
+        //animatorSet.playTogether(translateAnimator, scaleXAnimator,scaleYAnimator,doodleTranslateAnimator);
+        animatorSet.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                resetBitmap(false, 0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animatorSet.start();
+
     }
 
-    private void initScrawlEditView(){
+    /*private void initScrawlEditView(){
         if (scrawlEditView != null){
             btnScrawlWipe = findViewById(R.id.btn_wipe);
             btnScrawlShape = findViewById(R.id.btn_shape);
@@ -758,17 +878,17 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 @Override
                 public void onClick(View v) {
 
-                }
-            });
-            ivScrawlClose.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mDoodle.cleanCurrentMode();
-                    editViewAnimOut(scrawlEditView);
-                    resetBitmap(false,0);
-                    llEdit.setVisibility(View.VISIBLE);
-                }
-            });
+            }
+        });
+        ivScrawlClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDoodle.cleanCurrentMode();
+                editViewAnimOut(scrawlEditView);
+                //resetBitmap(false,scrawlEditView.getMeasuredHeight());
+                llEdit.setVisibility(View.VISIBLE);
+            }
+        });
 
             ivScrawlDone.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -777,7 +897,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 }
             });
         }
-    }
+    }*/
 
 
     private void initScrawlShapeView(){
@@ -833,7 +953,52 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     }
 
 
-    private void signleShapeSelected(int selectedId){
+    /*private void refreshEditBackOrNextStatus() {
+        if (mDoodle != null && editBackOrNextView != null) {
+            List<IDoodleItem> allItem = mDoodle.getAllItem();
+            List<IDoodleItem> allRedoItem = mDoodle.getAllRedoItem();
+            boolean isShowBack = false;
+            boolean isShowNext = false;
+            for (IDoodleItem item : allItem) {
+                if (item.getPen().equals(mDoodle.getPen())) {
+                    isShowBack = true;
+                }
+            }
+
+            for (IDoodleItem item : allRedoItem) {
+                if (item.getPen().equals(mDoodle.getPen())) {
+                    isShowNext = true;
+                }
+            }
+
+            if (isShowBack || isShowNext) {
+                llBackOrNext.setVisibility(View.VISIBLE);
+                tvCrrentMode.setVisibility(View.GONE);
+                if (isShowBack) {
+                    ivBack.setClickable(true);
+                    ivBack.setImageResource(R.drawable.icon_pre_black);
+                } else {
+                    ivBack.setClickable(false);
+                    ivBack.setImageResource(R.drawable.icon_pre_disable_black);
+                }
+
+                if (isShowNext) {
+                    ivNext.setClickable(true);
+                    ivNext.setImageResource(R.drawable.icon_next_black);
+                } else {
+                    ivNext.setClickable(false);
+                    ivNext.setImageResource(R.drawable.icon_next_disable_black);
+                }
+            } else {
+                llBackOrNext.setVisibility(View.GONE);
+                tvCrrentMode.setVisibility(View.VISIBLE);
+
+            }
+        }
+    }*/
+
+
+    private void signleShapeSelected(int selectedId) {
         if (shapeEditView != null && shapeIds != null) {
             for (Integer id : shapeIds) {
                 if (id == selectedId) {

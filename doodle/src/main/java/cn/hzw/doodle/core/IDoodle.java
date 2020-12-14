@@ -228,15 +228,15 @@ public interface IDoodle {
      * 设置放大镜倍数
      *
      * @param scale
-     */
+     *//*
     public void setZoomerScale(float scale);
 
-    /**
+    *//**
      * 获取放大镜倍数
      *
      * @return
-     */
-    public float getZoomerScale();
+     *//*
+    public float getZoomerScale();*/
 
 
     /**
