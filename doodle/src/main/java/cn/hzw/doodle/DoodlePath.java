@@ -6,6 +6,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -16,6 +18,7 @@ import java.util.WeakHashMap;
 
 import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.core.IDoodleColor;
+import cn.hzw.doodle.core.IDoodlePen;
 import cn.hzw.doodle.util.DrawUtil;
 
 /**
@@ -92,35 +95,44 @@ public class DoodlePath extends DoodleRotatableItemBase {
     }
 
     public static DoodlePath toShape(IDoodle doodle, float sx, float sy, float dx, float dy) {
-        DoodlePath path = new DoodlePath(doodle);
-        path.setPen(doodle.getPen().copy());
-        path.setShape(doodle.getShape().copy());
-        path.setSize(doodle.getSize());
-        path.setColor(doodle.getColor().copy());
+        IDoodlePen pen = doodle.getPen();
+        if (pen != null) {
+            DoodlePath path = new DoodlePath(doodle);
+            path.setPen(doodle.getPen().copy());
+            path.setShape(doodle.getShape().copy());
+            path.setSize(doodle.getSize());
+            path.setColor(doodle.getColor().copy());
 
-        path.updateXY(sx, sy, dx, dy);
-        if (path.getPen() == DoodlePen.COPY) {
-            if (doodle instanceof DoodleView) {
-                path.mCopyLocation = DoodlePen.COPY.getCopyLocation().copy();
+            path.updateXY(sx, sy, dx, dy);
+            if (path.getPen() == DoodlePen.COPY) {
+                if (doodle instanceof DoodleView) {
+                    path.mCopyLocation = DoodlePen.COPY.getCopyLocation().copy();
+                }
             }
+            return path;
         }
-        return path;
+
+        return null;
+
     }
 
     public static DoodlePath toPath(IDoodle doodle, Path p) {
-        DoodlePath path = new DoodlePath(doodle);
-        path.setPen(doodle.getPen().copy());
-        path.setShape(doodle.getShape().copy());
-        path.setSize(doodle.getSize());
-        path.setColor(doodle.getColor().copy());
+        if (doodle.getPen() != null) {
+            DoodlePath path = new DoodlePath(doodle);
+            path.setPen(doodle.getPen().copy());
+            path.setShape(doodle.getShape().copy());
+            path.setSize(doodle.getSize());
+            path.setColor(doodle.getColor().copy());
 
-        path.updatePath(p);
-        if (doodle instanceof DoodleView) {
-            path.mCopyLocation = DoodlePen.COPY.getCopyLocation().copy();
-        } else {
-            path.mCopyLocation = null;
+            path.updatePath(p);
+            if (doodle instanceof DoodleView) {
+                path.mCopyLocation = DoodlePen.COPY.getCopyLocation().copy();
+            } else {
+                path.mCopyLocation = null;
+            }
+            return path;
         }
-        return path;
+        return null;
     }
 
     @Override
@@ -245,17 +257,17 @@ public class DoodlePath extends DoodleRotatableItemBase {
             map = new HashMap<>();
             sMosaicBitmapMap.put(doodle, map);
         }
-        Matrix matrix = new Matrix();
-        matrix.setScale(1f / level, 1f / level);
-        Bitmap mosaicBitmap = map.get(level);
-        if (mosaicBitmap == null) {
-            mosaicBitmap = Bitmap.createBitmap(doodle.getBitmap(),
-                    0, 0, doodle.getBitmap().getWidth(), doodle.getBitmap().getHeight(), matrix, true);
+
+        int w = doodle.getBitmap().getWidth() / level;
+        int h = doodle.getBitmap().getHeight()  / level;
+
+
+        Bitmap mosaicBitmap = Bitmap.createScaledBitmap(doodle.getBitmap(), w, h, false);
+        if (mosaicBitmap != null){
             map.put(level, mosaicBitmap);
         }
-        matrix.reset();
-        matrix.setScale(level, level);
-        DoodleColor doodleColor = new DoodleColor(mosaicBitmap, matrix, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+
+        DoodleColor doodleColor = new DoodleColor(mosaicBitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
         doodleColor.setLevel(level);
         return doodleColor;
     }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrawl_shape"
     android:layout_width="match_parent"
     android:layout_height="@dimen/dp_125"
     android:background="@android:color/white"
@@ -111,4 +112,4 @@
         android:layout_marginBottom="@dimen/dp_7"
         android:padding="@dimen/dp_10"/>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

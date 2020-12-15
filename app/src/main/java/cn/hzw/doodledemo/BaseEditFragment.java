@@ -1,19 +1,14 @@
 package cn.hzw.doodledemo;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,21 +27,14 @@ public abstract class BaseEditFragment extends Fragment {
     private IDoodle doodle;
     protected IEditListener mEditListener;
 
-    @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (enter) {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.edit_fragment_in);
-        } else {
-            return AnimationUtils.loadAnimation(getActivity(), R.anim.edit_fragment_out);
-        }
-    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = LayoutInflater.from(getContext()).inflate(R.layout.frag_base_edit,container,false);
+        rootView = inflater.inflate(R.layout.frag_base_edit,container,false);
         contentLayout = rootView.findViewById(R.id.content_view);
-        LayoutInflater.from(getContext()).inflate(getContentLayout(), contentLayout, false);
+        View inflate = LayoutInflater.from(getContext()).inflate(getContentLayout(), null, false);
+        contentLayout.addView(inflate);
         initBaseEditView();
         init();
         initView();
@@ -69,10 +57,6 @@ public abstract class BaseEditFragment extends Fragment {
                 if (mEditListener != null) {
                     mEditListener.onClose();
                 }
-                /*mDoodle.cleanCurrentMode();
-                editViewAnimOut(scrawlEditView);
-                //resetBitmap(false,scrawlEditView.getMeasuredHeight());
-                llEdit.setVisibility(View.VISIBLE);*/
             }
         });
 
@@ -80,6 +64,24 @@ public abstract class BaseEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+            }
+        });
+
+        ivPre.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mEditListener != null){
+                    mEditListener.onPre();
+                }
+            }
+        });
+
+        ivNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mEditListener != null){
+                    mEditListener.onNext();
+                }
             }
         });
     }
@@ -98,7 +100,7 @@ public abstract class BaseEditFragment extends Fragment {
         if (isShow){
             llPreOrNext.setVisibility(View.VISIBLE);
             tvCurrentControl.setVisibility(View.GONE);
-            if (isHaveNext){
+            if (isHavePre){
                 ivPre.setImageResource(R.drawable.icon_pre_black);
             }else {
                 ivPre.setImageResource(R.drawable.icon_pre_disable_black);
@@ -118,12 +120,13 @@ public abstract class BaseEditFragment extends Fragment {
     }
 
     public void editViewAnimIn(final View view) {
-        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0, -view.getMeasuredHeight()).setDuration(1000);
+        view.setVisibility(View.VISIBLE);
+        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", view.getMeasuredHeight(),0).setDuration(500);
         translateAnimator.start();
     }
 
     public void editViewAnimOut(final View view) {
-        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", -view.getMeasuredHeight(),0).setDuration(1000);
+        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0,view.getMeasuredHeight()).setDuration(500);
         translateAnimator.start();
     }
 

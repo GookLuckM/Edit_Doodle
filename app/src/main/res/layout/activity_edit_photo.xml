@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -19,9 +19,9 @@
         android:id="@+id/ll_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
         android:layout_marginBottom="@dimen/dp_27"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
@@ -31,32 +31,28 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/dp_21"
             android:layout_weight="1"
-            android:src="@drawable/scrawl_unselected"
-            />
+            android:src="@drawable/scrawl_unselected" />
 
         <ImageView
             android:id="@+id/iv_text"
             android:layout_width="0dp"
             android:layout_height="@dimen/dp_21"
             android:layout_weight="1"
-            android:src="@drawable/text_unselected"
-            />
+            android:src="@drawable/text_unselected" />
 
         <ImageView
             android:id="@+id/iv_mosaic"
             android:layout_width="0dp"
             android:layout_height="@dimen/dp_21"
             android:layout_weight="1"
-            android:src="@drawable/mosaic_unselected"
-             />
+            android:src="@drawable/mosaic_unselected" />
 
         <ImageView
             android:id="@+id/iv_crop"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="@dimen/dp_21"
-            android:src="@drawable/crop_unselected"
-            />
+            android:layout_weight="1"
+            android:src="@drawable/crop_unselected" />
 
 
         <TextView
@@ -72,46 +68,18 @@
             android:paddingBottom="@dimen/dp_4"
             android:text="完成"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/sp_12"
-            />
+            android:textSize="@dimen/sp_12" />
 
     </LinearLayout>
 
-    <!--<ViewStub
-        android:layout="@layout/frag_edit_scrawl"
-        android:id="@+id/edit_frag"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="@dimen/dp_9"
-        android:background="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@+id/doodle_container"
-        />
-
-    <ViewStub
-        android:layout="@layout/layout_scrawl_shape"
-        android:id="@+id/scrawl_shape_edit"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="@dimen/dp_9"
-        android:background="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@+id/doodle_container"
-        />-->
 
     <FrameLayout
         android:id="@+id/frag_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_9"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="@dimen/dp_9"
-        android:background="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@+id/doodle_container"/>
+        app:layout_constraintTop_toBottomOf="@+id/doodle_container" />
 
-
-
-
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

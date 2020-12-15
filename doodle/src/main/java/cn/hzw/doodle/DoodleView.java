@@ -199,10 +199,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mOptimizeDrawing = optimizeDrawing;
 
         mScale = 1f;
-        mColor = new DoodleColor(Color.RED);
+       /* mColor = new DoodleColor(Color.RED);
 
         mPen = DoodlePen.BRUSH;
-        mShape = DoodleShape.HAND_WRITE;
+        mShape = DoodleShape.HAND_WRITE;*/
 
         /*mZooomerPaint = new Paint();
         mZooomerPaint.setColor(0xaaffffff);

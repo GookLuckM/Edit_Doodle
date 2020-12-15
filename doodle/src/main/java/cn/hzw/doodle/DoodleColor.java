@@ -43,6 +43,13 @@ public class DoodleColor implements IDoodleColor {
         this(bitmap, matrix, Shader.TileMode.MIRROR, Shader.TileMode.MIRROR);
     }
 
+    public DoodleColor(Bitmap bitmap, Shader.TileMode tileX, Shader.TileMode tileY) {
+        mType = Type.BITMAP;
+        mBitmap = bitmap;
+        mTileX = tileX;
+        mTileY = tileY;
+    }
+
     public DoodleColor(Bitmap bitmap, Matrix matrix, Shader.TileMode tileX, Shader.TileMode tileY) {
         mType = Type.BITMAP;
         mMatrix = matrix;

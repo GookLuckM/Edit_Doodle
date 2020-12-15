@@ -31,9 +31,10 @@ public class DoodleText extends DoodleRotatableItemBase {
     private String mText;
     private boolean isShowTextBg;
     private Rect textRect;
+    private StaticLayout layout;
 
 
-    public DoodleText(IDoodle doodle, String text, float size, IDoodleColor color, float x, float y,boolean isShowTextBg) {
+    public DoodleText(IDoodle doodle, String text, float size, IDoodleColor color, float x, float y, boolean isShowTextBg) {
         super(doodle, -doodle.getDoodleRotation(), x, y);
         this.isShowTextBg = isShowTextBg;
         textRect = doodle.getTextRect();
@@ -65,12 +66,25 @@ public class DoodleText extends DoodleRotatableItemBase {
         }
         mPaint.setTextSize(getSize());
         mPaint.setStyle(Paint.Style.FILL);
-        if (textRect != null){
+        /*if (textRect != null) {
             rect.set(textRect);
-        }else {
+        } else {
             mPaint.getTextBounds(mText, 0, mText.length(), rect);
             rect.offset(0, rect.height());
-        }
+        }*/
+
+        int screenWdith = Resources.getSystem().getDisplayMetrics().widthPixels;
+        int padding = (int) (Resources.getSystem().getDisplayMetrics().density * 12);
+        int margin = (int) (Resources.getSystem().getDisplayMetrics().density * 17);
+        int maxWidth = Math.round(screenWdith - (padding * 2) - margin * 2);
+        layout = new StaticLayout(mText, (TextPaint) mPaint, screenWdith, Layout.Alignment.ALIGN_NORMAL, 1.0F, 0.0F, false);
+        /*int width = 0;
+        for (int i = 0; i < layout.getLineCount(); i++) {
+            width = (int) (Math.max(width, layout.getLineWidth(i)) + 0.5f);
+        }*/
+        //rect = new Rect(0,0,width,layout.getHeight());
+        rect.set(0,0,screenWdith,layout.getHeight());
+        rect.offset(0, rect.height());
     }
 
     @Override
@@ -78,18 +92,11 @@ public class DoodleText extends DoodleRotatableItemBase {
         getColor().config(this, mPaint);
         mPaint.setTextSize(getSize());
         mPaint.setStyle(Paint.Style.FILL);
-        StaticLayout layout = null;
-        if (textRect != null) {
-            int screenWdith = Resources.getSystem().getDisplayMetrics().widthPixels;
-            int padding = (int) (Resources.getSystem().getDisplayMetrics().density * 12);
-            int maxWidth = Math.round( screenWdith - ( padding * 2 ));
-            layout = new StaticLayout(mText, (TextPaint) mPaint, maxWidth, Layout.Alignment.ALIGN_NORMAL, 1.0F, 0.0F, false);
-        }
         canvas.save();
         canvas.translate(0, getBounds().height() / getScale());
         if (layout == null) {
             canvas.drawText(mText, 0, 0, mPaint);
-        }else {
+        } else {
             layout.draw(canvas);
         }
         canvas.restore();
@@ -104,12 +111,12 @@ public class DoodleText extends DoodleRotatableItemBase {
         android:paddingBottom="@dimen/dp_4"
         android:paddingLeft="@dimen/dp_12"
         android:paddingRight="@dimen/dp_12"*/
-        int paddingTop = DimenUtils.dpToPx(viewGroup.getContext(),4);
-        int paddingLeft = DimenUtils.dpToPx(viewGroup.getContext(),12);
-        textView.setPadding(paddingLeft,paddingTop,paddingLeft,paddingTop);
+        int paddingTop = DimenUtils.dpToPx(viewGroup.getContext(), 4);
+        int paddingLeft = DimenUtils.dpToPx(viewGroup.getContext(), 12);
+        textView.setPadding(paddingLeft, paddingTop, paddingLeft, paddingTop);
         textView.setLayoutParams(params);
         textView.setText(mText);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX,getSize());
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getSize());
         DoodleColor doodleColor = (DoodleColor) getColor();
         textView.setTextColor(doodleColor.getColor());
         viewGroup.addView(textView);

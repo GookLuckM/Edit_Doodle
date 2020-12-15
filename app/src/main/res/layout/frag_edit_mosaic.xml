@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_125"
+    android:background="@android:color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageButton
+        android:id="@+id/btn_mosaic_wipe"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="@dimen/dp_44"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/btn_mosaic_size"
+        android:padding="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_16"
+        android:background="@android:color/transparent"
+        android:src="@drawable/icon_wipe_selector"/>
+
+    <TextView
+        android:id="@+id/tv_shape_scrawl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/sp_9"
+        app:layout_constraintTop_toBottomOf="@+id/btn_mosaic_wipe"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_mosaic_wipe"
+        app:layout_constraintRight_toRightOf="@id/btn_mosaic_wipe"
+        android:text="擦除"
+        android:textColor="#666666"
+        />
+
+    <ImageButton
+        android:id="@+id/btn_mosaic_size"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="@dimen/dp_44"
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_16"
+        android:background="@android:color/transparent"
+        app:layout_constraintLeft_toRightOf="@+id/btn_mosaic_wipe"
+        app:layout_constraintRight_toLeftOf="@+id/btn_mosaic_thick"
+        android:src="@drawable/icon_stroke_normal_selector"/>
+
+    <TextView
+        android:id="@+id/tv_shape_circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btn_mosaic_size"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_mosaic_size"
+        app:layout_constraintRight_toRightOf="@id/btn_mosaic_size"
+        android:text="大小"
+        android:textColor="#666666"
+        android:textSize="@dimen/sp_9"/>
+
+    <ImageButton
+        android:id="@+id/btn_mosaic_thick"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="@dimen/dp_44"
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_16"
+        android:background="@android:color/transparent"
+        app:layout_constraintLeft_toRightOf="@+id/btn_mosaic_size"
+        app:layout_constraintRight_toLeftOf="@+id/btn_mosaic_thin"
+        android:src="@drawable/icon_mosaic_large_selector"/>
+
+    <TextView
+        android:id="@+id/tv_shape_rectangle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btn_mosaic_thick"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_mosaic_thick"
+        app:layout_constraintRight_toRightOf="@id/btn_mosaic_thick"
+        android:text="粗粒度"
+        android:textColor="#666666"
+        android:textSize="@dimen/sp_9"/>
+
+    <ImageButton
+        android:id="@+id/btn_mosaic_thin"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="@dimen/dp_44"
+        app:layout_constraintTop_toTopOf="parent"
+       app:layout_constraintRight_toRightOf="parent"
+        android:padding="@dimen/dp_10"
+        android:background="@android:color/transparent"
+        android:layout_marginTop="@dimen/dp_16"
+        app:layout_constraintLeft_toRightOf="@+id/btn_mosaic_thick"
+        android:src="@drawable/icon_mosaic_small_selector"/>
+
+    <TextView
+        android:id="@+id/tv_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btn_mosaic_thin"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_mosaic_thin"
+        app:layout_constraintRight_toRightOf="@id/btn_mosaic_thin"
+        android:text="细粒度"
+        android:textColor="#666666"
+        android:textSize="@dimen/sp_9"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

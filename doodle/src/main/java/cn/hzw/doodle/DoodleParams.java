@@ -65,7 +65,7 @@ public class DoodleParams implements Parcelable {
     /**
      * 初始的画笔颜色
      */
-    public int mPaintColor = Color.RED;
+    public int mPaintColor = Color.parseColor("#FA5051");
 
     /**
      * 是否支持缩放item

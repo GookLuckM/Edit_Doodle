@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrawl_pen_size"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_125"
+    android:background="@android:color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageButton
+        android:id="@+id/btn_small"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="@dimen/dp_44"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/btn_mid"
+        android:padding="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_16"
+        android:background="@android:color/transparent"
+        android:src="@drawable/icon_stroke_small_selector"/>
+
+    <TextView
+        android:id="@+id/tv_shape_scrawl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/sp_9"
+        app:layout_constraintTop_toBottomOf="@+id/btn_small"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_small"
+        app:layout_constraintRight_toRightOf="@id/btn_small"
+        android:text="超小"
+        android:textColor="#666666"
+        />
+
+    <ImageButton
+        android:id="@+id/btn_mid"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="@dimen/dp_44"
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_16"
+        android:background="@android:color/transparent"
+        app:layout_constraintLeft_toRightOf="@+id/btn_small"
+        app:layout_constraintRight_toLeftOf="@+id/btn_normal"
+        android:src="@drawable/icon_stroke_small_selector"/>
+
+    <TextView
+        android:id="@+id/tv_shape_circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btn_mid"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_mid"
+        app:layout_constraintRight_toRightOf="@id/btn_mid"
+        android:text="小"
+        android:textColor="#666666"
+        android:textSize="@dimen/sp_9"/>
+
+    <ImageButton
+        android:id="@+id/btn_normal"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="@dimen/dp_44"
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_16"
+        android:background="@android:color/transparent"
+        app:layout_constraintLeft_toRightOf="@+id/btn_mid"
+        app:layout_constraintRight_toLeftOf="@+id/btn_large"
+        android:src="@drawable/icon_stroke_normal_selector"/>
+
+    <TextView
+        android:id="@+id/tv_shape_rectangle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btn_normal"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_normal"
+        app:layout_constraintRight_toRightOf="@id/btn_normal"
+        android:text="标准"
+        android:textColor="#666666"
+        android:textSize="@dimen/sp_9"/>
+
+    <ImageButton
+        android:id="@+id/btn_large"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="@dimen/dp_44"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/btn_larger"
+        android:padding="@dimen/dp_10"
+        android:background="@android:color/transparent"
+        android:layout_marginTop="@dimen/dp_16"
+        app:layout_constraintLeft_toRightOf="@+id/btn_normal"
+        android:src="@drawable/icon_stroke_large_selector"/>
+
+    <TextView
+        android:id="@+id/tv_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btn_large"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_large"
+        app:layout_constraintRight_toRightOf="@id/btn_large"
+        android:text="大"
+        android:textColor="#666666"
+        android:textSize="@dimen/sp_9"/>
+
+    <ImageView
+        android:id="@+id/iv_size_arrow_down"
+        android:layout_width="@dimen/dp_37"
+        android:layout_height="@dimen/dp_30"
+        android:src="@drawable/icon_arrow_down"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_shape_circle"
+        android:layout_marginTop="@dimen/dp_17"
+        android:layout_marginBottom="@dimen/dp_7"
+        android:padding="@dimen/dp_10"/>
+
+    <ImageButton
+        android:id="@+id/btn_larger"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="@dimen/dp_44"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/btn_large"
+        app:layout_constraintRight_toRightOf="parent"
+        android:padding="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_16"
+        android:background="@android:color/transparent"
+        android:src="@drawable/icon_stroke_big_large_selector"/>
+
+    <TextView
+        android:id="@+id/tv_larger"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/sp_9"
+        app:layout_constraintTop_toBottomOf="@+id/btn_larger"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_larger"
+        app:layout_constraintRight_toRightOf="@id/btn_larger"
+        android:text="超大"
+        android:textColor="#666666"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

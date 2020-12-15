@@ -2,11 +2,10 @@ package cn.hzw.doodledemo;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +21,7 @@ public class ScrawlColorsAdapter extends RecyclerView.Adapter<ScrawlColorsAdapte
     List<String> colorList;
     List<String> colorName;
     Context mContext;
-    String selctedColor;
+    String selectedColor = "#FA5051";
     OnColorClickListener mListener;
 
     public ScrawlColorsAdapter(Context context,List<String> colorList, List<String> colorName) {
@@ -59,7 +58,7 @@ public class ScrawlColorsAdapter extends RecyclerView.Adapter<ScrawlColorsAdapte
             itemParams.leftMargin = mContext.getResources().getDimensionPixelOffset(R.dimen.dp_22);
         }
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) holder.tvColorName.getLayoutParams();
-        if (!TextUtils.isEmpty(selctedColor) && selctedColor.equals(color) ){
+        if (!TextUtils.isEmpty(selectedColor) && selectedColor.equals(color) ){
             holder.ivColor.setImageDrawable(layerDrawable);
             layoutParams.topMargin = mContext.getResources().getDimensionPixelOffset(R.dimen.dp_6);
         }else {
@@ -73,13 +72,13 @@ public class ScrawlColorsAdapter extends RecyclerView.Adapter<ScrawlColorsAdapte
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!TextUtils.isEmpty(selctedColor) && selctedColor.equals(color)){
+                if (!TextUtils.isEmpty(selectedColor) && selectedColor.equals(color)){
                     return;
                 }
                 if (mListener != null){
                     mListener.onColorClick(color);
                 }
-                selctedColor = color;
+                selectedColor = color;
                 notifyDataSetChanged();
 
             }

@@ -152,6 +152,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 } else {
                     mDoodle.addItem(mCurrDoodlePath);
                 }
+
             }
         }
         mDoodle.refresh();
@@ -247,39 +248,39 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         mTouchY = e.getY();
 
         //if (mDoodle.isEditMode()) {
-            boolean found = false;
-            IDoodleSelectableItem item;
-            List<IDoodleItem> items = mDoodle.getAllItem();
-            for (int i = items.size() - 1; i >= 0; i--) {
-                IDoodleItem elem = items.get(i);
-                if (!elem.isDoodleEditable()) {
-                    continue;
-                }
+        boolean found = false;
+        IDoodleSelectableItem item;
+        List<IDoodleItem> items = mDoodle.getAllItem();
+        for (int i = items.size() - 1; i >= 0; i--) {
+            IDoodleItem elem = items.get(i);
+            if (!elem.isDoodleEditable()) {
+                continue;
+            }
 
-                if (!(elem instanceof IDoodleSelectableItem)) {
-                    continue;
-                }
+            if (!(elem instanceof IDoodleSelectableItem)) {
+                continue;
+            }
 
-                item = (IDoodleSelectableItem) elem;
+            item = (IDoodleSelectableItem) elem;
 
-                if (item.contains(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)) && item instanceof DoodleText) {
-                    found = true;
-                    setSelectedItem(item);
-                    PointF xy = item.getLocation();
-                    mStartX = xy.x;
-                    mStartY = xy.y;
-                    break;
+            if (item.contains(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)) && item instanceof DoodleText) {
+                found = true;
+                setSelectedItem(item);
+                PointF xy = item.getLocation();
+                mStartX = xy.x;
+                mStartY = xy.y;
+                break;
+            }
+        }
+        if (!found) { // not found
+            if (mSelectedItem != null) { // 取消选定
+                IDoodleSelectableItem old = mSelectedItem;
+                setSelectedItem(null);
+                if (mSelectionListener != null) {
+                    mSelectionListener.onSelectedItem(mDoodle, old, false);
                 }
             }
-            if (!found) { // not found
-                if (mSelectedItem != null) { // 取消选定
-                    IDoodleSelectableItem old = mSelectedItem;
-                    setSelectedItem(null);
-                    if (mSelectionListener != null) {
-                        mSelectionListener.onSelectedItem(mDoodle, old, false);
-                    }
-                }
-            }
+        }
         //}
         /*else if (isPenEditable(mDoodle.getPen())) {
             if (mSelectionListener != null) {
