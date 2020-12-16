@@ -10,6 +10,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Environment;
 import android.os.PersistableBundle;
 import androidx.fragment.app.Fragment;
@@ -28,6 +29,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.callback.OverlayViewChangeListener;
+import com.yalantis.ucrop.view.OverlayView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -103,6 +108,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
     private int selectedColor = Color.parseColor("#FA5051");
     private int mScrawlSize;
+    private OverlayView mUCropFrame;
+
 
 
     @Override
@@ -154,6 +161,9 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
         mFrameLayout = (FrameLayout) findViewById(cn.hzw.doodle.R.id.doodle_container);
         fragmentManager = getSupportFragmentManager();
+
+        initView();
+        initParams();
         /*
         Whether or not to optimize drawing, it is suggested to open, which can optimize the drawing speed and performance.
         Note: When item is selected for editing after opening, it will be drawn at the top level, and not at the corresponding level until editing is completed.
@@ -224,12 +234,24 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 mDoodleView.setEditMode(true);
                 mTouchGestureListener.setSupportScaleItem(mDoodleParams.mSupportScaleItem);
 
+                Bitmap bitmap = mDoodle.getBitmap();
+                float w = bitmap.getWidth() * 1f;
+                float h = bitmap.getHeight() * 1f;
+
+                mUCropFrame.setTargetAspectRatio(w/h);
+                int left = (int) mDoodleView.getCentreTranX();
+                int top = (int) mDoodleView.getCentreTranY();
+                int right = (int) (mDoodleView.getCentreTranX() + Math.abs(mDoodleView.getCenterWidth()));
+                int bottom = (int) (mDoodleView.getCentreTranY()+ Math.abs(mDoodleView.getCenterHeight()));
+                Rect clipRect = new Rect(left,top,right,bottom);
+                //mUCropFrame.setClipBounds(clipRect);
+                initUCropFrame();
+
 
             }
         });
 
-        initView();
-        initParams();
+
 
 
         mDoodleView.setOnTouchListener(new View.OnTouchListener() {
@@ -254,7 +276,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
-        mTouchGestureListener = new DoodleOnTouchGestureListener(mDoodleView, new DoodleOnTouchGestureListener.ISelectionListener() {
+        mTouchGestureListener = new DoodleOnTouchGestureListener(mDoodleView, mUCropFrame,new DoodleOnTouchGestureListener.ISelectionListener() {
             // save states before being selected
             IDoodlePen mLastPen = null;
             IDoodleColor mLastColor = null;
@@ -344,6 +366,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void initView() {
         editLayout = findViewById(R.id.frag_view);
         llEdit = findViewById(R.id.ll_edit);
+        mUCropFrame = findViewById(R.id.ucrop_frame);
         ImageView ivScrawl = findViewById(R.id.iv_scrawl);
         ImageView ivText = findViewById(R.id.iv_text);
         ImageView ivMosaic = findViewById(R.id.iv_mosaic);
@@ -353,6 +376,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         ivScrawl.setOnClickListener(this);
         ivMosaic.setOnClickListener(this);
         ivText.setOnClickListener(this);
+        ivCrop.setOnClickListener(this);
 
 
 
@@ -391,7 +415,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         if (v.getId() == R.id.tv_done) {
             mDoodle.save();
         } else if (v.getId() == R.id.iv_scrawl) {
-
+            Bitmap bitmap = mDoodle.getBitmap();
+            Bitmap bitmap2 = mDoodle.getDoodleBitmap();
             CURRENT_MODE = MODE_SCRAWL;
             mDoodle.setPen(DoodlePen.BRUSH);
             mDoodle.setColor(new DoodleColor(selectedColor));
@@ -425,6 +450,14 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             CURRENT_MODE = MODE_TEXT;
             mDoodle.setPen(DoodlePen.TEXT);
             startActivityForResult(new Intent(EditPhotoActivity.this, AddTextActivity.class), EDIT_TEXT_REQUEST_CODE);
+        }else if (v.getId() == R.id.iv_crop){
+            mUCropFrame.setVisibility(View.VISIBLE);
+            mUCropFrame.setOverlayViewChangeListener(new OverlayViewChangeListener() {
+                @Override
+                public void onCropRectUpdated(RectF cropRect) {
+
+                }
+            });
         }/*else if (v.getId() == R.id.doodle_btn_back) {
             if (mDoodle.getAllItem() == null || mDoodle.getItemCount() == 0) {
                 finish();
@@ -1053,6 +1086,25 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             editFragment.refreshPreOrNextStatus(isShowBack || isShowNext,isShowBack,isShowNext,"");
 
         }
+    }
+
+
+    public void initUCropFrame(){
+        // Overlay view options
+        mUCropFrame.setFreestyleCropEnabled(true);
+        mUCropFrame.setDragFrame(true);
+        mUCropFrame.setDimmedColor( getResources().getColor(com.yalantis.ucrop.R.color.ucrop_color_default_dimmed));
+        mUCropFrame.setCircleDimmedLayer(false);
+
+        mUCropFrame.setShowCropFrame(true);
+        mUCropFrame.setCropFrameColor(getResources().getColor(com.yalantis.ucrop.R.color.ucrop_color_default_crop_frame));
+        mUCropFrame.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.dp_3));
+
+        mUCropFrame.setShowCropGrid(true);
+        mUCropFrame.setCropGridRowCount( OverlayView.DEFAULT_CROP_GRID_ROW_COUNT);
+        mUCropFrame.setCropGridColumnCount( OverlayView.DEFAULT_CROP_GRID_COLUMN_COUNT);
+        mUCropFrame.setCropGridColor(getResources().getColor(com.yalantis.ucrop.R.color.ucrop_color_default_crop_grid));
+        mUCropFrame.setCropGridStrokeWidth(getResources().getDimensionPixelSize(com.yalantis.ucrop.R.dimen.ucrop_default_crop_grid_stoke_width));
     }
 
 

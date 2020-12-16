@@ -3,12 +3,16 @@ package cn.hzw.doodledemo;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.yalantis.ucrop.UCrop;
+
+import java.io.File;
 import java.util.ArrayList;
 
 import cn.forward.androids.utils.LogUtil;
@@ -82,8 +86,10 @@ public class MainActivity extends Activity {
                 // 是否支持缩放item
                 params.mSupportScaleItem = true;
                 // 启动涂鸦页面
+                //startUcrop(list.get(0));
                 EditPhotoActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
                 //DoodleActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
+
             }
         } else if (requestCode == REQ_CODE_DOODLE) {
             if (data == null) {
@@ -100,5 +106,24 @@ public class MainActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+
+
+    private void startUcrop(String path) {
+        UCrop.Options options = new UCrop.Options();
+        options.setShowCropFrame(true);
+        options.setShowCropGrid(true);
+        options.setDragFrameEnabled(true);
+        options.setScaleEnabled(true);
+        options.setRotateEnabled(true);
+        options.setCompressionQuality(90);
+        options.setFreeStyleCropEnabled(true);
+
+        UCrop.of(Uri.fromFile(new File(path)), Uri.fromFile(new File(getExternalCacheDir().getPath(),
+                System.currentTimeMillis() + "")))
+                .withMaxResultSize(1000, 1000)
+                .withOptions(options)
+                .start(this);
     }
 }

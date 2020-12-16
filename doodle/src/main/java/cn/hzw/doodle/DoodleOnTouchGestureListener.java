@@ -5,6 +5,9 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.view.MotionEvent;
+import android.view.View;
+
+import com.yalantis.ucrop.view.OverlayView;
 
 import java.util.List;
 
@@ -56,8 +59,19 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
     private boolean mSupportScaleItem = true;
 
+    private OverlayView mOverlayView;
+
     public DoodleOnTouchGestureListener(DoodleView doodle, ISelectionListener listener) {
         mDoodle = doodle;
+        mCopyLocation = DoodlePen.COPY.getCopyLocation();
+        mCopyLocation.reset();
+        mCopyLocation.updateLocation(doodle.getBitmap().getWidth() / 2, doodle.getBitmap().getHeight() / 2);
+        mSelectionListener = listener;
+    }
+
+    public DoodleOnTouchGestureListener(DoodleView doodle, OverlayView overlayView, ISelectionListener listener) {
+        mDoodle = doodle;
+        mOverlayView = overlayView;
         mCopyLocation = DoodlePen.COPY.getCopyLocation();
         mCopyLocation.reset();
         mCopyLocation.updateLocation(doodle.getBitmap().getWidth() / 2, doodle.getBitmap().getHeight() / 2);
@@ -334,7 +348,31 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             if (mSelectedItem == null || !mSupportScaleItem) {
                 // 缩放图片
                 float scale = mDoodle.getDoodleScale() * detector.getScaleFactor() * pendingScale;
-                mDoodle.setDoodleScale(scale, mDoodle.toX(mTouchCentreX), mDoodle.toY(mTouchCentreY));
+                float temp = -1f;
+                /*if (mOverlayView != null && mOverlayView.getVisibility() == View.VISIBLE) {
+                    mDoodle.setDoodleMinScale(0.25f);
+                    RectF cropViewRect = mOverlayView.getCropViewRect();
+                    RectF doodleBound = mDoodle.getDoodleBound();
+                    float doodleHeight = doodleBound.height();
+                    float doodleWidth = doodleBound.width();
+                    float overlayViewWidth = cropViewRect.width();
+                    float overlayViewHeight = cropViewRect.height();
+                    float sw = overlayViewWidth / doodleWidth;
+                    float sh = overlayViewHeight / doodleHeight;
+                    if (doodleHeight < overlayViewHeight || doodleWidth < overlayViewWidth) {
+                        if (sw > sh) {
+                            temp = 1f / sw;
+                        } else {
+                            temp = 1f / sh;
+                        }
+                    }
+                }*/
+
+                if (temp != -1f) {
+                    mDoodle.setDoodleScale(temp, mDoodle.toX(mTouchCentreX), mDoodle.toY(mTouchCentreY));
+                } else {
+                    mDoodle.setDoodleScale(scale, mDoodle.toX(mTouchCentreX), mDoodle.toY(mTouchCentreY));
+                }
             } else {
                 mSelectedItem.setScale(mSelectedItem.getScale() * detector.getScaleFactor() * pendingScale);
             }
@@ -351,12 +389,67 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
     @Override
     public void onScaleEnd(ScaleGestureDetectorApi27 detector) {
+        /*RectF cropViewRect = mOverlayView.getCropViewRect();
+        RectF bound = mDoodle.getDoodleBound();
+        float doodleHeight = bound.width();
+        float doodleWidth = bound.height();
+        float overlayViewWidth = cropViewRect.width();
+        float overlayViewHeight = cropViewRect.height();
+        if (mOverlayView != null && mOverlayView.getVisibility() == View.VISIBLE && (doodleHeight < overlayViewHeight || doodleWidth < overlayViewWidth)) {
+            limitCropBound(cropViewRect,bound);
+            return;
+        }*/
+
         if (mDoodle.isEditMode()) {
             limitBound(true);
             return;
         }
 
         center();
+    }
+
+
+    private void limitCropBound(RectF cropViewRect,RectF bound) {
+        int lastOverlayViewIndex = mOverlayView.getLastTouchCornerIndex();
+        final float oldX = mDoodle.getDoodleTranslationX(), oldY = mDoodle.getDoodleTranslationY();
+        float x = mDoodle.getDoodleTranslationX(), y = mDoodle.getDoodleTranslationY();
+        switch (lastOverlayViewIndex) {
+            case 0:
+                y = bound.top - cropViewRect.top;
+                x = bound.left - cropViewRect.left;
+                break;
+            case 1:
+                y = bound.top - cropViewRect.top;
+                x = bound.right - cropViewRect.right;
+                break;
+            case 2:
+                y = bound.bottom - cropViewRect.bottom;
+                x = bound.right - cropViewRect.right;
+                break;
+            case 3:
+                y = bound.bottom - cropViewRect.bottom;
+                x = bound.left - cropViewRect.left;
+                break;
+        }
+
+
+        if (mTranslateAnimator == null) {
+            mTranslateAnimator = new ValueAnimator();
+            mTranslateAnimator.setDuration(100);
+            mTranslateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float value = (float) animation.getAnimatedValue();
+                    float fraction = animation.getAnimatedFraction();
+                    mDoodle.setDoodleTranslation(value, mTransAnimOldY + (mTransAnimY - mTransAnimOldY) * fraction);
+                }
+            });
+        }
+        mTranslateAnimator.setFloatValues(oldX, x);
+        mTransAnimOldY = oldY;
+        mTransAnimY = y;
+        mTranslateAnimator.start();
+
     }
 
     public void center() {
@@ -482,6 +575,8 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 }
             }
         }
+
+
         if (anim) {
             if (mTranslateAnimator == null) {
                 mTranslateAnimator = new ValueAnimator();
