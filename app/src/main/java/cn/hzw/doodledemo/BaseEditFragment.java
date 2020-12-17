@@ -97,24 +97,26 @@ public abstract class BaseEditFragment extends Fragment {
 
 
     public void refreshPreOrNextStatus(boolean isShow,boolean isHavePre,boolean isHaveNext,String control){
-        if (isShow){
-            llPreOrNext.setVisibility(View.VISIBLE);
-            tvCurrentControl.setVisibility(View.GONE);
-            if (isHavePre){
-                ivPre.setImageResource(R.drawable.icon_pre_black);
-            }else {
-                ivPre.setImageResource(R.drawable.icon_pre_disable_black);
-            }
-            if (isHaveNext){
-                ivNext.setImageResource(R.drawable.icon_next_black);
-            }else {
-                ivNext.setImageResource(R.drawable.icon_next_disable_black);
-            }
-        }else {
-            llPreOrNext.setVisibility(View.GONE);
-            tvCurrentControl.setVisibility(View.VISIBLE);
-            if (!TextUtils.isEmpty(control)){
-                tvCurrentControl.setText(control);
+        if (llPreOrNext != null && tvCurrentControl != null ) {
+            if (isShow) {
+                llPreOrNext.setVisibility(View.VISIBLE);
+                tvCurrentControl.setVisibility(View.GONE);
+                if (isHavePre) {
+                    ivPre.setImageResource(R.drawable.icon_pre_black);
+                } else {
+                    ivPre.setImageResource(R.drawable.icon_pre_disable_black);
+                }
+                if (isHaveNext) {
+                    ivNext.setImageResource(R.drawable.icon_next_black);
+                } else {
+                    ivNext.setImageResource(R.drawable.icon_next_disable_black);
+                }
+            } else {
+                llPreOrNext.setVisibility(View.GONE);
+                tvCurrentControl.setVisibility(View.VISIBLE);
+                if (!TextUtils.isEmpty(control)) {
+                    tvCurrentControl.setText(control);
+                }
             }
         }
     }

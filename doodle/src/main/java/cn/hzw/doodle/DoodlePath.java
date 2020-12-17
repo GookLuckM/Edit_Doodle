@@ -95,25 +95,19 @@ public class DoodlePath extends DoodleRotatableItemBase {
     }
 
     public static DoodlePath toShape(IDoodle doodle, float sx, float sy, float dx, float dy) {
-        IDoodlePen pen = doodle.getPen();
-        if (pen != null) {
-            DoodlePath path = new DoodlePath(doodle);
-            path.setPen(doodle.getPen().copy());
-            path.setShape(doodle.getShape().copy());
-            path.setSize(doodle.getSize());
-            path.setColor(doodle.getColor().copy());
+        DoodlePath path = new DoodlePath(doodle);
+        path.setPen(doodle.getPen().copy());
+        path.setShape(doodle.getShape().copy());
+        path.setSize(doodle.getSize());
+        path.setColor(doodle.getColor().copy());
 
-            path.updateXY(sx, sy, dx, dy);
-            if (path.getPen() == DoodlePen.COPY) {
-                if (doodle instanceof DoodleView) {
-                    path.mCopyLocation = DoodlePen.COPY.getCopyLocation().copy();
-                }
+        path.updateXY(sx, sy, dx, dy);
+        if (path.getPen() == DoodlePen.COPY) {
+            if (doodle instanceof DoodleView) {
+                path.mCopyLocation = DoodlePen.COPY.getCopyLocation().copy();
             }
-            return path;
         }
-
-        return null;
-
+        return path;
     }
 
     public static DoodlePath toPath(IDoodle doodle, Path p) {
@@ -121,7 +115,7 @@ public class DoodlePath extends DoodleRotatableItemBase {
             DoodlePath path = new DoodlePath(doodle);
             path.setPen(doodle.getPen().copy());
             path.setShape(doodle.getShape().copy());
-            path.setSize(doodle.getSize());
+            path.setSize(doodle.getSize() / doodle.getDoodleScale());
             path.setColor(doodle.getColor().copy());
 
             path.updatePath(p);
@@ -259,11 +253,11 @@ public class DoodlePath extends DoodleRotatableItemBase {
         }
 
         int w = doodle.getBitmap().getWidth() / level;
-        int h = doodle.getBitmap().getHeight()  / level;
+        int h = doodle.getBitmap().getHeight() / level;
 
 
         Bitmap mosaicBitmap = Bitmap.createScaledBitmap(doodle.getBitmap(), w, h, false);
-        if (mosaicBitmap != null){
+        if (mosaicBitmap != null) {
             map.put(level, mosaicBitmap);
         }
 

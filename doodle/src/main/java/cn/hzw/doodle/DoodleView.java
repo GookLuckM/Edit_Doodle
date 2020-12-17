@@ -71,7 +71,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     public static final String TAG = "DoodleView";
     public final static float MAX_SCALE = 5f; // 最大缩放倍数
-    public final static float MIN_SCALE = 1f; // 最小缩放倍数
+    public final static float MIN_SCALE = 0.2f; // 最小缩放倍数
     public final static int DEFAULT_SIZE = 7; // 默认画笔大小
 
     public static final int ERROR_INIT = -1;
@@ -109,20 +109,24 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     // 保存涂鸦操作，便于撤销
     private List<IDoodleItem> mItemStack = new ArrayList<>();
+    private List<IDoodleItem> mMosaicItemStack = new ArrayList<>();
+    private List<IDoodleItem> mTextItemStack = new ArrayList<>();
     private List<IDoodleItem> mRedoItemStack = new ArrayList<>();
+    private List<IDoodleItem> mMosaicRedoItemStack = new ArrayList<>();
+    private List<IDoodleItem> mTextRedoItemStack = new ArrayList<>();
 
     private IDoodlePen mPen;
     private IDoodleShape mShape;
 
     private float mTouchX, mTouchY;
-   /* private boolean mEnableZoomer = false; // 放大镜功能
-    private boolean mEnableOverview = true; // 全图预览功能，建立在放大镜功能开启的前提下
-    private float mLastZoomerY;
-    private float mZoomerRadius;
-    private Path mZoomerPath;
-    private float mZoomerScale = 0; // 放大镜的倍数
-    private Paint mZooomerPaint, mZoomerTouchPaint;
-    private int mZoomerHorizonX; // 放大器的位置的x坐标，使其水平居中*/
+    /* private boolean mEnableZoomer = false; // 放大镜功能
+     private boolean mEnableOverview = true; // 全图预览功能，建立在放大镜功能开启的前提下
+     private float mLastZoomerY;
+     private float mZoomerRadius;
+     private Path mZoomerPath;
+     private float mZoomerScale = 0; // 放大镜的倍数
+     private Paint mZooomerPaint, mZoomerTouchPaint;
+     private int mZoomerHorizonX; // 放大器的位置的x坐标，使其水平居中*/
     private boolean mIsScrollingDoodle = false; // 是否正在滑动，只要用于标志触摸时才显示放大镜
 
     private float mDoodleSizeUnit = 1; // 长度单位，不同大小的图片的长度单位不一样。该单位的意义同dp的作用类似，独立于图片之外的单位长度
@@ -149,7 +153,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
      **/
     private final boolean mOptimizeDrawing; // 涂鸦及时绘制在图片上，优化性能
     private List<IDoodleItem> mItemStackOnViewCanvas = new ArrayList<>(); // 这些item绘制在View的画布上，而不是在图片Bitmap.比如正在创建或选中的item
+    private List<IDoodleItem> mMosaicItemStackOnViewCanvas = new ArrayList<>(); // 这些item绘制在View的画布上，而不是在图片Bitmap.比如正在创建或选中的item
+    private List<IDoodleItem> mTextItemStackOnViewCanvas = new ArrayList<>(); // 这些item绘制在View的画布上，而不是在图片Bitmap.比如正在创建或选中的item
     private List<IDoodleItem> mPendingItemsDrawToBitmap = new ArrayList<>();
+    private List<IDoodleItem> mMosaicPendingItemsDrawToBitmap = new ArrayList<>();
+    private List<IDoodleItem> mTextPendingItemsDrawToBitmap = new ArrayList<>();
     private Bitmap mDoodleBitmap;
     private int mFlags = 0;
     private Canvas mDoodleBitmapCanvas;
@@ -635,13 +643,30 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
         initDoodleBitmap();
         List<IDoodleItem> items = null;
+        List<IDoodleItem> mosaicItems = null;
+        List<IDoodleItem> textItems = null;
         if (drawAll) {
             items = mItemStack;
+            mosaicItems = mMosaicItemStack;
+            textItems = mTextItemStack;
         } else {
             items = new ArrayList<>(mItemStack);
+            mosaicItems = new ArrayList<>(mMosaicItemStack);
+            textItems = new ArrayList<>(mTextItemStack);
             items.removeAll(mItemStackOnViewCanvas);
+            mosaicItems.removeAll(mMosaicItemStackOnViewCanvas);
+            textItems.removeAll(mTextItemStackOnViewCanvas);
         }
+
+        for (IDoodleItem item : mosaicItems) {
+            item.draw(mDoodleBitmapCanvas);
+        }
+
         for (IDoodleItem item : items) {
+            item.draw(mDoodleBitmapCanvas);
+        }
+
+        for (IDoodleItem item : textItems) {
             item.draw(mDoodleBitmapCanvas);
         }
     }
@@ -740,13 +765,18 @@ public class DoodleView extends FrameLayout implements IDoodle {
             return;
         }
 
-        if (mItemStackOnViewCanvas.contains(item)) {
+        if (mItemStackOnViewCanvas.contains(item) || mMosaicItemStackOnViewCanvas.contains(item) || mTextItemStackOnViewCanvas.contains(item)) {
             throw new RuntimeException("The item has been added");
         }
+        if (item.getPen().equals(DoodlePen.BRUSH) || item.getPen().equals(DoodlePen.ERASER)) {
+            mItemStackOnViewCanvas.add(item);
+        } else if (item.getPen().equals(DoodlePen.MOSAIC)) {
+            mMosaicItemStackOnViewCanvas.add(item);
+        } else if (item.getPen().equals(DoodlePen.TEXT)) {
+            mTextItemStackOnViewCanvas.add(item);
+        }
 
-        mItemStackOnViewCanvas.add(item);
-
-        if (mItemStack.contains(item)) {
+        if (mItemStack.contains(item) || mMosaicItemStack.contains(item) || mTextItemStack.contains(item)) {
             addFlag(FLAG_RESET_BACKGROUND);
         }
 
@@ -762,12 +792,29 @@ public class DoodleView extends FrameLayout implements IDoodle {
         if (!mOptimizeDrawing) {
             return;
         }
-
-        if (mItemStackOnViewCanvas.remove(item)) {
-            if (mItemStack.contains(item)) {
-                addFlag(FLAG_RESET_BACKGROUND);
-            } else {
-                addItem(item);
+        if (item.getPen().equals(DoodlePen.BRUSH) || item.getPen().equals(DoodlePen.ERASER)) {
+            if (mItemStackOnViewCanvas.remove(item)) {
+                if (mItemStack.contains(item)) {
+                    addFlag(FLAG_RESET_BACKGROUND);
+                } else {
+                    addItem(item);
+                }
+            }
+        } else if (item.getPen().equals(DoodlePen.MOSAIC)) {
+            if (mMosaicItemStackOnViewCanvas.remove(item)) {
+                if (mMosaicItemStack.contains(item)) {
+                    addFlag(FLAG_RESET_BACKGROUND);
+                } else {
+                    addItem(item);
+                }
+            }
+        } else if (item.getPen().equals(DoodlePen.TEXT)) {
+            if (mTextItemStackOnViewCanvas.remove(item)) {
+                if (mTextItemStack.contains(item)) {
+                    addFlag(FLAG_RESET_BACKGROUND);
+                } else {
+                    addItem(item);
+                }
             }
         }
 
@@ -799,9 +846,19 @@ public class DoodleView extends FrameLayout implements IDoodle {
                 } else {
                     savedBitmap = mBitmap.copy(mBitmap.getConfig(), true);
                     Canvas canvas = new Canvas(savedBitmap);
+
+                    for (IDoodleItem item : mMosaicItemStack) {
+                        item.draw(canvas);
+                    }
+
                     for (IDoodleItem item : mItemStack) {
                         item.draw(canvas);
                     }
+
+                    for (IDoodleItem item : mTextItemStack) {
+                        item.draw(canvas);
+                    }
+
                 }
 
                 savedBitmap = ImageUtils.rotate(savedBitmap, mDoodleRotateDegree, true);
@@ -831,9 +888,17 @@ public class DoodleView extends FrameLayout implements IDoodle {
     public void clear() {
         List<IDoodleItem> temp = new ArrayList<>(mItemStack);
         mItemStack.clear();
+        mMosaicItemStack.clear();
+        mTextItemStack.clear();
         mRedoItemStack.clear();
+        mMosaicRedoItemStack.clear();
+        mTextRedoItemStack.clear();
         mItemStackOnViewCanvas.clear();
+        mMosaicItemStackOnViewCanvas.clear();
+        mTextItemStackOnViewCanvas.clear();
         mPendingItemsDrawToBitmap.clear();
+        mMosaicPendingItemsDrawToBitmap.clear();
+        mTextPendingItemsDrawToBitmap.clear();
 
         for (int i = temp.size() - 1; i >= 0; i--) {
             IDoodleItem item = temp.get(i);
@@ -846,16 +911,28 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
     @Override
-    public boolean undo(int step) {
+    public boolean undo() {
         if (mItemStack.size() > 0) {
             List<IDoodleItem> list = new ArrayList<>(mItemStack);
-            for (int i = list.size() - 1; i >= 0 ; i--) {
+            for (int i = list.size() - 1; i >= 0; i--) {
                 IDoodleItem item = list.get(i);
-                if (getPen() != null && item.getPen() != null && getPen() instanceof DoodlePen && item.getPen() instanceof DoodlePen && ((DoodlePen) getPen()).name().equals(((DoodlePen) item.getPen()).name())) {
-                    removeItem(item);
-                    mRedoItemStack.add(0, item);
-                    break;
-                }
+                removeItem(item);
+                mRedoItemStack.add(0, item);
+                break;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public boolean mosaicUndo(int step) {
+        if (mMosaicItemStack.size() > 0) {
+            List<IDoodleItem> list = new ArrayList<>(mMosaicItemStack);
+            for (int i = list.size() - 1; i >= 0; i--) {
+                IDoodleItem item = list.get(i);
+                removeItem(item);
+                mMosaicRedoItemStack.add(0, item);
+                break;
             }
             return true;
         }
@@ -865,7 +942,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     public boolean cleanCurrentMode() {
         if (mItemStack.size() > 0) {
-           // step = Math.min(mItemStack.size(), step);
+            // step = Math.min(mItemStack.size(), step);
             List<IDoodleItem> list = new ArrayList<IDoodleItem>(mItemStack);
             for (IDoodleItem item : list) {
                 IDoodlePen current = item.getPen();
@@ -889,23 +966,28 @@ public class DoodleView extends FrameLayout implements IDoodle {
         Iterator<IDoodleItem> iterator = mRedoItemStack.iterator();
         while (iterator.hasNext()) {
             IDoodleItem item = iterator.next();
-            if (getPen() != null && item.getPen() != null && getPen() instanceof DoodlePen && item.getPen() instanceof DoodlePen && ((DoodlePen) getPen()).name().equals(((DoodlePen) item.getPen()).name())) {
-                iterator.remove();
-                addItemInner(item);
-                break;
-
-            }
+            iterator.remove();
+            addItemInner(item);
+            break;
         }
         return true;
     }
 
-    /**
-     * 撤销
-     */
-    @Override
-    public boolean undo() {
-        return undo(1);
+
+    public boolean MosaicRedo() {
+        if (mMosaicRedoItemStack.isEmpty()) {
+            return false;
+        }
+        Iterator<IDoodleItem> iterator = mMosaicRedoItemStack.iterator();
+        while (iterator.hasNext()) {
+            IDoodleItem item = iterator.next();
+            iterator.remove();
+            addItemInner(item);
+            break;
+        }
+        return true;
     }
+
 
     /**
      * 只绘制原图
@@ -1173,8 +1255,16 @@ public class DoodleView extends FrameLayout implements IDoodle {
             throw new RuntimeException("item is null");
         }
 
-        mItemStack.remove(item);
-        mItemStack.add(item);
+        if (item.getPen().equals(DoodlePen.BRUSH) || item.getPen().equals(DoodlePen.ERASER)) {
+            mItemStack.remove(item);
+            mItemStack.add(item);
+        }else if (item.getPen().equals(DoodlePen.MOSAIC)) {
+            mMosaicItemStack.remove(item);
+            mMosaicItemStack.add(item);
+        }else if (item.getPen().equals(DoodlePen.TEXT)) {
+            mTextItemStack.remove(item);
+            mTextItemStack.add(item);
+        }
 
         addFlag(FLAG_RESET_BACKGROUND);
 
@@ -1186,9 +1276,16 @@ public class DoodleView extends FrameLayout implements IDoodle {
         if (item == null) {
             throw new RuntimeException("item is null");
         }
-
-        mItemStack.remove(item);
-        mItemStack.add(0, item);
+        if (item.getPen().equals(DoodlePen.BRUSH) || item.getPen().equals(DoodlePen.ERASER)) {
+            mItemStack.remove(item);
+            mItemStack.add(0,item);
+        }else if (item.getPen().equals(DoodlePen.MOSAIC)) {
+            mMosaicItemStack.remove(item);
+            mMosaicItemStack.add(0,item);
+        }else if (item.getPen().equals(DoodlePen.TEXT)) {
+            mTextItemStack.remove(item);
+            mTextItemStack.add(0,item);
+        }
 
         addFlag(FLAG_RESET_BACKGROUND);
 
@@ -1225,7 +1322,13 @@ public class DoodleView extends FrameLayout implements IDoodle {
     @Override
     public void addItem(IDoodleItem item) {
         addItemInner(item);
-        mRedoItemStack.clear();
+        if (item.getPen().equals(DoodlePen.BRUSH) || item.getPen().equals(DoodlePen.ERASER)) {
+            mRedoItemStack.clear();
+        } else if (item.getPen().equals(DoodlePen.MOSAIC)) {
+            mMosaicRedoItemStack.clear();
+        } else if (item.getPen().equals(DoodlePen.TEXT)) {
+            mTextRedoItemStack.clear();
+        }
     }
 
     private void addItemInner(IDoodleItem item) {
@@ -1236,14 +1339,21 @@ public class DoodleView extends FrameLayout implements IDoodle {
         if (this != item.getDoodle()) {
             throw new RuntimeException("the object Doodle is illegal");
         }
-        if (mItemStack.contains(item)) {
+        if (mItemStack.contains(item) || mMosaicItemStack.contains(item) || mTextItemStack.contains(item)) {
             throw new RuntimeException("the item has been added");
         }
-
-        mItemStack.add(item);
+        if (item.getPen().equals(DoodlePen.BRUSH) || item.getPen().equals(DoodlePen.ERASER)) {
+            mItemStack.add(item);
+            mPendingItemsDrawToBitmap.add(item);
+        } else if (item.getPen().equals(DoodlePen.MOSAIC)) {
+            mMosaicItemStack.add(item);
+            mMosaicPendingItemsDrawToBitmap.add(item);
+        } else if (item.getPen().equals(DoodlePen.TEXT)) {
+            mTextItemStack.add(item);
+            mTextPendingItemsDrawToBitmap.add(item);
+        }
         item.onAdd();
 
-        mPendingItemsDrawToBitmap.add(item);
         addFlag(FLAG_DRAW_PENDINGS_TO_BACKGROUND);
 
         refresh();
@@ -1251,12 +1361,19 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     @Override
     public void removeItem(IDoodleItem doodleItem) {
-        if (!mItemStack.remove(doodleItem)) {
+        if (!mItemStack.remove(doodleItem) && !mMosaicItemStack.remove(doodleItem) && !mTextItemStack.remove(doodleItem)) {
             return;
         }
-
-        mItemStackOnViewCanvas.remove(doodleItem);
-        mPendingItemsDrawToBitmap.remove(doodleItem);
+        if (doodleItem.getPen().equals(DoodlePen.BRUSH) || doodleItem.getPen().equals(DoodlePen.ERASER)) {
+            mItemStackOnViewCanvas.remove(doodleItem);
+            mPendingItemsDrawToBitmap.remove(doodleItem);
+        } else if (doodleItem.getPen().equals(DoodlePen.MOSAIC)) {
+            mMosaicItemStackOnViewCanvas.remove(doodleItem);
+            mMosaicPendingItemsDrawToBitmap.remove(doodleItem);
+        } else if (doodleItem.getPen().equals(DoodlePen.TEXT)) {
+            mTextItemStackOnViewCanvas.remove(doodleItem);
+            mTextPendingItemsDrawToBitmap.remove(doodleItem);
+        }
         doodleItem.onRemove();
 
         addFlag(FLAG_RESET_BACKGROUND);
@@ -1269,6 +1386,16 @@ public class DoodleView extends FrameLayout implements IDoodle {
         return mItemStack.size();
     }
 
+
+    public int getMosaicItemCount() {
+        return mMosaicRedoItemStack.size();
+    }
+
+
+    public int getTextItemCount() {
+        return mTextItemStack.size();
+    }
+
     @Override
     public List<IDoodleItem> getAllItem() {
         return new ArrayList<>(mItemStack);
@@ -1277,6 +1404,16 @@ public class DoodleView extends FrameLayout implements IDoodle {
     @Override
     public int getRedoItemCount() {
         return mRedoItemStack.size();
+    }
+
+
+    public int getMosaicRedoItemCount() {
+        return mMosaicRedoItemStack.size();
+    }
+
+
+    public int getTextRedoItemCount() {
+        return mTextRedoItemStack.size();
     }
 
     @Override
@@ -1425,15 +1562,42 @@ public class DoodleView extends FrameLayout implements IDoodle {
             Bitmap bitmap = mOptimizeDrawing ? mDoodleBitmap : mBitmap;
 
             int saveCount = canvas.save(); // 1
-            List<IDoodleItem> items = mItemStack;
+            List<IDoodleItem> items = new ArrayList<>(mItemStack);
+            List<IDoodleItem> mosaicItems =new ArrayList<>(mMosaicItemStack);
+            List<IDoodleItem> textItems = new ArrayList<>(mTextItemStack);
             if (mOptimizeDrawing) {
-                items = mItemStackOnViewCanvas;
+                if (mItemStackOnViewCanvas.size() > 0) {
+                    items.addAll(mItemStackOnViewCanvas);
+                }
+                if (mMosaicItemStackOnViewCanvas.size() > 0) {
+                    mosaicItems.addAll(mMosaicItemStackOnViewCanvas);
+                }
+                if (mTextItemStackOnViewCanvas.size() > 0) {
+                    textItems.addAll(mTextItemStackOnViewCanvas);
+                }
             }
             boolean canvasClipped = false;
             if (!mIsDrawableOutside) { // 裁剪绘制区域为图片区域
                 canvasClipped = true;
                 canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
             }
+
+            for (IDoodleItem item : mosaicItems) {
+                if (!item.isNeedClipOutside()) { // 1.不需要裁剪
+                    if (canvasClipped) {
+                        canvas.restore();
+                    }
+                    item.draw(canvas);
+                    if (canvasClipped) { // 2.恢复裁剪
+                        canvas.save();
+                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                    }
+                } else {
+                    item.draw(canvas);
+                }
+            }
+
+
             for (IDoodleItem item : items) {
                 if (!item.isNeedClipOutside()) { // 1.不需要裁剪
                     if (canvasClipped) {
@@ -1449,8 +1613,57 @@ public class DoodleView extends FrameLayout implements IDoodle {
                 }
             }
 
+            for (IDoodleItem item : textItems) {
+                if (!item.isNeedClipOutside()) { // 1.不需要裁剪
+                    if (canvasClipped) {
+                        canvas.restore();
+                    }
+                    item.draw(canvas);
+                    if (canvasClipped) { // 2.恢复裁剪
+                        canvas.save();
+                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                    }
+                } else {
+                    item.draw(canvas);
+                }
+            }
+
+            // draw at the top
+            for (IDoodleItem item : mosaicItems) {
+                if (!item.isNeedClipOutside()) { // 1.不需要裁剪
+                    if (canvasClipped) {
+                        canvas.restore();
+                    }
+                    item.drawAtTheTop(canvas);
+                    if (canvasClipped) { // 2.恢复裁剪
+                        canvas.save();
+                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                    }
+                } else {
+                    item.drawAtTheTop(canvas);
+                }
+            }
+
             // draw at the top
             for (IDoodleItem item : items) {
+                if (!item.isNeedClipOutside()) { // 1.不需要裁剪
+                    if (canvasClipped) {
+                        canvas.restore();
+                    }
+                    item.drawAtTheTop(canvas);
+                    if (canvasClipped) { // 2.恢复裁剪
+                        canvas.save();
+                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                    }
+                } else {
+                    item.drawAtTheTop(canvas);
+                }
+            }
+            canvas.restoreToCount(saveCount);
+
+
+            // draw at the top
+            for (IDoodleItem item : textItems) {
                 if (!item.isNeedClipOutside()) { // 1.不需要裁剪
                     if (canvasClipped) {
                         canvas.restore();

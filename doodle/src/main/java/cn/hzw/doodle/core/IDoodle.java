@@ -294,13 +294,6 @@ public interface IDoodle {
      */
     public boolean undo();
 
-    /**
-     * 指定撤销的步数
-     *
-     * @param step
-     * @return
-     */
-    public boolean undo(int step);
 
     /**
      * 指定重做的步数
