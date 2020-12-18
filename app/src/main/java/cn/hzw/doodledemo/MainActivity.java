@@ -87,8 +87,8 @@ public class MainActivity extends Activity {
                 params.mSupportScaleItem = true;
                 // 启动涂鸦页面
                 //startUcrop(list.get(0));
-                EditPhotoActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
-                //DoodleActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
+                //EditPhotoActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
+                DoodleActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
 
             }
         } else if (requestCode == REQ_CODE_DOODLE) {

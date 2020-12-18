@@ -71,7 +71,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     public static final String TAG = "DoodleView";
     public final static float MAX_SCALE = 5f; // 最大缩放倍数
-    public final static float MIN_SCALE = 0.2f; // 最小缩放倍数
+    public final static float MIN_SCALE = 1f; // 最小缩放倍数
     public final static int DEFAULT_SIZE = 7; // 默认画笔大小
 
     public static final int ERROR_INIT = -1;
@@ -923,9 +923,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
             return true;
         }
         return false;
-    }
+        }
 
-    public boolean mosaicUndo(int step) {
+        @Override
+    public boolean mosaicUndo() {
         if (mMosaicItemStack.size() > 0) {
             List<IDoodleItem> list = new ArrayList<>(mMosaicItemStack);
             for (int i = list.size() - 1; i >= 0; i--) {
@@ -959,6 +960,16 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
     @Override
+    public void resetBitmapLocation(float scale , float centerScale,float centerX,float centerY,int centerWidth,int centerHeight) {
+        this.mScale = scale;
+        this.mCenterScale = centerScale;
+        this.mCentreTranX = centerX;
+        this.mCentreTranY = centerY;
+        this.mCenterWidth = centerWidth;
+        this.mCenterHeight = centerHeight;
+    }
+
+    @Override
     public boolean redo() {
         if (mRedoItemStack.isEmpty()) {
             return false;
@@ -973,8 +984,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
         return true;
     }
 
-
-    public boolean MosaicRedo() {
+    @Override
+    public boolean mosaicRedo() {
         if (mMosaicRedoItemStack.isEmpty()) {
             return false;
         }
@@ -1074,6 +1085,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         refresh();
     }
 
+
     @Override
     public float getDoodleScale() {
         return mScale;
@@ -1125,6 +1137,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         refreshWithBackground();
     }
 
+
     /**
      * 设置图片G偏移
      *
@@ -1136,10 +1149,14 @@ public class DoodleView extends FrameLayout implements IDoodle {
         refreshWithBackground();
     }
 
+
+
     @Override
     public float getDoodleTranslationX() {
         return mTransX;
     }
+
+
 
     @Override
     public void setDoodleTranslationY(float transY) {
@@ -1147,10 +1164,15 @@ public class DoodleView extends FrameLayout implements IDoodle {
         refreshWithBackground();
     }
 
+
+
+
+
     @Override
     public float getDoodleTranslationY() {
         return mTransY;
     }
+
 
 
     @Override
@@ -1399,6 +1421,16 @@ public class DoodleView extends FrameLayout implements IDoodle {
     @Override
     public List<IDoodleItem> getAllItem() {
         return new ArrayList<>(mItemStack);
+    }
+
+    @Override
+    public List<IDoodleItem> getTextItem() {
+        return new ArrayList<>(mTextItemStack);
+    }
+
+    @Override
+    public List<IDoodleItem> getMosaicItem() {
+        return new ArrayList<>(mMosaicItemStack);
     }
 
     @Override

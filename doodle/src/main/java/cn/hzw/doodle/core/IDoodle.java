@@ -41,6 +41,7 @@ public interface IDoodle {
      */
     public void setDoodleScale(float scale, float pivotX, float pivotY);
 
+
     /**
      * 获取图片缩放倍数
      */
@@ -78,12 +79,15 @@ public interface IDoodle {
     public void setDoodleTranslation(float transX, float transY);
 
 
+
     /**
      * 设置图片偏移量x
      *
      * @param transX
      */
     public void setDoodleTranslationX(float transX);
+
+
 
     /**
      * 获取图片偏移量x
@@ -92,6 +96,7 @@ public interface IDoodle {
      */
     public float getDoodleTranslationX();
 
+
     /**
      * 设置图片偏移量y
      *
@@ -99,12 +104,15 @@ public interface IDoodle {
      */
     public void setDoodleTranslationY(float transY);
 
+
     /**
      * 获取图片偏移量y
      *
      * @return
      */
     public float getDoodleTranslationY();
+
+
 
     /**
      * 设置大小
@@ -210,6 +218,10 @@ public interface IDoodle {
      */
     public List<IDoodleItem> getAllItem();
 
+    public List<IDoodleItem> getTextItem();
+
+    public List<IDoodleItem> getMosaicItem();
+
     /**
      * total redo item count
      *
@@ -295,6 +307,9 @@ public interface IDoodle {
     public boolean undo();
 
 
+    public boolean mosaicUndo();
+
+
     /**
      * 指定重做的步数
      *
@@ -302,6 +317,8 @@ public interface IDoodle {
      * @return
      */
     public boolean redo();
+
+    public boolean mosaicRedo();
 
     /**
      * 获取当前显示的图片(无涂鸦)
@@ -324,5 +341,8 @@ public interface IDoodle {
 
 
     public boolean cleanCurrentMode();
+
+
+    public void resetBitmapLocation(float scale , float centerScale,float centerX,float centerY,int centerWidth,int centerHeight);
 
 }

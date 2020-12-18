@@ -9,4 +9,6 @@ public interface OverlayViewChangeListener {
 
     void onCropRectUpdated(RectF cropRect);
 
+    void onCropRectEnd(RectF rectF);
+
 }

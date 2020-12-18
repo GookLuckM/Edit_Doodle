@@ -316,6 +316,10 @@ public class OverlayView extends View {
                     mPreviousTouchX = x;
                     mPreviousTouchY = y;
 
+
+                    if (mCallback != null) {
+                        mCallback.onCropRectUpdated(mCropViewRect);
+                    }
                     return true;
                 }else {
                     return false;
@@ -329,7 +333,7 @@ public class OverlayView extends View {
             mCurrentTouchCornerIndex = -1;
 
             if (mCallback != null) {
-                mCallback.onCropRectUpdated(mCropViewRect);
+                mCallback.onCropRectEnd(mCropViewRect);
             }
         }
 
