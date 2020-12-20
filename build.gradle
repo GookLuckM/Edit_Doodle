@@ -2,17 +2,24 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven { url "https://jitpack.io" }
+        maven { url "http://nexus2.tingyun.com/nexus/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url 'http://developer.huawei.com/repo/' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath 'com.android.tools.build:gradle:3.4.1'
     }
 }
 
 allprojects {
     repositories {
-        jcenter()
-        maven { url 'https://jitpack.io' }
         google()
+        jcenter()
+        maven { url "https://jitpack.io" }
+        maven { url "http://nexus2.tingyun.com/nexus/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url 'http://developer.huawei.com/repo/' }
     }
 }
 

@@ -14,8 +14,9 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.forward.androids.ScaleGestureDetectorApi27;
-import cn.forward.androids.TouchGestureDetector;
+import cn.hzw.doodle.ScaleGestureDetectorApi27;
+import cn.hzw.doodle.TouchGestureDetector;
+
 
 /**
  * 高级涂鸦

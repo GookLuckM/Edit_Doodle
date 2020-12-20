@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.Layout;
-import android.text.SpannableString;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -111,8 +110,8 @@ public class DoodleText extends DoodleRotatableItemBase {
         android:paddingBottom="@dimen/dp_4"
         android:paddingLeft="@dimen/dp_12"
         android:paddingRight="@dimen/dp_12"*/
-        int paddingTop = DimenUtils.dpToPx(viewGroup.getContext(), 4);
-        int paddingLeft = DimenUtils.dpToPx(viewGroup.getContext(), 12);
+        int paddingTop = DimenUtils.dp2px(viewGroup.getContext(), 4);
+        int paddingLeft = DimenUtils.dp2px(viewGroup.getContext(), 12);
         textView.setPadding(paddingLeft, paddingTop, paddingLeft, paddingTop);
         textView.setLayoutParams(params);
         textView.setText(mText);

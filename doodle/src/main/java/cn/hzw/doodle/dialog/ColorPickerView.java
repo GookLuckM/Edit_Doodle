@@ -14,7 +14,8 @@ import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
 
-import cn.forward.androids.utils.Util;
+import cn.hzw.doodle.util.DimenUtils;
+
 
 public class ColorPickerView extends View {
     private Paint mPaint;//渐变色环画笔
@@ -56,7 +57,7 @@ public class ColorPickerView extends View {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setShader(s);
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(Util.dp2px(context, 30));//圆环大小
+        mPaint.setStrokeWidth(DimenUtils.dp2px(context, 30));//圆环大小
         r = width / 2 * 0.7f - mPaint.getStrokeWidth() * 0.5f;
 
         //中心圆参数
@@ -73,12 +74,12 @@ public class ColorPickerView extends View {
         //黑白渐变参数
         mRectColors = new int[]{0xFF000000, mCenterPaint.getColor(), 0xFFFFFFFF};
         mRectPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mRectPaint.setStrokeWidth(Util.dp2px(context, 5));
+        mRectPaint.setStrokeWidth(DimenUtils.dp2px(context, 5));
         rectLeft = -r - mPaint.getStrokeWidth() * 0.5f;
         rectTop = r + mPaint.getStrokeWidth() * 0.5f +
                 mLinePaint.getStrokeMiter() * 0.5f + 15;
         rectRight = r + mPaint.getStrokeWidth() * 0.5f;
-        rectBottom = rectTop + Util.dp2px(context, 30);
+        rectBottom = rectTop + DimenUtils.dp2px(context, 30);
 
         mOnSelectedColorListener = listener;
     }

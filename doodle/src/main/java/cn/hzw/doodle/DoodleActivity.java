@@ -31,10 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.forward.androids.utils.ImageUtils;
-import cn.forward.androids.utils.LogUtil;
-import cn.forward.androids.utils.StatusBarUtil;
-import cn.forward.androids.utils.Util;
+
 import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.core.IDoodleColor;
 import cn.hzw.doodle.core.IDoodleItem;
@@ -45,7 +42,11 @@ import cn.hzw.doodle.core.IDoodleShape;
 import cn.hzw.doodle.core.IDoodleTouchDetector;
 import cn.hzw.doodle.dialog.ColorPickerDialog;
 import cn.hzw.doodle.dialog.DialogController;
-import cn.hzw.doodle.imagepicker.ImageSelectorView;
+
+import cn.hzw.doodle.util.ImageUtils;
+import cn.hzw.doodle.util.LogUtil;
+import cn.hzw.doodle.util.StatusBarUtil;
+import cn.hzw.doodle.util.Util;
 
 /**
  * 涂鸦界面，根据DoodleView的接口，提供页面交互
@@ -337,7 +338,7 @@ public class DoodleActivity extends Activity {
                 if (mDoodle.getPen() == DoodlePen.TEXT) {
                     createDoodleText(null, x, y);
                 } else if (mDoodle.getPen() == DoodlePen.BITMAP) {
-                    createDoodleBitmap(null, x, y);
+                    //createDoodleBitmap(null, x, y);
                 }
             }
         }) {
@@ -399,7 +400,7 @@ public class DoodleActivity extends Activity {
     }
 
     // 添加贴图
-    private void createDoodleBitmap(final DoodleBitmap doodleBitmap, final float x, final float y) {
+    /*private void createDoodleBitmap(final DoodleBitmap doodleBitmap, final float x, final float y) {
         DialogController.showSelectImageDialog(this, new ImageSelectorView.ImageSelectorListener() {
             @Override
             public void onCancel() {
@@ -419,7 +420,7 @@ public class DoodleActivity extends Activity {
                 mDoodle.refresh();
             }
         });
-    }
+    }*/
 
     //++++++++++++++++++以下为一些初始化操作和点击监听+++++++++++++++++++++++++++++++++++++++++
 
@@ -667,7 +668,7 @@ public class DoodleActivity extends Activity {
             if (mTouchGestureListener.getSelectedItem() instanceof DoodleText) {
                 createDoodleText((DoodleText) mTouchGestureListener.getSelectedItem(), -1, -1);
             } else if (mTouchGestureListener.getSelectedItem() instanceof DoodleBitmap) {
-                createDoodleBitmap((DoodleBitmap) mTouchGestureListener.getSelectedItem(), -1, -1);
+                //createDoodleBitmap((DoodleBitmap) mTouchGestureListener.getSelectedItem(), -1, -1);
             }
         } else if (v.getId() == R.id.doodle_selectable_remove) {
             mDoodle.removeItem(mTouchGestureListener.getSelectedItem());

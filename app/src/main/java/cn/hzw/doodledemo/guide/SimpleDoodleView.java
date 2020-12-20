@@ -12,7 +12,8 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.forward.androids.TouchGestureDetector;
+
+import cn.hzw.doodle.TouchGestureDetector;
 
 /**
  * 初级涂鸦

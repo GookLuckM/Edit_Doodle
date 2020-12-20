@@ -14,9 +14,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import cn.forward.androids.utils.StatusBarUtil;
+
 import cn.hzw.doodle.R;
-import cn.hzw.doodle.imagepicker.ImageSelectorView;
+
 import cn.hzw.doodle.util.DrawUtil;
 
 /**
@@ -38,7 +38,6 @@ public class DialogController {
 
         final Dialog dialog = getDialog(activity);
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        StatusBarUtil.setStatusBarTranslucent(dialog.getWindow(), true, false);
         dialog.show();
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
@@ -171,42 +170,6 @@ public class DialogController {
         return dialog;
     }
 
-    public static Dialog showSelectImageDialog(Activity activity, final ImageSelectorView.ImageSelectorListener listener) {
-        final Dialog dialog = getDialog(activity);
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        dialog.show();
-        ViewGroup container = (ViewGroup) View.inflate(activity, R.layout.doodle_create_bitmap, null);
-        container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        dialog.setContentView(container);
-
-        ViewGroup selectorContainer = (ViewGroup) dialog.findViewById(R.id.doodle_image_selector_container);
-        ImageSelectorView selectorView = new ImageSelectorView(activity, false, 1, null, new ImageSelectorView.ImageSelectorListener() {
-            @Override
-            public void onCancel() {
-                dialog.dismiss();
-                if (listener != null) {
-                    listener.onCancel();
-                }
-            }
-
-            @Override
-            public void onEnter(List<String> pathList) {
-                dialog.dismiss();
-                if (listener != null) {
-                    listener.onEnter(pathList);
-                }
-
-            }
-        });
-        selectorView.setColumnCount(4);
-        selectorContainer.addView(selectorView);
-        return dialog;
-    }
 
     private static Dialog getDialog(Activity activity) {
         boolean fullScreen = (activity.getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0;

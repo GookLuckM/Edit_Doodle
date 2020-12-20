@@ -49,15 +49,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import cn.forward.androids.utils.ImageUtils;
-import cn.forward.androids.utils.LogUtil;
-import cn.forward.androids.utils.Util;
+
 import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.core.IDoodleColor;
 import cn.hzw.doodle.core.IDoodleItem;
 import cn.hzw.doodle.core.IDoodlePen;
 import cn.hzw.doodle.core.IDoodleShape;
 import cn.hzw.doodle.core.IDoodleTouchDetector;
+import cn.hzw.doodle.util.DimenUtils;
+import cn.hzw.doodle.util.ImageUtils;
+import cn.hzw.doodle.util.LogUtil;
 
 import static cn.hzw.doodle.util.DrawUtil.drawCircle;
 import static cn.hzw.doodle.util.DrawUtil.drawRect;
@@ -300,12 +301,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mCentreTranX = (getWidth() - mCenterWidth) / 2f;
         mCentreTranY = (getHeight() - mCenterHeight) / 2f;
 
-        /*mZoomerRadius = Math.min(getWidth(), getHeight()) / 4;
-        mZoomerPath = new Path();
-        mZoomerPath.addCircle(mZoomerRadius, mZoomerRadius, mZoomerRadius, Path.Direction.CCW);
-        mZoomerHorizonX = (int) (Math.min(getWidth(), getHeight()) / 2 - mZoomerRadius);*/
 
-        mDoodleSizeUnit = Util.dp2px(getContext(), 1) / mCenterScale;
+        mDoodleSizeUnit = DimenUtils.dp2px(getContext(), 1) / mCenterScale;
 
         if (!mReady) { // 只有初始化时才需要设置画笔大小
             mSize = DEFAULT_SIZE * mDoodleSizeUnit;
@@ -1691,7 +1688,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.drawAtTheTop(canvas);
                 }
             }
-            canvas.restoreToCount(saveCount);
 
 
             // draw at the top

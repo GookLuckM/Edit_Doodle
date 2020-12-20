@@ -2,7 +2,6 @@ package cn.hzw.doodle;
 
 import android.content.Context;
 
-import cn.forward.androids.TouchGestureDetector;
 import cn.hzw.doodle.core.IDoodleTouchDetector;
 
 public class DoodleTouchDetector extends TouchGestureDetector implements IDoodleTouchDetector {

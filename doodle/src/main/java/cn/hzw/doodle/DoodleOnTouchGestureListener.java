@@ -11,8 +11,8 @@ import com.yalantis.ucrop.view.OverlayView;
 
 import java.util.List;
 
-import cn.forward.androids.ScaleGestureDetectorApi27;
-import cn.forward.androids.TouchGestureDetector;
+
+
 import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.core.IDoodleItem;
 import cn.hzw.doodle.core.IDoodlePen;

@@ -11,7 +11,7 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.FrameLayout;
 
-import cn.forward.androids.utils.LogUtil;
+
 
 /**
  * Created by Administrator on 2016/9/3.
@@ -139,8 +139,6 @@ public class DrawUtil {
         } else if (x > 0 && y < 0) { //4
             angle = 360 + angle;
         }
-
-        LogUtil.i("hzw", "[" + px1 + "," + py1 + "]:[" + px2 + "," + py2 + "] = " + angle);
 
         return angle;
     }

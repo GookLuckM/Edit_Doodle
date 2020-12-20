@@ -16,10 +16,10 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import cn.forward.androids.utils.Util;
 import cn.hzw.doodle.DoodleColor;
 import cn.hzw.doodle.R;
 import cn.hzw.doodle.core.IDoodle;
+import cn.hzw.doodle.util.DimenUtils;
 import cn.hzw.doodle.util.DrawUtil;
 
 public class ColorPickerDialog extends Dialog {
@@ -47,8 +47,8 @@ public class ColorPickerDialog extends Dialog {
 
     public void show(IDoodle iDoodle, Drawable drawable, int maxSize) {
         super.show();
-        int height = Util.dp2px(context, 220);
-        int width = Util.dp2px(context, 180);
+        int height = DimenUtils.dp2px(context, 220);
+        int width = DimenUtils.dp2px(context, 180);
 
         final ViewGroup viewGroup = (ViewGroup) View.inflate(context, R.layout.doodle_color_selector_dialog, null);
         final EditText sizeView = (EditText) viewGroup.findViewById(R.id.doodle_txtview_size);

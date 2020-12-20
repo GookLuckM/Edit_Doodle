@@ -42,10 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.forward.androids.utils.ImageUtils;
-import cn.forward.androids.utils.LogUtil;
-import cn.forward.androids.utils.StatusBarUtil;
-import cn.forward.androids.utils.Util;
+
 import cn.hzw.doodle.DoodleColor;
 import cn.hzw.doodle.DoodleOnTouchGestureListener;
 import cn.hzw.doodle.DoodleParams;
@@ -64,6 +61,10 @@ import cn.hzw.doodle.core.IDoodlePen;
 import cn.hzw.doodle.core.IDoodleSelectableItem;
 import cn.hzw.doodle.core.IDoodleShape;
 import cn.hzw.doodle.core.IDoodleTouchDetector;
+import cn.hzw.doodle.util.ImageUtils;
+import cn.hzw.doodle.util.LogUtil;
+import cn.hzw.doodle.util.StatusBarUtil;
+import cn.hzw.doodle.util.Util;
 
 public class EditPhotoActivity extends AppCompatActivity implements View.OnClickListener, ScrawlColorsAdapter.OnColorClickListener, IEditListener {
 
@@ -126,6 +127,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     private float centerX;
     private float centerY;
     private float mCropTransAnimY;
+    private ValueAnimator mInScaleAnimator;
+    private ValueAnimator mOutScaleAnimator;
 
 
     @Override
@@ -790,7 +793,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             if (editMode) {
                 Toast.makeText(getApplicationContext(), cn.hzw.doodle.R.string.doodle_edit_mode, Toast.LENGTH_SHORT).show();
                 mLastIsDrawableOutside = mDoodle.isDrawableOutside(); // save
-                mDoodle.setIsDrawableOutside(true);
+                mDoodle.setIsDrawableOutside(false);
 
 
             } else {
@@ -879,68 +882,68 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
     public void editViewAnimIn(final View view) {
         changeDoodleSize(view.getMeasuredHeight());
-        ValueAnimator mScaleAnimator = new ValueAnimator();
-        mScaleAnimator.setDuration(1000);
-        mScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                float fraction = animation.getAnimatedFraction();
-                mDoodle.setDoodleScale(value, mCenterWidth/2, mCenterHeight/2);
-                mDoodle.setDoodleTranslation(scaleAnimTransX * (1 - fraction), scaleAnimTranY * (1 - fraction));
+        if (mInScaleAnimator == null) {
+            mInScaleAnimator = new ValueAnimator();
+            mInScaleAnimator.setDuration(1000);
+            mInScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float value = (float) animation.getAnimatedValue();
+                    float fraction = animation.getAnimatedFraction();
+                    mDoodle.setDoodleScale(value, mCenterWidth / 2, mCenterHeight / 2);
+                    mDoodle.setDoodleTranslation(scaleAnimTransX * (1 - fraction), scaleAnimTranY * (1 - fraction));
 
-            }
-        });
-
-        mScaleAnimator.cancel();
-        mScaleAnimator.setFloatValues(1/animScale, 1);
-
-
-        //mDoodleView.setDoodleScale(scale, 0, 0);
-
-        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0, -view.getMeasuredHeight()).setDuration(500);
-
-
-        inAnimatorSet = new AnimatorSet();
-        inAnimatorSet.playTogether(translateAnimator, mScaleAnimator);
-        //animatorSet.playTogether(translateAnimator, scaleXAnimator,scaleYAnimator,doodleTranslateAnimator);
-        inAnimatorSet.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                mDoodleView.resetBitmapLocation(1.0f, animScale * doodleOriginCenterScale, centerX, centerY, mCenterWidth, mCenterHeight);
-                mDoodleView.setDoodleScale(1/animScale   ,0,0);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-                switch (CURRENT_MODE) {
-                    case MODE_SCRAWL:
-                        mDoodle.setPen(DoodlePen.BRUSH);
-                        mDoodle.setColor(new DoodleColor(selectedColor));
-                        mDoodle.setSize(mScrawlSize);
-                        mDoodle.setShape(selectedShape);
-                        break;
-                    case MODE_MOSAIC:
-                        mDoodle.setPen(DoodlePen.MOSAIC);
-                        mDoodle.setSize(mMosaicSize);
-                        mDoodle.setShape(DoodleShape.HAND_WRITE);
-                        break;
                 }
-                //resetBitmap(true, view.getMeasuredHeight());
+            });
+        }
 
-            }
 
-            @Override
-            public void onAnimationCancel(Animator animation) {
+        mInScaleAnimator.setFloatValues(1 / animScale, 1);
 
-            }
+        if (inAnimatorSet == null) {
+            ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0, -view.getMeasuredHeight()).setDuration(500);
+            inAnimatorSet = new AnimatorSet();
+            inAnimatorSet.playTogether(translateAnimator, mInScaleAnimator);
+            //animatorSet.playTogether(translateAnimator, scaleXAnimator,scaleYAnimator,doodleTranslateAnimator);
+            inAnimatorSet.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    mDoodleView.resetBitmapLocation(1.0f, animScale * doodleOriginCenterScale, centerX, centerY, mCenterWidth, mCenterHeight);
+                    mDoodleView.setDoodleScale(1 / animScale, 0, 0);
+                }
 
-            @Override
-            public void onAnimationRepeat(Animator animation) {
+                @Override
+                public void onAnimationEnd(Animator animation) {
 
-            }
-        });
+                    switch (CURRENT_MODE) {
+                        case MODE_SCRAWL:
+                            mDoodle.setPen(DoodlePen.BRUSH);
+                            mDoodle.setColor(new DoodleColor(selectedColor));
+                            mDoodle.setSize(mScrawlSize);
+                            mDoodle.setShape(selectedShape);
+                            break;
+                        case MODE_MOSAIC:
+                            mDoodle.setPen(DoodlePen.MOSAIC);
+                            mDoodle.setSize(mMosaicSize);
+                            mDoodle.setShape(DoodleShape.HAND_WRITE);
+                            break;
+                    }
+                    //resetBitmap(true, view.getMeasuredHeight());
+
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+
+        }
         inAnimatorSet.start();
 
 
@@ -980,51 +983,51 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void editViewAnimOut(View view, final BaseEditFragment fragment) {
 
 
-        ValueAnimator mScaleAnimator = new ValueAnimator();
-        mScaleAnimator.setDuration(1000);
-        mScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                float fraction = animation.getAnimatedFraction();
-                mDoodle.setDoodleScale(value, 0, 0);
-                mDoodle.setDoodleTranslation(-scaleAnimTransX * (1 - fraction), -scaleAnimTranY * (1 - fraction));
-            }
-        });
-
-        mScaleAnimator.cancel();
-        mScaleAnimator.setFloatValues(animScale, 1);
-
-
-        ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", -view.getMeasuredHeight(), 0).setDuration(1000);
-
-        outAnimatorSet = new AnimatorSet();
-        outAnimatorSet.playTogether(translateAnimator, mScaleAnimator);
-        outAnimatorSet.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                mDoodleView.resetBitmapLocation(1.0f, doodleOriginCenterScale, doodleOriginTransX, doodleOriginTransY, doodleOriginCenterWidth, doodleOriginCenterHeight);
-                mDoodleView.setDoodleScale(1/animScale,0,0);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (fragmentManager != null && fragment != null) {
-                    fragmentManager.beginTransaction().hide(fragment).commit();
-                    mDoodleView.setEditMode(true);
+        if (mOutScaleAnimator == null) {
+            mOutScaleAnimator = new ValueAnimator();
+            mOutScaleAnimator.setDuration(1000);
+            mOutScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float value = (float) animation.getAnimatedValue();
+                    float fraction = animation.getAnimatedFraction();
+                    mDoodle.setDoodleScale(value, 0, 0);
+                    mDoodle.setDoodleTranslation(-scaleAnimTransX * (1 - fraction), -scaleAnimTranY * (1 - fraction));
                 }
-            }
+            });
+        }
+        mOutScaleAnimator.setFloatValues(animScale, 1);
 
-            @Override
-            public void onAnimationCancel(Animator animation) {
+        if (outAnimatorSet == null) {
+            ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", -view.getMeasuredHeight(), 0).setDuration(1000);
+            outAnimatorSet = new AnimatorSet();
+            outAnimatorSet.playTogether(translateAnimator, mOutScaleAnimator);
+            outAnimatorSet.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    mDoodleView.resetBitmapLocation(1.0f, doodleOriginCenterScale, doodleOriginTransX, doodleOriginTransY, doodleOriginCenterWidth, doodleOriginCenterHeight);
+                    mDoodleView.setDoodleScale(1 / animScale, 0, 0);
+                }
 
-            }
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    if (fragmentManager != null && fragment != null) {
+                        fragmentManager.beginTransaction().hide(fragment).commit();
+                        mDoodleView.setEditMode(true);
+                    }
+                }
 
-            @Override
-            public void onAnimationRepeat(Animator animation) {
+                @Override
+                public void onAnimationCancel(Animator animation) {
 
-            }
-        });
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+        }
         outAnimatorSet.start();
 
     }
@@ -1088,7 +1091,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     }
 
 
-    private void resetDoodleCropLocation(RectF cropViewRect){
+    private void resetDoodleCropLocation(RectF cropViewRect) {
         RectF bound = mDoodleView.getDoodleBound();
         float x = mDoodle.getDoodleTranslationX() + mDoodleView.getCentreTranX(), y = mDoodle.getDoodleTranslationY() + mDoodleView.getCentreTranY();
 
@@ -1124,6 +1127,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
         }
         mCropTransAnimY = y - mDoodleView.getCentreTranY();
-        mDoodle.setDoodleTranslation(x - mDoodleView.getCentreTranX(), mCropTransAnimY );
+        mDoodle.setDoodleTranslation(x - mDoodleView.getCentreTranX(), mCropTransAnimY);
     }
 }

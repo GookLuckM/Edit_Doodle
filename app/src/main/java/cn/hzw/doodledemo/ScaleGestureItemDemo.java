@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import cn.forward.androids.ScaleGestureDetectorApi27;
+
 import cn.hzw.doodle.DoodleColor;
 import cn.hzw.doodle.DoodleOnTouchGestureListener;
 import cn.hzw.doodle.DoodlePen;
@@ -19,6 +19,7 @@ import cn.hzw.doodle.DoodleText;
 import cn.hzw.doodle.DoodleTouchDetector;
 import cn.hzw.doodle.DoodleView;
 import cn.hzw.doodle.IDoodleListener;
+import cn.hzw.doodle.ScaleGestureDetectorApi27;
 import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.core.IDoodleItem;
 import cn.hzw.doodle.core.IDoodleSelectableItem;

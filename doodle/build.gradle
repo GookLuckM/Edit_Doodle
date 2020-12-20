@@ -1,13 +1,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION as int
+    compileSdkVersion 29
 
     defaultConfig {
-        minSdkVersion MIN_SDK_VERSION as int
-        targetSdkVersion TARGET_SDK_VERSION as int
-        versionCode VERSION_CODE as int
-        versionName VERSION_NAME
+        minSdkVersion  21
+        targetSdkVersion  28
+        versionCode 1
+        versionName "1.0"
     }
     buildTypes {
         release {
@@ -15,12 +15,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    buildToolsVersion = '29.0.3'
 }
 
 dependencies {
-    // https://github.com/1993hzw/Androids
-    api('com.github.1993hzw:Androids:1.3')
-    api project(':lib_ucrop')
+    api project(':lib_picture_library')
 }
 
 
@@ -32,7 +31,7 @@ configurations.all {
 
         if (requested.group == 'com.android.support') {
 
-            details.useVersion '28.0.0'
+            //details.useVersion '29.0.3'
 
         }
 
