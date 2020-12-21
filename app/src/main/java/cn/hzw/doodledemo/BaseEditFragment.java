@@ -63,7 +63,9 @@ public abstract class BaseEditFragment extends Fragment {
         ivDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (mEditListener != null) {
+                    mEditListener.onDone();
+                }
             }
         });
 

@@ -31,6 +31,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.yalantis.ucrop.callback.OverlayViewChangeListener;
@@ -259,15 +260,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 doodleOriginTransX = mDoodleView.getCentreTranX();
                 doodleOriginTransY = mDoodleView.getCentreTranY();
 
-                Bitmap bitmap = mDoodle.getBitmap();
-                float w = bitmap.getWidth() * 1f;
-                float h = bitmap.getHeight() * 1f;
-
-                mUCropFrame.setTargetAspectRatio(w / h);
-
-                initUCropFrame();
-
-
             }
         });
 
@@ -294,7 +286,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
-        mTouchGestureListener = new DoodleOnTouchGestureListener(mDoodleView, mUCropFrame, new DoodleOnTouchGestureListener.ISelectionListener() {
+        mTouchGestureListener = new DoodleOnTouchGestureListener(mDoodleView, new DoodleOnTouchGestureListener.ISelectionListener() {
             // save states before being selected
             IDoodlePen mLastPen = null;
             IDoodleColor mLastColor = null;
@@ -325,14 +317,12 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                     if (mSize == null) {
                         mSize = mDoodle.getSize();
                     }
-                    mDoodleView.setEditMode(true);
                     mDoodle.setPen(selectableItem.getPen());
                     mDoodle.setColor(selectableItem.getColor());
                     mDoodle.setSize(selectableItem.getSize());
                     selectableItem.addItemListener(mIDoodleItemListener);
                 } else {
                     selectableItem.removeItemListener(mIDoodleItemListener);
-                    mDoodleView.setEditMode(false);
                     if (mTouchGestureListener.getSelectedItem() == null) { // nothing is selected. 当前没有选中任何一个item
                         if (mLastPen != null) {
                             mDoodle.setPen(mLastPen);
@@ -384,7 +374,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void initView() {
         editLayout = findViewById(R.id.frag_view);
         llEdit = findViewById(R.id.ll_edit);
-        mUCropFrame = findViewById(R.id.ucrop_frame);
         ImageView ivScrawl = findViewById(R.id.iv_scrawl);
         ImageView ivText = findViewById(R.id.iv_text);
         ImageView ivMosaic = findViewById(R.id.iv_mosaic);
@@ -437,7 +426,9 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         if (v.getId() == R.id.tv_done) {
             mDoodle.save();
         } else if (v.getId() == R.id.iv_scrawl) {
-            mUCropFrame.setVisibility(View.GONE);
+            if (mUCropFrame != null && mUCropFrame.getVisibility() == View.VISIBLE) {
+                mUCropFrame.setVisibility(View.GONE);
+            }
             CURRENT_MODE = MODE_SCRAWL;
             mDoodleView.setEditMode(false);
             llEdit.setVisibility(View.GONE);
@@ -458,39 +449,26 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
 
         } else if (v.getId() == R.id.iv_mosaic) {
-            mUCropFrame.setVisibility(View.GONE);
+            if (mUCropFrame != null && mUCropFrame.getVisibility() == View.VISIBLE) {
+                mUCropFrame.setVisibility(View.GONE);
+            }
             CURRENT_MODE = MODE_MOSAIC;
             mDoodleView.setEditMode(false);
             llEdit.setVisibility(View.GONE);
             showFragment(MODE_MOSAIC);
         } else if (v.getId() == R.id.iv_text) {
-            mUCropFrame.setVisibility(View.GONE);
+            if (mUCropFrame != null && mUCropFrame.getVisibility() == View.VISIBLE) {
+                mUCropFrame.setVisibility(View.GONE);
+            }
             CURRENT_MODE = MODE_TEXT;
             mDoodle.setPen(DoodlePen.TEXT);
             startActivityForResult(new Intent(EditPhotoActivity.this, AddTextActivity.class), EDIT_TEXT_REQUEST_CODE);
         } else if (v.getId() == R.id.iv_crop) {
-            mUCropFrame.setVisibility(View.VISIBLE);
-            mUCropFrame.setOverlayViewChangeListener(new OverlayViewChangeListener() {
-                @Override
-                public void onCropRectUpdated(RectF cropRect) {
-                    int centerWidth = mDoodleView.getCenterWidth();
-                    int centerHeight = mDoodleView.getCenterHeight();
-                    float sw = cropRect.width() / centerWidth * 1f;
-                    float sh = cropRect.height() / centerHeight * 1f;
-                    if (sw > sh) {
-                        mDoodleView.setDoodleMinScale(sw);
-                    } else {
-                        mDoodleView.setDoodleMinScale(sh);
-                    }
-                    System.out.println(mDoodleView.getDoodleMinScale() + "");
-                    resetDoodleCropLocation(cropRect);
-                }
+            CURRENT_MODE = MODE_CROP;
+            mDoodleView.setEditMode(true);
+            llEdit.setVisibility(View.GONE);
+            showFragment(MODE_CROP);
 
-                @Override
-                public void onCropRectEnd(RectF rectF) {
-
-                }
-            });
 
         }/*else if (v.getId() == R.id.doodle_btn_back) {
             if (mDoodle.getAllItem() == null || mDoodle.getItemCount() == 0) {
@@ -597,6 +575,29 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             case MODE_MOSAIC:
                 hideFragment(MODE_MOSAIC);
                 break;
+            case MODE_CROP:
+                hideFragment(MODE_CROP);
+                break;
+        }
+    }
+
+    @Override
+    public void onDone() {
+        switch (CURRENT_MODE) {
+            case MODE_ERASER:
+            case MODE_SCRAWL:
+                hideFragment(MODE_SCRAWL);
+                break;
+            case MODE_MOSAIC:
+                hideFragment(MODE_MOSAIC);
+                break;
+            case MODE_CROP:
+                if (mUCropFrame != null){
+                    RectF cropViewRect = mUCropFrame.getCropViewRect();
+                    mDoodleView.setDoodleCropRect(cropViewRect);
+                }
+                hideFragment(MODE_CROP);
+                break;
         }
     }
 
@@ -616,6 +617,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                     editFragment = new EditScrawlFragment();
                     break;
                 case MODE_MOSAIC:
+                    editFragment = new EditMosaicFragment();
+                case MODE_CROP:
                     editFragment = new EditMosaicFragment();
                     break;
             }
@@ -857,6 +860,9 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void onBackPressed() {
         if (editFragment != null) {
+            if (mUCropFrame != null){
+                mUCropFrame.setVisibility(View.GONE);
+            }
             hideFragment(CURRENT_MODE);
         } else {
             super.onBackPressed();
@@ -882,6 +888,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
     public void editViewAnimIn(final View view) {
         changeDoodleSize(view.getMeasuredHeight());
+        mDoodleView.setDoodleMinScale(animScale * doodleOriginCenterScale);
         if (mInScaleAnimator == null) {
             mInScaleAnimator = new ValueAnimator();
             mInScaleAnimator.setDuration(1000);
@@ -891,14 +898,14 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                     float value = (float) animation.getAnimatedValue();
                     float fraction = animation.getAnimatedFraction();
                     mDoodle.setDoodleScale(value, mCenterWidth / 2, mCenterHeight / 2);
-                    mDoodle.setDoodleTranslation(scaleAnimTransX * (1 - fraction), scaleAnimTranY * (1 - fraction));
+                    mDoodle.setDoodleTranslation(-scaleAnimTransX * fraction, -scaleAnimTranY * fraction);
 
                 }
             });
         }
 
 
-        mInScaleAnimator.setFloatValues(1 / animScale, 1);
+        mInScaleAnimator.setFloatValues(1, animScale * doodleOriginCenterScale);
 
         if (inAnimatorSet == null) {
             ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0, -view.getMeasuredHeight()).setDuration(500);
@@ -908,8 +915,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             inAnimatorSet.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
-                    mDoodleView.resetBitmapLocation(1.0f, animScale * doodleOriginCenterScale, centerX, centerY, mCenterWidth, mCenterHeight);
-                    mDoodleView.setDoodleScale(1 / animScale, 0, 0);
+                    //mDoodleView.resetBitmapLocation(1.0f, animScale * doodleOriginCenterScale, centerX, centerY, mCenterWidth, mCenterHeight);
+                    //mDoodleView.setDoodleScale(1 / animScale, 0, 0);
                 }
 
                 @Override
@@ -927,7 +934,15 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                             mDoodle.setSize(mMosaicSize);
                             mDoodle.setShape(DoodleShape.HAND_WRITE);
                             break;
+                        case MODE_CROP:
+                            Bitmap bitmap = mDoodle.getBitmap();
+                            float w = bitmap.getWidth() * 1f;
+                            float h = bitmap.getHeight() * 1f;
+                            initUCropFrame();
+                            mUCropFrame.setTargetAspectRatio(w / h);
+                            break;
                     }
+
                     //resetBitmap(true, view.getMeasuredHeight());
 
                 }
@@ -977,7 +992,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         scaleAnimTransX = mDoodleView.getCentreTranX() - centerX;
         scaleAnimTranY = mDoodleView.getCentreTranY() - centerY;
 
-
     }
 
     public void editViewAnimOut(View view, final BaseEditFragment fragment) {
@@ -996,7 +1010,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 }
             });
         }
-        mOutScaleAnimator.setFloatValues(animScale, 1);
+        mOutScaleAnimator.setFloatValues(animScale * doodleOriginCenterScale, 1);
 
         if (outAnimatorSet == null) {
             ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", -view.getMeasuredHeight(), 0).setDuration(1000);
@@ -1005,8 +1019,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             outAnimatorSet.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
-                    mDoodleView.resetBitmapLocation(1.0f, doodleOriginCenterScale, doodleOriginTransX, doodleOriginTransY, doodleOriginCenterWidth, doodleOriginCenterHeight);
-                    mDoodleView.setDoodleScale(1 / animScale, 0, 0);
+                    //mDoodleView.resetBitmapLocation(1.0f, doodleOriginCenterScale, doodleOriginTransX, doodleOriginTransY, doodleOriginCenterWidth, doodleOriginCenterHeight);
+                    //mDoodleView.setDoodleScale(1 / animScale, 0, 0);
                 }
 
                 @Override
@@ -1015,6 +1029,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                         fragmentManager.beginTransaction().hide(fragment).commit();
                         mDoodleView.setEditMode(true);
                     }
+                    mDoodleView.setDoodleMinScale(1f);
                 }
 
                 @Override
@@ -1058,21 +1073,86 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
 
     public void initUCropFrame() {
-        // Overlay view options
-        mUCropFrame.setFreestyleCropEnabled(true);
-        mUCropFrame.setDragFrame(true);
-        mUCropFrame.setDimmedColor(getResources().getColor(com.yalantis.ucrop.R.color.ucrop_color_default_dimmed));
-        mUCropFrame.setCircleDimmedLayer(false);
+        if (mUCropFrame == null) {
+            mUCropFrame = new OverlayView(this);
+            mUCropFrame.setOriginRect(mDoodleView.getDoodleBound());
+            // Overlay view options
+            mUCropFrame.setFreestyleCropEnabled(true);
+            mUCropFrame.setDragFrame(true);
+            mUCropFrame.setDimmedColor(getResources().getColor(com.yalantis.ucrop.R.color.ucrop_color_default_dimmed));
+            mUCropFrame.setCircleDimmedLayer(false);
 
-        mUCropFrame.setShowCropFrame(true);
-        mUCropFrame.setCropFrameColor(getResources().getColor(com.yalantis.ucrop.R.color.ucrop_color_default_crop_frame));
-        mUCropFrame.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.dp_3));
+            mUCropFrame.setShowCropFrame(true);
+            mUCropFrame.setCropFrameColor(getResources().getColor(com.yalantis.ucrop.R.color.ucrop_color_default_crop_frame));
+            mUCropFrame.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.dp_3));
 
-        mUCropFrame.setShowCropGrid(true);
-        mUCropFrame.setCropGridRowCount(OverlayView.DEFAULT_CROP_GRID_ROW_COUNT);
-        mUCropFrame.setCropGridColumnCount(OverlayView.DEFAULT_CROP_GRID_COLUMN_COUNT);
-        mUCropFrame.setCropGridColor(getResources().getColor(com.yalantis.ucrop.R.color.ucrop_color_default_crop_grid));
-        mUCropFrame.setCropGridStrokeWidth(getResources().getDimensionPixelSize(com.yalantis.ucrop.R.dimen.ucrop_default_crop_grid_stoke_width));
+            mUCropFrame.setShowCropGrid(true);
+            mUCropFrame.setCropGridRowCount(OverlayView.DEFAULT_CROP_GRID_ROW_COUNT);
+            mUCropFrame.setCropGridColumnCount(OverlayView.DEFAULT_CROP_GRID_COLUMN_COUNT);
+            mUCropFrame.setCropGridColor(getResources().getColor(com.yalantis.ucrop.R.color.ucrop_color_default_crop_grid));
+            mUCropFrame.setCropGridStrokeWidth(getResources().getDimensionPixelSize(com.yalantis.ucrop.R.dimen.ucrop_default_crop_grid_stoke_width));
+
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+            mUCropFrame.setLayoutParams(layoutParams);
+            ((ViewGroup)((ViewGroup)findViewById(android.R.id.content)).getChildAt(0)).addView(mUCropFrame);
+             mTouchGestureListener.setOverlayView(mUCropFrame);
+             mUCropFrame.setOverlayViewChangeListener(new OverlayViewChangeListener() {
+                @Override
+                public void onCropRectUpdated(RectF cropRect) {
+                    System.out.println("OverlayView---onCropRectUpdated");
+                    int centerWidth = mDoodleView.getCenterWidth();
+                    int centerHeight = mDoodleView.getCenterHeight();
+                    float sw = cropRect.width() / centerWidth * 1f;
+                    float sh = cropRect.height() / centerHeight * 1f;
+                    if (sw > sh) {
+                        mDoodleView.setDoodleMinScale(sw);
+                    } else {
+                        mDoodleView.setDoodleMinScale(sh);
+                    }
+                    System.out.println(mDoodleView.getDoodleMinScale() + "");
+                    resetDoodleCropLocation(cropRect);
+                }
+
+                @Override
+                public void onCropRectEnd(RectF rectF) {
+                    System.out.println("OverlayView----onCropRectEnd");
+                    System.out.println("doodle  doodleView  trans X" + mDoodle.getDoodleTranslationX() );
+                    System.out.println("doodle  doodleView  trans Y" + mDoodle.getDoodleTranslationY() );
+                    System.out.println("doodle  doodleView  rectF" + mDoodleView.getDoodleBound().toString() );
+                    System.out.println("doodle  doodleView  scale" + mDoodle.getDoodleScale() );
+                    System.out.println("doodle  OverlayView  rectF" +  mUCropFrame.getCropViewRect().toString() );
+                    System.out.println("doodle  OverlayView  rectF" +  mUCropFrame.getTargetAspectRatio());
+
+
+                    /*float cropCenterX = (rectF.right - rectF.left) / 2f;
+                    float cropCenterY = (rectF.bottom - rectF.top) / 2f;
+                    float sw = rectF.width() * 1f / (doodleOriginCenterWidth * mDoodle.getDoodleScale());
+                    float sh = rectF.height() * 1f / (doodleOriginCenterHeight * mDoodle.getDoodleScale());
+                    int cropWidth;
+                    int cropHeight;
+                    float scale = 1f;
+                    if (sw > sh) {
+                        scale = 1f / sw;
+                        cropWidth = doodleOriginCenterWidth;
+                        cropHeight = (int) (rectF.height() * scale);
+                    } else {
+                        scale = 1f / sh;
+                        cropWidth = (int) (rectF.width() * scale);
+                        cropHeight = doodleOriginCenterHeight;
+                    }
+                    mDoodle.setDoodleScale(scale, cropCenterX, cropCenterY);
+                    float transX = (doodleOriginCenterWidth * mDoodle.getDoodleScale() - cropWidth) / 2f;
+                    float transY = (doodleOriginCenterHeight * mDoodle.getDoodleScale() - cropHeight) / 2f;
+
+
+                    mDoodle.setDoodleTranslation(-(rectF.left - transX), -(rectF.top - transY));*/
+
+                    mUCropFrame.setTargetAspectRatio(rectF.width() * 1f/rectF.height() * 1f);
+                }
+            });
+        }else {
+            mUCropFrame.setVisibility(View.VISIBLE);
+        }
     }
 
 

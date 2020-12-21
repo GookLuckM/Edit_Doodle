@@ -2,6 +2,7 @@ package cn.hzw.doodle.core;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 import java.util.List;
 
@@ -31,6 +32,11 @@ public interface IDoodle {
      * @return
      */
     public int getDoodleRotation();
+
+
+    public void setDoodleCropRect(RectF rect);
+
+    public RectF getDoodleCropRect();
 
     /**
      * 设置图片缩放倍数

@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.graphics.Region;
 import android.os.Build;
 
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,7 +54,7 @@ public class OverlayView extends View {
     private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    protected int mThisWidth, mThisHeight;
+    protected int mThisWidth, mThisHeight,mCropOriginWidth,mCropOriginHeight;
 
     private boolean mIsFreestyleCropEnabled = DEFAULT_FREESTYLE_CROP_ENABLED;
     protected float[] mCropGridCorners;
@@ -68,6 +69,7 @@ public class OverlayView extends View {
     private OverlayViewChangeListener mCallback;
 
     private boolean mShouldSetupCropBounds;
+    private boolean isTouchScrolling = false;
 
     {
         mTouchPointThreshold = getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_rect_corner_touch_threshold);
@@ -86,6 +88,14 @@ public class OverlayView extends View {
     public OverlayView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
+    }
+
+
+    public void setOriginRect(RectF rect){
+        originRect.set(rect);
+        mCropOriginWidth = (int) rect.width();
+        mCropOriginHeight = (int) rect.height();
+
     }
 
     public OverlayViewChangeListener getOverlayViewChangeListener() {
@@ -207,7 +217,7 @@ public class OverlayView extends View {
      */
     public void setTargetAspectRatio(final float targetAspectRatio) {
         mTargetAspectRatio = targetAspectRatio;
-        if (mThisWidth > 0) {
+        if (mCropOriginWidth > 0) {
             setupCropBounds();
             postInvalidate();
         } else {
@@ -215,21 +225,26 @@ public class OverlayView extends View {
         }
     }
 
+    public float getTargetAspectRatio() {
+        return mTargetAspectRatio;
+
+    }
+
     /**
      * This method setups crop bounds rectangles for given aspect ratio and view size.
      * {@link #mCropViewRect} is used to draw crop bounds - uses padding.
      */
     public void setupCropBounds() {
-        int height = (int) (mThisWidth / mTargetAspectRatio);
-        if (height > mThisHeight) {
-            int width = (int) (mThisHeight * mTargetAspectRatio);
-            int halfDiff = (mThisWidth - width) / 2;
-            mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(),
-                    getPaddingLeft() + width + halfDiff, getPaddingTop() + mThisHeight);
+        int height = (int) (mCropOriginWidth / mTargetAspectRatio);
+        if (height > mCropOriginHeight) {
+            int width = (int) (mCropOriginHeight * mTargetAspectRatio);
+            int halfDiff = (mCropOriginWidth - width) / 2;
+            mCropViewRect.set(originRect.left + halfDiff, originRect.top,
+                    originRect.left + width + halfDiff, originRect.top + mCropOriginHeight);
         } else {
-            int halfDiff = (mThisHeight - height) / 2;
-            mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff,
-                    getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
+            int halfDiff = (mCropOriginHeight - height) / 2;
+            mCropViewRect.set(originRect.left, originRect.top + halfDiff,
+                    originRect.left+mCropOriginWidth, originRect.top +height + halfDiff);
         }
 
         if (mCallback != null) {
@@ -305,6 +320,7 @@ public class OverlayView extends View {
         }
 
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
+            isTouchScrolling = true;
             if (event.getPointerCount() == 1 && mCurrentTouchCornerIndex != -1) {
                 lastTouchCornerIndex = mCurrentTouchCornerIndex;
 
@@ -328,13 +344,19 @@ public class OverlayView extends View {
         }
 
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+            isTouchScrolling = false;
             mPreviousTouchX = -1;
             mPreviousTouchY = -1;
             mCurrentTouchCornerIndex = -1;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (mCallback != null && !isTouchScrolling) {
+                        mCallback.onCropRectEnd(mCropViewRect);
+                    }
+                }
+            },1000);
 
-            if (mCallback != null) {
-                mCallback.onCropRectEnd(mCropViewRect);
-            }
         }
 
         return false;

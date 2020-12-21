@@ -19,6 +19,8 @@ public interface IEditListener {
 
     public void onClose();
 
+    public void onDone();
+
     public void onDown();
 
     public void onPre();

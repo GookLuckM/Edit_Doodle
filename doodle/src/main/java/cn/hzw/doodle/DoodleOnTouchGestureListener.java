@@ -70,13 +70,17 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         mSelectionListener = listener;
     }
 
-    public DoodleOnTouchGestureListener(DoodleView doodle, OverlayView overlayView, ISelectionListener listener) {
+    /*public DoodleOnTouchGestureListener(DoodleView doodle, OverlayView overlayView, ISelectionListener listener) {
         mDoodle = doodle;
         mOverlayView = overlayView;
         mCopyLocation = DoodlePen.COPY.getCopyLocation();
         mCopyLocation.reset();
         mCopyLocation.updateLocation(doodle.getBitmap().getWidth() / 2, doodle.getBitmap().getHeight() / 2);
         mSelectionListener = listener;
+    }*/
+
+    public void setOverlayView(OverlayView overlayView){
+        mOverlayView = overlayView;
     }
 
     public void setSelectedItem(IDoodleSelectableItem selectedItem) {
@@ -185,9 +189,9 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             if (mSelectedItem instanceof DoodleRotatableItemBase) {
                 ((DoodleRotatableItemBase) mSelectedItem).setIsRotating(false);
             }
-            RectF cropViewRect = mOverlayView.getCropViewRect();
-            RectF bound = mDoodle.getDoodleBound();
             if (mOverlayView != null && mOverlayView.getVisibility() == View.VISIBLE) {
+                RectF cropViewRect = mOverlayView.getCropViewRect();
+                RectF bound = mDoodle.getDoodleBound();
                 limitCropBound(cropViewRect, bound);
 
             } else {
