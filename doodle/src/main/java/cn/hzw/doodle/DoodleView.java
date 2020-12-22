@@ -131,6 +131,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
      private Paint mZooomerPaint, mZoomerTouchPaint;
      private int mZoomerHorizonX; // 放大器的位置的x坐标，使其水平居中*/
     private boolean mIsScrollingDoodle = false; // 是否正在滑动，只要用于标志触摸时才显示放大镜
+    private boolean mIsScaleDoodle = false; // 是否正在滑动，只要用于标志触摸时才显示放大镜
 
     private float mDoodleSizeUnit = 1; // 长度单位，不同大小的图片的长度单位不一样。该单位的意义同dp的作用类似，独立于图片之外的单位长度
     private int mDoodleRotateDegree = 0; // 相对于初始图片旋转的角度
@@ -166,6 +167,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private int mFlags = 0;
     private Canvas mDoodleBitmapCanvas;
     private BackgroundView mBackgroundView;
+    private Rect mBitmapCropRect;
 
     public DoodleView(Context context, Bitmap bitmap, IDoodleListener listener) {
         this(context, bitmap, false, listener, null);
@@ -330,6 +332,18 @@ public class DoodleView extends FrameLayout implements IDoodle {
         }
         mDoodleBitmap = mBitmap.copy(mBitmap.getConfig(), true);
         mDoodleBitmapCanvas = new Canvas(mDoodleBitmap);
+    }
+
+    private void resetDoodleBitmap() {
+        if (mCropRect != null ) {
+            //Bitmap bitmap = Bitmap.createScaledBitmap(mDoodleBitmap, mCenterWidth , mCenterHeight , true);
+            //mDoodleBitmapCanvas = new Canvas(mDoodleBitmap);
+            mBitmapCropRect = new Rect();
+            mBitmapCropRect.left = (int) (toX(mCropRect.left));
+            mBitmapCropRect.right = (int) (toX(mCropRect.right));
+            mBitmapCropRect.top = (int) (toY(mCropRect.top));
+            mBitmapCropRect.bottom = (int) (toY(mCropRect.bottom));
+        }
     }
 
     /**
@@ -709,9 +723,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
     public void setDoodleCropRect(RectF rect) {
         if (mCropRect == null) {
             this.mCropRect = rect;
-        }else {
+        } else {
             mCropRect.set(rect);
         }
+        resetDoodleBitmap();
     }
 
     @Override
@@ -941,9 +956,9 @@ public class DoodleView extends FrameLayout implements IDoodle {
             return true;
         }
         return false;
-        }
+    }
 
-        @Override
+    @Override
     public boolean mosaicUndo() {
         if (mMosaicItemStack.size() > 0) {
             List<IDoodleItem> list = new ArrayList<>(mMosaicItemStack);
@@ -978,7 +993,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
     @Override
-    public void resetBitmapLocation(float scale , float centerScale,float centerX,float centerY,int centerWidth,int centerHeight) {
+    public void resetBitmapLocation(float scale, float centerScale, float centerX, float centerY, int centerWidth, int centerHeight) {
         this.mScale = scale;
         this.mCenterScale = centerScale;
         this.mCentreTranX = centerX;
@@ -1168,12 +1183,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
-
     @Override
     public float getDoodleTranslationX() {
         return mTransX;
     }
-
 
 
     @Override
@@ -1183,14 +1196,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
-
-
-
     @Override
     public float getDoodleTranslationY() {
         return mTransY;
     }
-
 
 
     @Override
@@ -1289,6 +1298,15 @@ public class DoodleView extends FrameLayout implements IDoodle {
         refresh();
     }
 
+    public void setIsScaleDoodle(boolean isScaleDoodle) {
+        mIsScaleDoodle = isScaleDoodle;
+    }
+
+
+    public boolean isScaleDoodle() {
+        return mIsScaleDoodle;
+    }
+
     @Override
     public void topItem(IDoodleItem item) {
         if (item == null) {
@@ -1298,10 +1316,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
         if (item.getPen().equals(DoodlePen.BRUSH) || item.getPen().equals(DoodlePen.ERASER)) {
             mItemStack.remove(item);
             mItemStack.add(item);
-        }else if (item.getPen().equals(DoodlePen.MOSAIC)) {
+        } else if (item.getPen().equals(DoodlePen.MOSAIC)) {
             mMosaicItemStack.remove(item);
             mMosaicItemStack.add(item);
-        }else if (item.getPen().equals(DoodlePen.TEXT)) {
+        } else if (item.getPen().equals(DoodlePen.TEXT)) {
             mTextItemStack.remove(item);
             mTextItemStack.add(item);
         }
@@ -1318,13 +1336,13 @@ public class DoodleView extends FrameLayout implements IDoodle {
         }
         if (item.getPen().equals(DoodlePen.BRUSH) || item.getPen().equals(DoodlePen.ERASER)) {
             mItemStack.remove(item);
-            mItemStack.add(0,item);
-        }else if (item.getPen().equals(DoodlePen.MOSAIC)) {
+            mItemStack.add(0, item);
+        } else if (item.getPen().equals(DoodlePen.MOSAIC)) {
             mMosaicItemStack.remove(item);
-            mMosaicItemStack.add(0,item);
-        }else if (item.getPen().equals(DoodlePen.TEXT)) {
+            mMosaicItemStack.add(0, item);
+        } else if (item.getPen().equals(DoodlePen.TEXT)) {
             mTextItemStack.remove(item);
-            mTextItemStack.add(0,item);
+            mTextItemStack.add(0, item);
         }
 
         addFlag(FLAG_RESET_BACKGROUND);
@@ -1513,6 +1531,17 @@ public class DoodleView extends FrameLayout implements IDoodle {
         return mRotateTranY;
     }
 
+
+    public RectF switchCropToCanvas(RectF cropRect) {
+
+        RectF rectF = new RectF();
+        rectF.left = toX(cropRect.left);
+        rectF.right = toX(cropRect.right);
+        rectF.top = toY(cropRect.top);
+        rectF.bottom = toX(cropRect.bottom);
+        return rectF;
+    }
+
     /**
      * 是否为编辑模式
      *
@@ -1560,14 +1589,15 @@ public class DoodleView extends FrameLayout implements IDoodle {
             }
 
             Bitmap bitmap = mOptimizeDrawing ? mDoodleBitmap : mBitmap;
-            if (mCropRect != null){
-                int bitmapLeft = (int) getDoodleBound().left;
-                int bitmapTop = (int) getDoodleBound().top;
-                int bitmapRight = (int) getDoodleBound().right;
-                int bitmapBottom = (int) getDoodleBound().bottom;
-                Rect rect = new Rect(bitmapLeft,bitmapTop,bitmapRight,bitmapBottom);
-                canvas.clipRect(mCropRect);
-                canvas.drawBitmap(bitmap, null,rect,null);
+            if (mCropRect != null) {
+                RectF rectF = switchCropToCanvas(mCropRect);
+                int bitmapLeft = (int) (rectF.left);
+                int bitmapTop = (int) (rectF.top);
+                int bitmapRight = (int) (rectF.right);
+                int bitmapBottom = (int) (rectF.bottom);
+                Rect rect = new Rect(bitmapLeft, bitmapTop,  bitmapRight, bitmapBottom);
+                canvas.clipRect(mBitmapCropRect);
+                canvas.drawBitmap(bitmap, mBitmapCropRect,mBitmapCropRect , null);
             }else {
                 // 绘制涂鸦后的图片
                 canvas.drawBitmap(bitmap, 0, 0, null);
@@ -1575,6 +1605,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         }
 
     }
+
 
     // 前景图层，每次刷新都会绘制，用于绘制正在创建或选中的item
     private class ForegroundView extends View {
@@ -1620,9 +1651,19 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
             Bitmap bitmap = mOptimizeDrawing ? mDoodleBitmap : mBitmap;
 
+            if (mCropRect != null) {
+                /*RectF rectF = switchCropToCanvas(mCropRect);
+                int bitmapLeft = (int) (rectF.left);
+                int bitmapTop = (int) (rectF.top);
+                int bitmapRight = (int) (rectF.right);
+                int bitmapBottom = (int) (rectF.bottom);
+                Rect rect = new Rect(bitmapLeft, bitmapTop,  bitmapRight, bitmapBottom);*/
+                canvas.clipRect(mBitmapCropRect);
+            }
+
             int saveCount = canvas.save(); // 1
             List<IDoodleItem> items = new ArrayList<>(mItemStack);
-            List<IDoodleItem> mosaicItems =new ArrayList<>(mMosaicItemStack);
+            List<IDoodleItem> mosaicItems = new ArrayList<>(mMosaicItemStack);
             List<IDoodleItem> textItems = new ArrayList<>(mTextItemStack);
             if (mOptimizeDrawing) {
                 items = mItemStackOnViewCanvas;
@@ -1633,10 +1674,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
             boolean canvasClipped = false;
             if (!mIsDrawableOutside) { // 裁剪绘制区域为图片区域
                 canvasClipped = true;
-                if (mCropRect != null) {
-                    canvas.clipRect(mCropRect);
+                if (mCropRect != null){
+                    canvas.clipRect(mBitmapCropRect);
                 }else {
-                    canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                    canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
                 }
             }
 
@@ -1648,11 +1689,12 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.draw(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        if (mCropRect != null) {
-                            canvas.clipRect(mCropRect);
+                        if (mCropRect != null){
+                            canvas.clipRect(mBitmapCropRect);
                         }else {
-                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
                         }
+
                     }
                 } else {
                     item.draw(canvas);
@@ -1668,11 +1710,12 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.draw(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        if (mCropRect != null) {
-                            canvas.clipRect(mCropRect);
+                        if (mCropRect != null){
+                            canvas.clipRect(mBitmapCropRect);
                         }else {
-                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
                         }
+
                     }
                 } else {
                     item.draw(canvas);
@@ -1687,11 +1730,12 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.draw(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        if (mCropRect != null) {
-                            canvas.clipRect(mCropRect);
+                        if (mCropRect != null){
+                            canvas.clipRect(mBitmapCropRect);
                         }else {
-                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
                         }
+
                     }
                 } else {
                     item.draw(canvas);
@@ -1707,11 +1751,12 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.drawAtTheTop(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        if (mCropRect != null) {
-                            canvas.clipRect(mCropRect);
+                        if (mCropRect != null){
+                            canvas.clipRect(mBitmapCropRect);
                         }else {
-                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
                         }
+
                     }
                 } else {
                     item.drawAtTheTop(canvas);
@@ -1727,11 +1772,12 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.drawAtTheTop(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        if (mCropRect != null) {
-                            canvas.clipRect(mCropRect);
+                        if (mCropRect != null){
+                            canvas.clipRect(mBitmapCropRect);
                         }else {
-                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
                         }
+
                     }
                 } else {
                     item.drawAtTheTop(canvas);
@@ -1748,11 +1794,12 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.drawAtTheTop(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        if (mCropRect != null) {
-                            canvas.clipRect(mCropRect);
+                        if (mCropRect != null){
+                            canvas.clipRect(mBitmapCropRect);
                         }else {
-                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
                         }
+
                     }
                 } else {
                     item.drawAtTheTop(canvas);

@@ -26,6 +26,39 @@
         app:layout_constraintTop_toTopOf="parent" />-->
 
     <LinearLayout
+        android:id="@+id/ll_delete_rect"
+        android:layout_width="@dimen/dp_139"
+        android:layout_height="@dimen/dp_70"
+        android:background="@drawable/bg_delete_rect"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/dp_9"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="@dimen/dp_19"
+            android:layout_height="@dimen/dp_19"
+            android:src="@drawable/icon_delete"
+            android:layout_marginBottom="@dimen/dp_8"/>
+
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="拖动到此处删除"
+            android:textSize="@dimen/sp_10"
+            android:textColor="@color/white"/>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
         android:id="@+id/ll_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -83,11 +116,17 @@
     </LinearLayout>
 
 
+
+
+
+
     <FrameLayout
         android:id="@+id/frag_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_9"
         android:layout_below="@+id/doodle_container" />
+
+
 
 </RelativeLayout>

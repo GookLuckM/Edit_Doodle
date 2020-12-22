@@ -1,5 +1,6 @@
 package cn.hzw.doodle;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -131,6 +132,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 PointF xy = mSelectedItem.getLocation();
                 mStartX = xy.x;
                 mStartY = xy.y;
+                mSelectionListener.showDeleteRect(mSelectedItem,true);
                 if (mSelectedItem instanceof DoodleRotatableItemBase
                         && (((DoodleRotatableItemBase) mSelectedItem).canRotate(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)))) {
                     ((DoodleRotatableItemBase) mSelectedItem).setIsRotating(true);
@@ -184,10 +186,10 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         mTouchX = e.getX();
         mTouchY = e.getY();
         mDoodle.setScrollingDoodle(false);
-
         if (mDoodle.isEditMode() || isPenEditable(mDoodle.getPen())) {
             if (mSelectedItem instanceof DoodleRotatableItemBase) {
                 ((DoodleRotatableItemBase) mSelectedItem).setIsRotating(false);
+                mSelectionListener.showDeleteRect(mSelectedItem,false);
             }
             if (mOverlayView != null && mOverlayView.getVisibility() == View.VISIBLE) {
                 RectF cropViewRect = mOverlayView.getCropViewRect();
@@ -213,6 +215,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        System.out.println("doodleview     onScroll");
         mLastTouchX = mTouchX;
         mLastTouchY = mTouchY;
         mTouchX = e2.getX();
@@ -228,6 +231,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                     mSelectedItem.setLocation(
                             mStartX + mDoodle.toX(mTouchX) - mDoodle.toX(mTouchDownX),
                             mStartY + mDoodle.toY(mTouchY) - mDoodle.toY(mTouchDownY));
+                    mSelectionListener.onChangeSelectedItemLocation(mSelectedItem);
                 }
             } else {
                 if (mDoodle.isEditMode()) {
@@ -327,6 +331,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
     public boolean onScaleBegin(ScaleGestureDetectorApi27 detector) {
         mLastFocusX = null;
         mLastFocusY = null;
+        mDoodle.setIsScaleDoodle(true);
         return true;
     }
 
@@ -334,6 +339,8 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
     @Override
     public boolean onScale(ScaleGestureDetectorApi27 detector) {
+
+        System.out.println("doodleview     onScale");
         // 屏幕上的焦点
         mTouchCentreX = detector.getFocusX();
         mTouchCentreY = detector.getFocusY();
@@ -344,6 +351,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             // 移动图片
             if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
                 if (mSelectedItem == null || !mSupportScaleItem) {
+                    System.out.println("doodleview     onTranslation");
                     mDoodle.setDoodleTranslationX(mDoodle.getDoodleTranslationX() + dx + pendingX);
                     mDoodle.setDoodleTranslationY(mDoodle.getDoodleTranslationY() + dy + pendingY);
                 } else {
@@ -358,6 +366,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
         if (Math.abs(1 - detector.getScaleFactor()) > 0.005f) {
             //if (mSelectedItem == null || !mSupportScaleItem) {
+                System.out.println("doodleview     onDoodleScale");
                 // 缩放图片
                 float scale = mDoodle.getDoodleScale() * detector.getScaleFactor() * pendingScale;
                 mDoodle.setDoodleScale(scale, mDoodle.toX(mTouchCentreX), mDoodle.toY(mTouchCentreY));
@@ -377,7 +386,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
     @Override
     public void onScaleEnd(ScaleGestureDetectorApi27 detector) {
-
+        mDoodle.setIsScaleDoodle(false);
         if (mOverlayView != null && mOverlayView.getVisibility() == View.VISIBLE) {
             RectF cropViewRect = mOverlayView.getCropViewRect();
             RectF bound = mDoodle.getDoodleBound();
@@ -410,7 +419,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
     }
 
 
-    private void limitCropBound(RectF cropViewRect, RectF bound) {
+    private void limitCropBound(final RectF cropViewRect, RectF bound) {
         int lastOverlayViewIndex = mOverlayView.getLastTouchCornerIndex();
         final float oldX = mDoodle.getDoodleTranslationX(), oldY = mDoodle.getDoodleTranslationY();
         float x = mDoodle.getDoodleTranslationX() + mDoodle.getCentreTranX(), y = mDoodle.getDoodleTranslationY() + mDoodle.getCentreTranY();
@@ -426,6 +435,9 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         float bitmapBottom = bound.bottom;
 
         if (bitmapLeft <= cropLeft && bitmapRight >= cropRight && bitmapTop <= cropTop && bitmapBottom >= cropBottom) {
+            if (mOverlayView.getOverlayViewChangeListener() != null && !mOverlayView.getIsTouchScrolling()) {
+                mOverlayView.getOverlayViewChangeListener().onCropRectEnd(cropViewRect);
+            }
             return;
         } else {
             if (bitmapLeft > cropLeft) {
@@ -456,6 +468,30 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                     float value = (float) animation.getAnimatedValue();
                     float fraction = animation.getAnimatedFraction();
                     mDoodle.setDoodleTranslation(value, mTransAnimY * fraction);
+                }
+            });
+
+            mCropTranslateAnimator.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    if (mOverlayView.getOverlayViewChangeListener() != null && !mOverlayView.getIsTouchScrolling()) {
+                        mOverlayView.getOverlayViewChangeListener().onCropRectEnd(cropViewRect);
+                    }
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
                 }
             });
 
@@ -647,6 +683,11 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
          * @param y
          */
         void onCreateSelectableItem(IDoodle doodle, float x, float y);
+
+
+        void onChangeSelectedItemLocation(IDoodleSelectableItem selectableItem);
+
+        void showDeleteRect(IDoodleSelectableItem selectableItem,boolean isShow);
     }
 
 }

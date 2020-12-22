@@ -225,6 +225,16 @@ public class OverlayView extends View {
         }
     }
 
+    public void setTargetAspectRatio(final float targetAspectRatio,boolean isCallBack) {
+        mTargetAspectRatio = targetAspectRatio;
+        if (mCropOriginWidth > 0) {
+            setupCropBounds(isCallBack);
+            postInvalidate();
+        } else {
+            mShouldSetupCropBounds = true;
+        }
+    }
+
     public float getTargetAspectRatio() {
         return mTargetAspectRatio;
 
@@ -250,7 +260,27 @@ public class OverlayView extends View {
         if (mCallback != null) {
             mCallback.onCropRectUpdated(mCropViewRect);
         }
-        originRect.set(mCropViewRect);
+        //originRect.set(mCropViewRect);
+        updateGridPoints();
+    }
+
+    public void setupCropBounds(boolean isCallBack) {
+        int height = (int) (mCropOriginWidth / mTargetAspectRatio);
+        if (height > mCropOriginHeight) {
+            int width = (int) (mCropOriginHeight * mTargetAspectRatio);
+            int halfDiff = (mCropOriginWidth - width) / 2;
+            mCropViewRect.set(originRect.left + halfDiff, originRect.top,
+                    originRect.left + width + halfDiff, originRect.top + mCropOriginHeight);
+        } else {
+            int halfDiff = (mCropOriginHeight - height) / 2;
+            mCropViewRect.set(originRect.left, originRect.top + halfDiff,
+                    originRect.left+mCropOriginWidth, originRect.top +height + halfDiff);
+        }
+
+        if (mCallback != null && isCallBack) {
+            mCallback.onCropRectUpdated(mCropViewRect);
+        }
+        //originRect.set(mCropViewRect);
         updateGridPoints();
     }
 
@@ -360,6 +390,10 @@ public class OverlayView extends View {
         }
 
         return false;
+    }
+
+    public boolean getIsTouchScrolling(){
+        return isTouchScrolling;
     }
 
     public int getLastTouchCornerIndex(){

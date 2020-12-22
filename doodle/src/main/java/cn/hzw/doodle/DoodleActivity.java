@@ -341,6 +341,16 @@ public class DoodleActivity extends Activity {
                     //createDoodleBitmap(null, x, y);
                 }
             }
+
+            @Override
+            public void onChangeSelectedItemLocation(IDoodleSelectableItem selectableItem) {
+
+            }
+
+            @Override
+            public void showDeleteRect(IDoodleSelectableItem selectableItem,boolean isShow) {
+
+            }
         }) {
             @Override
             public void setSupportScaleItem(boolean supportScaleItem) {

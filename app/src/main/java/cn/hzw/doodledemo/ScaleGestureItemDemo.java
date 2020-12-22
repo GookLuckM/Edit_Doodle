@@ -83,6 +83,16 @@ public class ScaleGestureItemDemo extends Activity {
                         }, null);
 
             }
+
+            @Override
+            public void onChangeSelectedItemLocation(IDoodleSelectableItem selectableItem) {
+
+            }
+
+            @Override
+            public void showDeleteRect(IDoodleSelectableItem selectableItem,boolean isShow) {
+
+            }
         });
         DoodleTouchDetector touchDetector = new DoodleTouchDetector(this, touchGestureListener);
         doodleView.setDefaultTouchDetector(touchDetector);
