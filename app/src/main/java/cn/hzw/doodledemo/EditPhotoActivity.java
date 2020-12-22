@@ -32,6 +32,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yalantis.ucrop.callback.OverlayViewChangeListener;
@@ -374,6 +375,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void initView() {
         editLayout = findViewById(R.id.frag_view);
         llEdit = findViewById(R.id.ll_edit);
+        TextView tvDone = findViewById(R.id.tv_done);
         ImageView ivScrawl = findViewById(R.id.iv_scrawl);
         ImageView ivText = findViewById(R.id.iv_text);
         ImageView ivMosaic = findViewById(R.id.iv_mosaic);
@@ -384,6 +386,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         ivMosaic.setOnClickListener(this);
         ivText.setOnClickListener(this);
         ivCrop.setOnClickListener(this);
+        tvDone.setOnClickListener(this);
 
 
 

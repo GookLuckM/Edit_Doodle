@@ -281,10 +281,6 @@ public class DoodlePath extends DoodleRotatableItemBase {
         adjustPath(false);
     }
 
-    @Override
-    public void insert(ViewGroup viewGroup) {
-
-    }
 
     @Override
     public void setSize(float size) {

@@ -145,7 +145,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             }
         } else {
             // 点击copy
-            if (mDoodle.getPen() == DoodlePen.COPY && mCopyLocation.contains(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY), mDoodle.getSize())) {
+            /*if (mDoodle.getPen() == DoodlePen.COPY && mCopyLocation.contains(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY), mDoodle.getSize())) {
                 mCopyLocation.setRelocating(true);
                 mCopyLocation.setCopying(false);
             } else {
@@ -155,7 +155,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                         mCopyLocation.setCopying(true);
                         mCopyLocation.setStartPosition(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
                     }
-                }
+                }*/
 
                 // 初始化绘制
                 mCurrPath = new Path();
@@ -173,7 +173,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 }
 
             }
-        }
+        //}
         mDoodle.refresh();
     }
 
@@ -193,7 +193,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 RectF cropViewRect = mOverlayView.getCropViewRect();
                 RectF bound = mDoodle.getDoodleBound();
                 limitCropBound(cropViewRect, bound);
-
             } else {
 
                 if (mDoodle.isEditMode()) {
@@ -237,14 +236,14 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 }
             }
         } else {
-            if (mDoodle.getPen() == DoodlePen.COPY && mCopyLocation.isRelocating()) {
+            /*if (mDoodle.getPen() == DoodlePen.COPY && mCopyLocation.isRelocating()) {
                 // 正在定位location
                 mCopyLocation.updateLocation(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
             } else {
                 if (mDoodle.getPen() == DoodlePen.COPY) {
                     mCopyLocation.updateLocation(mCopyLocation.getCopyStartX() + mDoodle.toX(mTouchX) - mCopyLocation.getTouchStartX(),
                             mCopyLocation.getCopyStartY() + mDoodle.toY(mTouchY) - mCopyLocation.getTouchStartY());
-                }
+                }*/
                 if (mDoodle.getShape() == DoodleShape.HAND_WRITE) { // 手写
                     mCurrPath.quadTo(
                             mDoodle.toX(mLastTouchX),
@@ -255,7 +254,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 } else {  // 画图形
                     mCurrDoodlePath.updateXY(mDoodle.toX(mTouchDownX), mDoodle.toY(mTouchDownY), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
                 }
-            }
+            //}
         }
         mDoodle.refresh();
         return true;
@@ -358,13 +357,13 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         }
 
         if (Math.abs(1 - detector.getScaleFactor()) > 0.005f) {
-            if (mSelectedItem == null || !mSupportScaleItem) {
+            //if (mSelectedItem == null || !mSupportScaleItem) {
                 // 缩放图片
                 float scale = mDoodle.getDoodleScale() * detector.getScaleFactor() * pendingScale;
                 mDoodle.setDoodleScale(scale, mDoodle.toX(mTouchCentreX), mDoodle.toY(mTouchCentreY));
-            } else {
+           /* } else {
                 mSelectedItem.setScale(mSelectedItem.getScale() * detector.getScaleFactor() * pendingScale);
-            }
+            }*/
             pendingScale = 1;
         } else {
             pendingScale *= detector.getScaleFactor();

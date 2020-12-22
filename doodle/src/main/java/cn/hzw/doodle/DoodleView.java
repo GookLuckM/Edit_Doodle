@@ -1633,7 +1633,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
             boolean canvasClipped = false;
             if (!mIsDrawableOutside) { // 裁剪绘制区域为图片区域
                 canvasClipped = true;
-                canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                if (mCropRect != null) {
+                    canvas.clipRect(mCropRect);
+                }else {
+                    canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                }
             }
 
             for (IDoodleItem item : mosaicItems) {
@@ -1644,7 +1648,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.draw(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                        if (mCropRect != null) {
+                            canvas.clipRect(mCropRect);
+                        }else {
+                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                        }
                     }
                 } else {
                     item.draw(canvas);
@@ -1660,7 +1668,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.draw(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                        if (mCropRect != null) {
+                            canvas.clipRect(mCropRect);
+                        }else {
+                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                        }
                     }
                 } else {
                     item.draw(canvas);
@@ -1675,7 +1687,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.draw(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                        if (mCropRect != null) {
+                            canvas.clipRect(mCropRect);
+                        }else {
+                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                        }
                     }
                 } else {
                     item.draw(canvas);
@@ -1691,7 +1707,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.drawAtTheTop(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                        if (mCropRect != null) {
+                            canvas.clipRect(mCropRect);
+                        }else {
+                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                        }
                     }
                 } else {
                     item.drawAtTheTop(canvas);
@@ -1707,7 +1727,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.drawAtTheTop(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                        if (mCropRect != null) {
+                            canvas.clipRect(mCropRect);
+                        }else {
+                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                        }
                     }
                 } else {
                     item.drawAtTheTop(canvas);
@@ -1724,7 +1748,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     item.drawAtTheTop(canvas);
                     if (canvasClipped) { // 2.恢复裁剪
                         canvas.save();
-                        canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                        if (mCropRect != null) {
+                            canvas.clipRect(mCropRect);
+                        }else {
+                            canvas.clipRect(0,0,bitmap.getWidth(),bitmap.getHeight());
+                        }
                     }
                 } else {
                     item.drawAtTheTop(canvas);

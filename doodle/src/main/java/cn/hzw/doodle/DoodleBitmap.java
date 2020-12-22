@@ -60,10 +60,6 @@ public class DoodleBitmap extends DoodleRotatableItemBase {
         canvas.drawBitmap(mBitmap, mSrcRect, mDstRect, null);
     }
 
-    @Override
-    public void insert(ViewGroup viewGroup) {
-
-    }
 }
 
 

@@ -102,24 +102,6 @@ public class DoodleText extends DoodleRotatableItemBase {
     }
 
 
-    @Override
-    public void insert(ViewGroup viewGroup) {
-        TextView textView = new TextView(viewGroup.getContext());
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
-        /*android:paddingTop="@dimen/dp_4"
-        android:paddingBottom="@dimen/dp_4"
-        android:paddingLeft="@dimen/dp_12"
-        android:paddingRight="@dimen/dp_12"*/
-        int paddingTop = DimenUtils.dp2px(viewGroup.getContext(), 4);
-        int paddingLeft = DimenUtils.dp2px(viewGroup.getContext(), 12);
-        textView.setPadding(paddingLeft, paddingTop, paddingLeft, paddingTop);
-        textView.setLayoutParams(params);
-        textView.setText(mText);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getSize());
-        DoodleColor doodleColor = (DoodleColor) getColor();
-        textView.setTextColor(doodleColor.getColor());
-        viewGroup.addView(textView);
-    }
 }
 
 

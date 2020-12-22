@@ -78,7 +78,6 @@ public interface IDoodleItem {
     public void draw(Canvas canvas);
 
 
-    public void insert(ViewGroup viewGroup);
 
     /**
      * 画在所有item的上面
