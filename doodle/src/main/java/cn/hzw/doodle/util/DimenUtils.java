@@ -6,7 +6,7 @@ import android.util.TypedValue;
 public class DimenUtils {
 
     public static int dp2px(Context context, int dp){
-        return TypedValue.complexToDimensionPixelOffset(dp,context.getResources().getDisplayMetrics());
+            return (int) (context.getResources().getDisplayMetrics().density * dp + 0.5f);
     }
 
     public static int getScreenWidth(Context context) {

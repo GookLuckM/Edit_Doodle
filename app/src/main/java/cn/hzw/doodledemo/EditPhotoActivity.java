@@ -104,9 +104,9 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
     private DoodleOnTouchGestureListener mTouchGestureListener;
     private FragmentManager fragmentManager;
-    private LinearLayout llEdit;
 
     private BaseEditFragment editFragment;
+    private LinearLayout llEdit;
     private FrameLayout editLayout;
     private DoodleShape selectedShape = DoodleShape.HAND_WRITE;
     private int textSelectedColor = Color.RED;

@@ -19,4 +19,15 @@
         <item>蓝色</item>
         <item>紫色</item>
     </string-array>
+
+
+    <string-array name="crop_ratio">
+        <item>原始</item>
+        <item>自由</item>
+        <item>1:1</item>
+        <item>3:4</item>
+        <item>4:3</item>
+        <item>9:16</item>
+        <item>16:9</item>
+    </string-array>
 </resources>

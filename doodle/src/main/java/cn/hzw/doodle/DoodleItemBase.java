@@ -19,8 +19,8 @@ import cn.hzw.doodle.core.IDoodleShape;
 
 public abstract class DoodleItemBase implements IDoodleItem, IDoodleItemListener {
 
-    public static final float MIN_SCALE = 0.01f;
-    public static final float MAX_SCALE = 100f;
+    public static final float MIN_SCALE = 0.5f;
+    public static final float MAX_SCALE = 5f;
 
     private float mItemRotate; // item的旋转角度
     private IDoodle mDoodle;
@@ -35,6 +35,8 @@ public abstract class DoodleItemBase implements IDoodleItem, IDoodleItemListener
     private float mMinScale = MIN_SCALE;
     private float mMaxScale = MAX_SCALE;
     private float mScale = 1;
+    private float scaleX = -1,scaleY = -1;
+
 
     private boolean mHasAdded = false;
 
@@ -255,6 +257,20 @@ public abstract class DoodleItemBase implements IDoodleItem, IDoodleItemListener
             scale = mMaxScale;
         }
         mScale = scale;
+        onPropertyChanged(PROPERTY_SCALE);
+        refresh();
+    }
+
+
+    public void setScale(float scale,float x, float y) {
+        if (scale <= mMinScale) {
+            scale = mMinScale;
+        } else if (scale > mMaxScale) {
+            scale = mMaxScale;
+        }
+        mScale = scale;
+        scaleX = x;
+        scaleY = y;
         onPropertyChanged(PROPERTY_SCALE);
         refresh();
     }

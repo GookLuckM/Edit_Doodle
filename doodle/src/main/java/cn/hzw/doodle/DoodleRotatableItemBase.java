@@ -82,23 +82,6 @@ public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
             canvas.drawCircle(mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 8) * unit, mRectTemp.top + mRectTemp.height() / 2, 8 * unit, mPaint);
 
 
-            // pivot
-            mPaint.setColor(0xffffffff);
-            mPaint.setStrokeWidth(1f * unit);
-            mPaint.setStyle(Paint.Style.STROKE);
-            // +
-            int length = 3;
-            canvas.drawLine(getPivotX() - getLocation().x - length * unit, getPivotY() - getLocation().y, getPivotX() - getLocation().x + length * unit, getPivotY() - getLocation().y, mPaint);
-            canvas.drawLine(getPivotX() - getLocation().x, getPivotY() - getLocation().y - length * unit, getPivotX() - getLocation().x, getPivotY() - getLocation().y + length * unit, mPaint);
-            mPaint.setStrokeWidth(0.5f * unit);
-            mPaint.setColor(0xff888888);
-            canvas.drawLine(getPivotX() - getLocation().x - length * unit, getPivotY() - getLocation().y, getPivotX() - getLocation().x + length * unit, getPivotY() - getLocation().y, mPaint);
-            canvas.drawLine(getPivotX() - getLocation().x, getPivotY() - getLocation().y - length * unit, getPivotX() - getLocation().x, getPivotY() - getLocation().y + length * unit, mPaint);
-            mPaint.setStrokeWidth(1f * unit);
-            mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setColor(0xffffffff);
-            canvas.drawCircle(getPivotX() - getLocation().x, getPivotY() - getLocation().y, unit, mPaint);
-
             canvas.restoreToCount(count);
         }
     }

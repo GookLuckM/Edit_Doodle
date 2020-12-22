@@ -7,7 +7,11 @@ import android.view.ViewStub;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import cn.hzw.doodle.DoodlePen;
 
@@ -28,22 +32,8 @@ public class EditCropFragment extends BaseEditFragment implements ScrawlColorsAd
 
     @Override
     protected void init() {
-        currentSize = R.id.btn_normal;
-        currentLevel = getResources().getDimensionPixelOffset(R.dimen.dp_8);
-
-        penThickSizeMap.put(R.id.btn_small, getResources().getDimensionPixelOffset(R.dimen.dp_8));
-        penThickSizeMap.put(R.id.btn_mid, getResources().getDimensionPixelOffset(R.dimen.dp_16));
-        penThickSizeMap.put(R.id.btn_normal, getResources().getDimensionPixelOffset(R.dimen.dp_24));
-        penThickSizeMap.put(R.id.btn_large, getResources().getDimensionPixelOffset(R.dimen.dp_40));
-        penThickSizeMap.put(R.id.btn_larger, getResources().getDimensionPixelOffset(R.dimen.dp_48));
-
-        penThinSizeMap.put(R.id.btn_small, getResources().getDimensionPixelOffset(R.dimen.dp_5));
-        penThinSizeMap.put(R.id.btn_mid, getResources().getDimensionPixelOffset(R.dimen.dp_10));
-        penThinSizeMap.put(R.id.btn_normal, getResources().getDimensionPixelOffset(R.dimen.dp_15));
-        penThinSizeMap.put(R.id.btn_large, getResources().getDimensionPixelOffset(R.dimen.dp_25));
-        penThinSizeMap.put(R.id.btn_larger, getResources().getDimensionPixelOffset(R.dimen.dp_30));
-        penSize = new HashMap<>();
-        penSize.putAll(penThickSizeMap);
+        String[] cropRatio = getResources().getStringArray(R.array.crop_ratio);
+        List<String> cropRatioList = Arrays.asList(cropRatio);
     }
 
     @Override
@@ -212,7 +202,7 @@ public class EditCropFragment extends BaseEditFragment implements ScrawlColorsAd
 
     @Override
     protected int getContentLayout() {
-        return R.layout.frag_edit_mosaic;
+        return R.layout.frag_edit_crop;
     }
 
     @Override

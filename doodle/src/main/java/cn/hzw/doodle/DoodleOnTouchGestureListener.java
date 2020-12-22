@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
@@ -224,9 +225,26 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         if (mDoodle.isEditMode() || isPenEditable(mDoodle.getPen())) { //画笔是否是可选择的
             if (mSelectedItem != null) {
                 if ((mSelectedItem instanceof DoodleRotatableItemBase) && (((DoodleRotatableItemBase) mSelectedItem).isRotating())) { // 旋转item
-                    mSelectedItem.setItemRotate(mRotateDiff + computeAngle(
-                            mSelectedItem.getPivotX(), mSelectedItem.getPivotY(), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)
-                    ));
+                    float totalx = mTouchX - mTouchDownX;
+                    float totalY = mTouchY - mTouchDownY;
+                    float dx = mTouchX - mLastTouchX;
+                    float dy = mTouchY - mLastTouchY;
+                    if (totalx > 50 || totalY > 50){
+                        Rect bounds = mSelectedItem.getBounds();
+
+                        float scale = 1f;
+                        if (dx >= dy){
+                            scale = (bounds.width() + dx)/bounds.width();
+                        }else {
+                            scale = (bounds.height() + dy)/bounds.height();
+                        }
+                        mSelectedItem.setScale(mSelectedItem.getScale() * scale);
+                    }else {
+                        mSelectedItem.setItemRotate(mRotateDiff + computeAngle(
+                                mSelectedItem.getPivotX(), mSelectedItem.getPivotY(), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)
+                        ));
+                    }
+
                 } else { // 移动item
                     mSelectedItem.setLocation(
                             mStartX + mDoodle.toX(mTouchX) - mDoodle.toX(mTouchDownX),
@@ -351,7 +369,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             // 移动图片
             if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
                 if (mSelectedItem == null || !mSupportScaleItem) {
-                    System.out.println("doodleview     onTranslation");
                     mDoodle.setDoodleTranslationX(mDoodle.getDoodleTranslationX() + dx + pendingX);
                     mDoodle.setDoodleTranslationY(mDoodle.getDoodleTranslationY() + dy + pendingY);
                 } else {

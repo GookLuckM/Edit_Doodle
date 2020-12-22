@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_125"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="center_vertical"
+    android:background="@color/white">
+
+
+    <ImageView
+        android:id="@+id/iv_rotate"
+        android:layout_width="@dimen/dp_41"
+        android:layout_height="@dimen/dp_41"
+        android:src="@drawable/icon_rotate"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/iv_line"
+        android:paddingTop="@dimen/dp_10"
+        android:paddingBottom="@dimen/dp_8"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/dp_14"
+        />
+
+    <TextView
+        android:id="@+id/tv_rotate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_rotate"
+        app:layout_constraintRight_toRightOf="@+id/iv_rotate"
+        android:textColor="#666666"
+        android:textSize="@dimen/sp_9"
+        android:text="旋转"
+        app:layout_constraintTop_toBottomOf="@+id/iv_rotate"/>
+
+
+    <ImageView
+        android:id="@+id/iv_line"
+        android:layout_width="@dimen/dp_1"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/iv_rotate"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_rotate"
+        app:layout_constraintLeft_toRightOf="@+id/iv_rotate"
+        android:layout_marginLeft="@dimen/dp_6"
+        android:src="@drawable/divide_line"/>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_ratios"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toRightOf="@+id/iv_line"
+        app:layout_constraintTop_toTopOf="@+id/iv_rotate"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_rotate"
+        android:paddingLeft="@dimen/dp_16"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
