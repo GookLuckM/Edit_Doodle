@@ -177,38 +177,38 @@ public class DoodlePath extends DoodleRotatableItemBase {
     //---------计算Path
     private Path mArrowTrianglePath;
 
-    private void updateArrowPath(Path path, float sx, float sy, float ex, float ey, float size) {
+    private void updateArrowPath(Path path, float touchDownX, float touchDownY, float touchX, float touchY, float size) {
         float arrowSize = size;
         double H = arrowSize; // 箭头高度
         double L = arrowSize / 2; // 底边的一�?
 
         double awrad = Math.atan(L / 2 / H); // 箭头角度
         double arraow_len = Math.sqrt(L / 2 * L / 2 + H * H) - 5; // 箭头的长�?
-        double[] arrXY_1 = DrawUtil.rotateVec(ex - sx, ey - sy, awrad, true, arraow_len);
-        double[] arrXY_2 = DrawUtil.rotateVec(ex - sx, ey - sy, -awrad, true, arraow_len);
-        float x_3 = (float) (ex - arrXY_1[0]); // (x3,y3)是第�?端点
-        float y_3 = (float) (ey - arrXY_1[1]);
-        float x_4 = (float) (ex - arrXY_2[0]); // (x4,y4)是第二端�?
-        float y_4 = (float) (ey - arrXY_2[1]);
+        double[] arrXY_1 = DrawUtil.rotateVec(touchX - touchDownX, touchY - touchDownY, awrad, true, arraow_len);
+        double[] arrXY_2 = DrawUtil.rotateVec(touchX - touchDownX, touchY - touchDownY, -awrad, true, arraow_len);
+        float x_3 = (float) (touchX - arrXY_1[0]); // (x3,y3)是第�?端点
+        float y_3 = (float) (touchY - arrXY_1[1]);
+        float x_4 = (float) (touchX - arrXY_2[0]); // (x4,y4)是第二端�?
+        float y_4 = (float) (touchY - arrXY_2[1]);
         // 画线
-        path.moveTo(sx, sy);
+        path.moveTo(touchDownX, touchDownY);
         path.lineTo(x_3, y_3);
         path.lineTo(x_4, y_4);
         path.close();
 
         awrad = Math.atan(L / H); // 箭头角度
         arraow_len = Math.sqrt(L * L + H * H); // 箭头的长�?
-        arrXY_1 = DrawUtil.rotateVec(ex - sx, ey - sy, awrad, true, arraow_len);
-        arrXY_2 = DrawUtil.rotateVec(ex - sx, ey - sy, -awrad, true, arraow_len);
-        x_3 = (float) (ex - arrXY_1[0]); // (x3,y3)是第�?端点
-        y_3 = (float) (ey - arrXY_1[1]);
-        x_4 = (float) (ex - arrXY_2[0]); // (x4,y4)是第二端�?
-        y_4 = (float) (ey - arrXY_2[1]);
+        arrXY_1 = DrawUtil.rotateVec(touchX - touchDownX, touchY - touchDownY, awrad, true, arraow_len);
+        arrXY_2 = DrawUtil.rotateVec(touchX - touchDownX, touchY - touchDownY, -awrad, true, arraow_len);
+        x_3 = (float) (touchX - arrXY_1[0]); // (x3,y3)是第�?端点
+        y_3 = (float) (touchY - arrXY_1[1]);
+        x_4 = (float) (touchX - arrXY_2[0]); // (x4,y4)是第二端�?
+        y_4 = (float) (touchY - arrXY_2[1]);
         if (mArrowTrianglePath == null) {
             mArrowTrianglePath = new Path();
         }
         mArrowTrianglePath.reset();
-        mArrowTrianglePath.moveTo(ex, ey);
+        mArrowTrianglePath.moveTo(touchX, touchY);
         mArrowTrianglePath.lineTo(x_4, y_4);
         mArrowTrianglePath.lineTo(x_3, y_3);
         mArrowTrianglePath.close();

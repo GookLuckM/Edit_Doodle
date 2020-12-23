@@ -34,7 +34,7 @@ public interface IDoodle {
     public int getDoodleRotation();
 
 
-    public void setDoodleCropRect(RectF rect);
+    public void setDoodleCropRect(RectF rect,int type);
 
     public RectF getDoodleCropRect();
 

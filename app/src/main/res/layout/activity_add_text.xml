@@ -58,11 +58,18 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <CheckBox
+        <ImageView
+            android:id="@+id/iv_alignment"
+            android:layout_width="@dimen/dp_19"
+            android:layout_height="@dimen/dp_12"
+            android:layout_marginLeft="@dimen/dp_17"
+            android:src="@drawable/icon_alignment_left"/>
+
+        <ImageButton
             android:id="@+id/cb_background"
             android:layout_width="@dimen/dp_17"
             android:layout_height="@dimen/dp_17"
-            android:layout_marginLeft="@dimen/dp_17"
+            android:layout_marginLeft="@dimen/dp_26"
             android:background="@drawable/icon_text_selector"
             android:button="@null"
 

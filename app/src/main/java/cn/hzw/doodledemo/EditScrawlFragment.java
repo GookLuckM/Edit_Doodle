@@ -33,6 +33,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
 
     @Override
     protected void init() {
+        setTitle("涂鸦");
         colorArr = getResources().getStringArray(R.array.color_arr);
         colorNames = getResources().getStringArray(R.array.color_names);
         if (colorArr != null && colorArr.length > 1 && colorNames != null && colorNames.length > 1 && colorArr.length == colorNames.length) {

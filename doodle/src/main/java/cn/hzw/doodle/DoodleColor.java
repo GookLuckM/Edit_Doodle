@@ -76,6 +76,7 @@ public class DoodleColor implements IDoodleColor {
         mColor = color;
     }
 
+
     public void setColor(Bitmap bitmap) {
         mType = Type.BITMAP;
         mBitmap = bitmap;
@@ -104,6 +105,7 @@ public class DoodleColor implements IDoodleColor {
         return mMatrix;
     }
 
+    @Override
     public int getColor() {
         return mColor;
     }

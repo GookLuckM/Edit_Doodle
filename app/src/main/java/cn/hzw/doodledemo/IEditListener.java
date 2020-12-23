@@ -27,6 +27,10 @@ public interface IEditListener {
 
     public void onNext();
 
+    public void onCropRatioChange(float ratio);
+
+    public void onRotate();
+
 
 
 }

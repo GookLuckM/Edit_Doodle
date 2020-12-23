@@ -16,4 +16,7 @@ public interface IDoodleColor {
      * @return
      */
     public IDoodleColor copy();
+
+
+    public int getColor();
 }

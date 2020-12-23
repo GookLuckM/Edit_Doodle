@@ -43,6 +43,12 @@ public abstract class BaseEditFragment extends Fragment {
 
     protected abstract void init();
 
+    protected  void setTitle(String title){
+        if (!TextUtils.isEmpty(title)){
+            tvCurrentControl.setText(title);
+        }
+    };
+
     private void initBaseEditView(){
         llPreOrNext = rootView.findViewById(R.id.ll_bottom_pre_or_next);
         ivPre = rootView.findViewById(R.id.iv_pre);

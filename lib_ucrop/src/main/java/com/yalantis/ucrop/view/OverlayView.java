@@ -54,7 +54,7 @@ public class OverlayView extends View {
     private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    protected int mThisWidth, mThisHeight,mCropOriginWidth,mCropOriginHeight;
+    protected int mThisWidth, mThisHeight, mCropOriginWidth, mCropOriginHeight;
 
     private boolean mIsFreestyleCropEnabled = DEFAULT_FREESTYLE_CROP_ENABLED;
     protected float[] mCropGridCorners;
@@ -91,7 +91,7 @@ public class OverlayView extends View {
     }
 
 
-    public void setOriginRect(RectF rect){
+    public void setOriginRect(RectF rect) {
         originRect.set(rect);
         mCropOriginWidth = (int) rect.width();
         mCropOriginHeight = (int) rect.height();
@@ -225,7 +225,7 @@ public class OverlayView extends View {
         }
     }
 
-    public void setTargetAspectRatio(final float targetAspectRatio,boolean isCallBack) {
+    public void setTargetAspectRatio(final float targetAspectRatio, boolean isCallBack) {
         mTargetAspectRatio = targetAspectRatio;
         if (mCropOriginWidth > 0) {
             setupCropBounds(isCallBack);
@@ -254,7 +254,7 @@ public class OverlayView extends View {
         } else {
             int halfDiff = (mCropOriginHeight - height) / 2;
             mCropViewRect.set(originRect.left, originRect.top + halfDiff,
-                    originRect.left+mCropOriginWidth, originRect.top +height + halfDiff);
+                    originRect.left + mCropOriginWidth, originRect.top + height + halfDiff);
         }
 
         if (mCallback != null) {
@@ -274,7 +274,7 @@ public class OverlayView extends View {
         } else {
             int halfDiff = (mCropOriginHeight - height) / 2;
             mCropViewRect.set(originRect.left, originRect.top + halfDiff,
-                    originRect.left+mCropOriginWidth, originRect.top +height + halfDiff);
+                    originRect.left + mCropOriginWidth, originRect.top + height + halfDiff);
         }
 
         if (mCallback != null && isCallBack) {
@@ -367,7 +367,7 @@ public class OverlayView extends View {
                         mCallback.onCropRectUpdated(mCropViewRect);
                     }
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
@@ -378,25 +378,22 @@ public class OverlayView extends View {
             mPreviousTouchX = -1;
             mPreviousTouchY = -1;
             mCurrentTouchCornerIndex = -1;
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (mCallback != null && !isTouchScrolling) {
-                        mCallback.onCropRectEnd(mCropViewRect);
-                    }
-                }
-            },1000);
+
+            if (mCallback != null && !isTouchScrolling) {
+                mCallback.onCropRectEnd(mCropViewRect);
+            }
+
 
         }
 
         return false;
     }
 
-    public boolean getIsTouchScrolling(){
+    public boolean getIsTouchScrolling() {
         return isTouchScrolling;
     }
 
-    public int getLastTouchCornerIndex(){
+    public int getLastTouchCornerIndex() {
         return lastTouchCornerIndex;
     }
 
@@ -451,19 +448,19 @@ public class OverlayView extends View {
 
         boolean changeHeight = mTempRect.height() >= mCropRectMinSize;
         boolean changeWidth = mTempRect.width() >= mCropRectMinSize;
-        if (mTempRect.left <= originRect.left){
+        if (mTempRect.left <= originRect.left) {
             mTempRect.left = originRect.left;
         }
 
-        if (mTempRect.top <= originRect.top){
+        if (mTempRect.top <= originRect.top) {
             mTempRect.top = originRect.top;
         }
 
-        if (mTempRect.right >= originRect.right){
+        if (mTempRect.right >= originRect.right) {
             mTempRect.right = originRect.right;
         }
 
-        if (mTempRect.bottom >= originRect.bottom){
+        if (mTempRect.bottom >= originRect.bottom) {
             mTempRect.bottom = originRect.bottom;
         }
         mCropViewRect.set(
@@ -531,7 +528,7 @@ public class OverlayView extends View {
         if (mCircleDimmedLayer) {
             canvas.clipPath(mCircularPath, Region.Op.DIFFERENCE);
         } else {
-            Rect rect = new Rect(0,0,getMeasuredWidth(),getMeasuredHeight());
+            Rect rect = new Rect(0, 0, getMeasuredWidth(), getMeasuredHeight());
             canvas.clipRect(rect, Region.Op.DIFFERENCE);
         }
         canvas.drawColor(mDimmedColor);

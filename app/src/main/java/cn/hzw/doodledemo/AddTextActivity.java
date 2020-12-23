@@ -12,11 +12,14 @@ import android.text.Editable;
 import android.text.Selection;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -24,8 +27,12 @@ import cn.hzw.doodle.util.DrawUtil;
 
 public class AddTextActivity extends Activity {
 
+    public static final int ALIGNMENT_LEFT = 0;
+    public static final int ALIGNMENT_MID = 1;
+    public static final int ALIGNMENT_RIGHT = 2;
     public static final String RESULT_TEXT = "result_text";
     public static final String RESULT_COLOR = "result_color";
+    public static final String RESULT_ALIGNMENT = "result_alignment";
     public static final String RESULT_IS_DRAW_TEXT_BG = "result_is_draw_text_bg";
     public static final String RESULT_RECT = "result_rect";
     private String[] colorArr;
@@ -33,6 +40,8 @@ public class AddTextActivity extends Activity {
     private boolean isShowEditBg;
     private boolean isChangedColor;
     private EditText etInput;
+    private int current_alignment_mode = 0;
+
 
 
     @Override
@@ -45,19 +54,65 @@ public class AddTextActivity extends Activity {
         TextView tvDone = findViewById(R.id.tv_done);
         RadioGroup rgColor = findViewById(R.id.rg_color);
 
+        final ImageView ivAlignment = findViewById(R.id.iv_alignment);
+
+
+
         etInput = findViewById(R.id.et_input);
 
         etInput.requestFocus();
 
-        CheckBox cbBackGround = findViewById(R.id.cb_background);
+        ivAlignment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(current_alignment_mode){
+                    case ALIGNMENT_LEFT:
+                        current_alignment_mode = ALIGNMENT_MID;
+                        etInput.setGravity(Gravity.CENTER);
+                        ivAlignment.setImageResource(R.drawable.icon_alignment_mid);
+                        break;
+                    case ALIGNMENT_MID:
+                        current_alignment_mode = ALIGNMENT_RIGHT;
+                        etInput.setGravity(Gravity.RIGHT);
+                        ivAlignment.setImageResource(R.drawable.icon_alignment_right);
+                        break;
+                    case ALIGNMENT_RIGHT:
+                        current_alignment_mode = ALIGNMENT_LEFT;
+                        etInput.setGravity(Gravity.LEFT);
+                        ivAlignment.setImageResource(R.drawable.icon_alignment_left);
+                        break;
+                }
 
-        cbBackGround.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            }
+        });
+
+        final ImageButton cbBackGround = findViewById(R.id.cb_background);
+
+        /*cbBackGround.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
                     isShowEditBg = true;
                 }else {
                     isShowEditBg = false;
+                }
+                isChangedColor = false;
+                if (!TextUtils.isEmpty(etInput.getText().toString().trim())) {
+                    changeColor();
+                }
+            }
+        });*/
+
+        cbBackGround.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (cbBackGround.isSelected()){
+                    isShowEditBg = false;
+                    cbBackGround.setSelected(false);
+                }else {
+                    isShowEditBg = true;
+                    cbBackGround.setSelected(true);
                 }
                 isChangedColor = false;
                 if (!TextUtils.isEmpty(etInput.getText().toString().trim())) {
@@ -148,6 +203,7 @@ public class AddTextActivity extends Activity {
                 Intent intent = new Intent();
                 intent.putExtra(RESULT_TEXT,text);
                 intent.putExtra(RESULT_COLOR,selectedColor);
+                intent.putExtra(RESULT_ALIGNMENT,current_alignment_mode);
                 intent.putExtra(RESULT_IS_DRAW_TEXT_BG,isShowEditBg);
                 Rect rect = new Rect();
                 etInput.getDrawingRect(rect);

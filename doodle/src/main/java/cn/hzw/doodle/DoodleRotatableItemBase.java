@@ -71,15 +71,15 @@ public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
             }
             mPaint.setStyle(Paint.Style.STROKE);
             mPaint.setStrokeWidth(2 * unit);
-            canvas.drawLine(mRectTemp.right, mRectTemp.top + mRectTemp.height() / 2,
-                    mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 16) * unit, mRectTemp.top + mRectTemp.height() / 2, mPaint);
-            canvas.drawCircle(mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 8) * unit, mRectTemp.top + mRectTemp.height() / 2, 8 * unit, mPaint);
+           /* canvas.drawLine(mRectTemp.right, mRectTemp.top + mRectTemp.height() / 2,
+                    mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 16) * unit, mRectTemp.top + mRectTemp.height() / 2, mPaint);*/
+            canvas.drawCircle(mRectTemp.right, mRectTemp.bottom, 8 * unit, mPaint);
             // rotation line
-            mPaint.setColor(0x44888888);
+           /* mPaint.setColor(0x44888888);
             mPaint.setStrokeWidth(0.8f * unit);
             canvas.drawLine(mRectTemp.right, mRectTemp.top + mRectTemp.height() / 2,
                     mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 16) * unit, mRectTemp.top + mRectTemp.height() / 2, mPaint);
-            canvas.drawCircle(mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 8) * unit, mRectTemp.top + mRectTemp.height() / 2, 8 * unit, mPaint);
+            canvas.drawCircle(mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 8) * unit, mRectTemp.top + mRectTemp.height() / 2, 8 * unit, mPaint);*/
 
 
             canvas.restoreToCount(count);
@@ -101,9 +101,9 @@ public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
 
         // 计算旋转把柄的位置，由于绘制时反向缩放了画布，所以这里也应算上相应的getDoodle().getDoodleScale()
         mRectTemp.set(getBounds());
-        float padding = 13 * getDoodle().getUnitSize() / getDoodle().getDoodleScale();
+        float padding = 22 * getDoodle().getUnitSize() / getDoodle().getDoodleScale();
         mRectTemp.top -= padding;
-        mRectTemp.right += padding;
+        mRectTemp.right -= padding;
         mRectTemp.bottom += padding;
         return xy.x >= mRectTemp.right
                 && xy.x <= mRectTemp.right + ITEM_CAN_ROTATE_BOUND * doodle.getUnitSize() / getDoodle().getDoodleScale()

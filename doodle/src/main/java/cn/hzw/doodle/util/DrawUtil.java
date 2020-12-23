@@ -143,6 +143,15 @@ public class DrawUtil {
         return angle;
     }
 
+
+    private static double toDegrees(float v, float v1) {
+        return Math.toDegrees(Math.atan2(v, v1));
+    }
+
+    private static double toLength(float x1, float y1, float x2, float y2) {
+        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    }
+
     // 顺时针旋转
     public static PointF rotatePoint(PointF coords, float degree, float x, float y, float px, float py) {
         if (degree % 360 == 0) {

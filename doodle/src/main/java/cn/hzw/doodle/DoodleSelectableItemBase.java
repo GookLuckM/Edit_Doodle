@@ -1,6 +1,7 @@
 package cn.hzw.doodle;
 
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -19,7 +20,7 @@ import static cn.hzw.doodle.util.DrawUtil.rotatePoint;
 public abstract class DoodleSelectableItemBase extends DoodleItemBase implements IDoodleSelectableItem {
 
     public final static int ITEM_CAN_ROTATE_BOUND = 35;
-    public final static int ITEM_PADDING = 3; // 绘制item矩形区域时增加的padding
+    public final static int ITEM_PADDING = 11; // 绘制item矩形区域时增加的padding
 
     private Rect mRect = new Rect();
     private Rect mRectTemp = new Rect();
@@ -129,6 +130,7 @@ public abstract class DoodleSelectableItemBase extends DoodleItemBase implements
             mPaint.setColor(0x88ffffff);
             mPaint.setStyle(Paint.Style.STROKE);
             mPaint.setStrokeWidth(2 * unit);
+            mPaint.setPathEffect(new DashPathEffect(new float[]{4, 4}, 0));
             canvas.drawRect(mRectTemp, mPaint);
             // border line
             mPaint.setColor(0x44888888);

@@ -14,7 +14,6 @@ import com.yalantis.ucrop.view.OverlayView;
 import java.util.List;
 
 
-
 import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.core.IDoodleItem;
 import cn.hzw.doodle.core.IDoodlePen;
@@ -63,6 +62,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
     private OverlayView mOverlayView;
     private ValueAnimator mCropTranslateAnimator;
+    private double mRadius;
 
     public DoodleOnTouchGestureListener(DoodleView doodle, ISelectionListener listener) {
         mDoodle = doodle;
@@ -81,7 +81,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         mSelectionListener = listener;
     }*/
 
-    public void setOverlayView(OverlayView overlayView){
+    public void setOverlayView(OverlayView overlayView) {
         mOverlayView = overlayView;
     }
 
@@ -133,12 +133,15 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 PointF xy = mSelectedItem.getLocation();
                 mStartX = xy.x;
                 mStartY = xy.y;
-                mSelectionListener.showDeleteRect(mSelectedItem,true);
+                mSelectionListener.showDeleteRect(mSelectedItem, true);
                 if (mSelectedItem instanceof DoodleRotatableItemBase
                         && (((DoodleRotatableItemBase) mSelectedItem).canRotate(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)))) {
                     ((DoodleRotatableItemBase) mSelectedItem).setIsRotating(true);
                     mRotateDiff = mSelectedItem.getItemRotate() -
                             computeAngle(mSelectedItem.getPivotX(), mSelectedItem.getPivotY(), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
+
+                    mRadius = Math.sqrt(mDoodle.toX(mTouchDownX) * mDoodle.toX(mTouchDownX) + mDoodle.toX(mTouchDownY) + mDoodle.toX(mTouchDownY));
+
                 }
             } else {
                 if (mDoodle.isEditMode()) {
@@ -160,22 +163,22 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                     }
                 }*/
 
-                // 初始化绘制
-                mCurrPath = new Path();
-                mCurrPath.moveTo(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
-                if (mDoodle.getShape() == DoodleShape.HAND_WRITE) { // 手写
-                    mCurrDoodlePath = DoodlePath.toPath(mDoodle, mCurrPath);
-                } else {  // 画图形
-                    mCurrDoodlePath = DoodlePath.toShape(mDoodle,
-                            mDoodle.toX(mTouchDownX), mDoodle.toY(mTouchDownY), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
-                }
-                if (mDoodle.isOptimizeDrawing()) {
-                    mDoodle.markItemToOptimizeDrawing(mCurrDoodlePath);
-                } else {
-                    mDoodle.addItem(mCurrDoodlePath);
-                }
-
+            // 初始化绘制
+            mCurrPath = new Path();
+            mCurrPath.moveTo(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
+            if (mDoodle.getShape() == DoodleShape.HAND_WRITE) { // 手写
+                mCurrDoodlePath = DoodlePath.toPath(mDoodle, mCurrPath);
+            } else {  // 画图形
+                mCurrDoodlePath = DoodlePath.toShape(mDoodle,
+                        mDoodle.toX(mTouchDownX), mDoodle.toY(mTouchDownY), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
             }
+            if (mDoodle.isOptimizeDrawing()) {
+                mDoodle.markItemToOptimizeDrawing(mCurrDoodlePath);
+            } else {
+                mDoodle.addItem(mCurrDoodlePath);
+            }
+
+        }
         //}
         mDoodle.refresh();
     }
@@ -190,7 +193,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         if (mDoodle.isEditMode() || isPenEditable(mDoodle.getPen())) {
             if (mSelectedItem instanceof DoodleRotatableItemBase) {
                 ((DoodleRotatableItemBase) mSelectedItem).setIsRotating(false);
-                mSelectionListener.showDeleteRect(mSelectedItem,false);
+                mSelectionListener.showDeleteRect(mSelectedItem, false);
             }
             if (mOverlayView != null && mOverlayView.getVisibility() == View.VISIBLE) {
                 RectF cropViewRect = mOverlayView.getCropViewRect();
@@ -229,21 +232,17 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                     float totalY = mTouchY - mTouchDownY;
                     float dx = mTouchX - mLastTouchX;
                     float dy = mTouchY - mLastTouchY;
-                    if (totalx > 50 || totalY > 50){
-                        Rect bounds = mSelectedItem.getBounds();
 
-                        float scale = 1f;
-                        if (dx >= dy){
-                            scale = (bounds.width() + dx)/bounds.width();
-                        }else {
-                            scale = (bounds.height() + dy)/bounds.height();
-                        }
-                        mSelectedItem.setScale(mSelectedItem.getScale() * scale);
-                    }else {
-                        mSelectedItem.setItemRotate(mRotateDiff + computeAngle(
-                                mSelectedItem.getPivotX(), mSelectedItem.getPivotY(), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)
-                        ));
-                    }
+                    float scale = 1f;
+                    double radius = Math.sqrt(mDoodle.toX(mTouchX) * mDoodle.toX(mTouchX) + mDoodle.toX(mTouchY) + mDoodle.toX(mTouchY));
+                    scale = (float) (radius / mRadius);
+                    mSelectedItem.setScale(mSelectedItem.getScale() * scale);
+
+                    mRadius = radius;
+                    mSelectedItem.setItemRotate(mRotateDiff + computeAngle(
+                            mSelectedItem.getPivotX(), mSelectedItem.getPivotY(), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)
+                    ));
+
 
                 } else { // 移动item
                     mSelectedItem.setLocation(
@@ -266,16 +265,16 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                     mCopyLocation.updateLocation(mCopyLocation.getCopyStartX() + mDoodle.toX(mTouchX) - mCopyLocation.getTouchStartX(),
                             mCopyLocation.getCopyStartY() + mDoodle.toY(mTouchY) - mCopyLocation.getTouchStartY());
                 }*/
-                if (mDoodle.getShape() == DoodleShape.HAND_WRITE) { // 手写
-                    mCurrPath.quadTo(
-                            mDoodle.toX(mLastTouchX),
-                            mDoodle.toY(mLastTouchY),
-                            mDoodle.toX((mTouchX + mLastTouchX) / 2),
-                            mDoodle.toY((mTouchY + mLastTouchY) / 2));
-                    mCurrDoodlePath.updatePath(mCurrPath);
-                } else {  // 画图形
-                    mCurrDoodlePath.updateXY(mDoodle.toX(mTouchDownX), mDoodle.toY(mTouchDownY), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
-                }
+            if (mDoodle.getShape() == DoodleShape.HAND_WRITE) { // 手写
+                mCurrPath.quadTo(
+                        mDoodle.toX(mLastTouchX),
+                        mDoodle.toY(mLastTouchY),
+                        mDoodle.toX((mTouchX + mLastTouchX) / 2),
+                        mDoodle.toY((mTouchY + mLastTouchY) / 2));
+                mCurrDoodlePath.updatePath(mCurrPath);
+            } else {  // 画图形
+                mCurrDoodlePath.updateXY(mDoodle.toX(mTouchDownX), mDoodle.toY(mTouchDownY), mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
+            }
             //}
         }
         mDoodle.refresh();
@@ -363,7 +362,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         mTouchCentreX = detector.getFocusX();
         mTouchCentreY = detector.getFocusY();
 
-        if (mLastFocusX != null && mLastFocusY != null) { // 焦点改变
+        /*if (mLastFocusX != null && mLastFocusY != null) { // 焦点改变
             final float dx = mTouchCentreX - mLastFocusX;
             final float dy = mTouchCentreY - mLastFocusY;
             // 移动图片
@@ -379,17 +378,13 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 pendingX += dx;
                 pendingY += dy;
             }
-        }
+        }*/
 
         if (Math.abs(1 - detector.getScaleFactor()) > 0.005f) {
-            //if (mSelectedItem == null || !mSupportScaleItem) {
-                System.out.println("doodleview     onDoodleScale");
-                // 缩放图片
-                float scale = mDoodle.getDoodleScale() * detector.getScaleFactor() * pendingScale;
-                mDoodle.setDoodleScale(scale, mDoodle.toX(mTouchCentreX), mDoodle.toY(mTouchCentreY));
-           /* } else {
-                mSelectedItem.setScale(mSelectedItem.getScale() * detector.getScaleFactor() * pendingScale);
-            }*/
+            // 缩放图片
+            float scale = mDoodle.getDoodleScale() * detector.getScaleFactor() * pendingScale;
+            mDoodle.setDoodleScale(scale, mDoodle.toX(mTouchCentreX), mDoodle.toY(mTouchCentreY));
+
             pendingScale = 1;
         } else {
             pendingScale *= detector.getScaleFactor();
@@ -452,9 +447,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         float bitmapBottom = bound.bottom;
 
         if (bitmapLeft <= cropLeft && bitmapRight >= cropRight && bitmapTop <= cropTop && bitmapBottom >= cropBottom) {
-            if (mOverlayView.getOverlayViewChangeListener() != null && !mOverlayView.getIsTouchScrolling()) {
-                mOverlayView.getOverlayViewChangeListener().onCropRectEnd(cropViewRect);
-            }
             return;
         } else {
             if (bitmapLeft > cropLeft) {
@@ -496,9 +488,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    if (mOverlayView.getOverlayViewChangeListener() != null && !mOverlayView.getIsTouchScrolling()) {
-                        mOverlayView.getOverlayViewChangeListener().onCropRectEnd(cropViewRect);
-                    }
                 }
 
                 @Override
@@ -704,7 +693,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
         void onChangeSelectedItemLocation(IDoodleSelectableItem selectableItem);
 
-        void showDeleteRect(IDoodleSelectableItem selectableItem,boolean isShow);
+        void showDeleteRect(IDoodleSelectableItem selectableItem, boolean isShow);
     }
 
 }

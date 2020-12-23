@@ -7,6 +7,9 @@ import android.view.ViewStub;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,212 +18,70 @@ import java.util.List;
 
 import cn.hzw.doodle.DoodlePen;
 
-public class EditCropFragment extends BaseEditFragment implements ScrawlColorsAdapter.OnColorClickListener {
+public class EditCropFragment extends BaseEditFragment  implements CropRatioAdapter.OnRatioClickListener{
 
-
-    private ImageButton btnMosaicThick;
-    private ImageButton btnMosaicWipe;
-    private ImageButton btnMosaicSize;
-    private View scrawlPenSizeView;
-    private HashMap<Integer, Integer> penThickSizeMap = new HashMap<>();
-    private HashMap<Integer, Integer> penThinSizeMap = new HashMap<>();
-    private View btnMosaicThin;
-    private int currentLevel;
-
-    private int currentSize;
-    private HashMap<Integer, Integer> penSize;
+    public static final String EXTRA_ORIGIN_RATIO = "extra_origin_ratio";
+    private List<String> cropRatioList;
+    private List<Float> cropRatioFloatList;
+    private List<Integer> cropRatioIconList;
+    private ImageButton btnRotate;
 
     @Override
     protected void init() {
+        setTitle("裁切旋转");
+        float originRatio = getArguments().getFloat(EXTRA_ORIGIN_RATIO);
         String[] cropRatio = getResources().getStringArray(R.array.crop_ratio);
-        List<String> cropRatioList = Arrays.asList(cropRatio);
+        cropRatioList = Arrays.asList(cropRatio);
+        cropRatioFloatList = new ArrayList<>();
+        cropRatioFloatList.add(originRatio);
+        cropRatioFloatList.add(-1f);
+        cropRatioFloatList.add(1f);
+        cropRatioFloatList.add(0.75f);
+        cropRatioFloatList.add(1.33f);
+        cropRatioFloatList.add(0.56f);
+        cropRatioFloatList.add(1.77f);
+        cropRatioIconList = new ArrayList<>();
+        cropRatioIconList.add(R.drawable.icon_origin_selector);
+        cropRatioIconList.add(R.drawable.icon_custom_ratio_selector);
+        cropRatioIconList.add(R.drawable.icon_1_1_selector);
+        cropRatioIconList.add(R.drawable.icon_3_4_selector);
+        cropRatioIconList.add(R.drawable.icon_4_3_selector);
+        cropRatioIconList.add(R.drawable.icon_9_16_selector);
+        cropRatioIconList.add(R.drawable.icon_16_9_selector);
     }
 
     @Override
     protected void initView() {
-        btnMosaicWipe = rootView.findViewById(R.id.btn_mosaic_wipe);
-        btnMosaicThick = rootView.findViewById(R.id.btn_mosaic_thick);
-        btnMosaicThin = rootView.findViewById(R.id.btn_mosaic_thin);
-        btnMosaicSize = rootView.findViewById(R.id.btn_mosaic_size);
-
-        btnMosaicThick.setSelected(true);
-
-        btnMosaicWipe.setOnClickListener(new View.OnClickListener() {
+        btnRotate = rootView.findViewById(R.id.iv_rotate);
+        btnRotate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (btnMosaicWipe.isSelected()) {
-                    btnMosaicWipe.setSelected(false);
-                } else {
-                    btnMosaicWipe.setSelected(true);
-                }
-
-                if (mEditListener != null) {
-                    if (btnMosaicWipe.isSelected()) {
-                        mEditListener.setMode(DoodlePen.ERASER);
-                    } else {
-                        mEditListener.setMode(DoodlePen.MOSAIC);
-                    }
-                }
-
-            }
-        });
-
-
-        btnMosaicThick.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEditListener != null) {
-                    penSize.clear();
-                    penSize.putAll(penThickSizeMap);
-                    btnMosaicThick.setSelected(true);
-                    btnMosaicThin.setSelected(false);
-                    btnMosaicWipe.setSelected(false);
-                    currentLevel = getResources().getDimensionPixelOffset(R.dimen.dp_8);
-                    mEditListener.setMosaicLevel(currentLevel);
-                    mEditListener.setMosaicSize(penSize.get(currentSize));
+                if (mEditListener != null){
+                    mEditListener.onRotate();
                 }
             }
         });
+        RecyclerView rvRatioList = rootView.findViewById(R.id.rv_ratios);
 
-        btnMosaicThin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEditListener != null) {
-                    penSize.clear();
-                    penSize.putAll(penThinSizeMap);
-                    btnMosaicThin.setSelected(true);
-                    btnMosaicThick.setSelected(false);
-                    btnMosaicWipe.setSelected(false);
-                    currentLevel = getResources().getDimensionPixelOffset(R.dimen.dp_2_5);
-                    mEditListener.setMosaicLevel(currentLevel);
-                    mEditListener.setMosaicSize(penSize.get(currentSize));
-                }
-            }
-        });
-
-
-        btnMosaicSize.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ViewStub vsScrawlPenSize = rootView.findViewById(R.id.vs_scrawl_pen_size);
-                if (scrawlPenSizeView == null) {
-                    vsScrawlPenSize.inflate();
-                    vsScrawlPenSize.setVisibility(View.GONE);
-                    scrawlPenSizeView = rootView.findViewById(R.id.scrawl_pen_size);
-                    initMosaicSizeView();
-                }
-                scrawlPenSizeView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        editViewAnimIn(scrawlPenSizeView);
-                    }
-                });
-            }
-        });
-
-
+        CropRatioAdapter cropRatioAdapter = new CropRatioAdapter(getContext(),cropRatioList,cropRatioFloatList,cropRatioIconList);
+        rvRatioList.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
+        rvRatioList.setAdapter(cropRatioAdapter);
+        cropRatioAdapter.setOnRatioClickListener(this);
     }
 
 
-    private void initMosaicSizeView() {
-        final ImageButton btnSizeSmall = rootView.findViewById(R.id.btn_small);
-        final ImageButton btnSizeMid = rootView.findViewById(R.id.btn_mid);
-        final ImageButton btnSizeNormal = rootView.findViewById(R.id.btn_normal);
-        final ImageButton btnSizeLarge = rootView.findViewById(R.id.btn_large);
-        final ImageButton btnSizeLarger = rootView.findViewById(R.id.btn_larger);
-        ImageView ivArrowDown = rootView.findViewById(R.id.iv_size_arrow_down);
-
-
-        btnSizeSmall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeSmall.getId()));
-                }
-                currentSize = btnSizeSmall.getId();
-                singleSizeSelected(currentSize);
-                btnMosaicSize.setImageResource(R.drawable.icon_stroke_small_unselected);
-            }
-        });
-
-        btnSizeMid.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeMid.getId()));
-                }
-                currentSize = btnSizeMid.getId();
-                singleSizeSelected(currentSize);
-                btnMosaicSize.setImageResource(R.drawable.icon_stroke_small_unselected);
-            }
-        });
-
-        btnSizeNormal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeNormal.getId()));
-                }
-                currentSize = btnSizeNormal.getId();
-                singleSizeSelected(currentSize);
-                btnMosaicSize.setImageResource(R.drawable.icon_stroke_mid_unselected);
-            }
-        });
-
-        btnSizeLarge.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeLarge.getId()));
-                }
-                currentSize = btnSizeLarge.getId();
-                singleSizeSelected(currentSize);
-                btnMosaicSize.setImageResource(R.drawable.icon_stroke_large_unselected);
-            }
-        });
-
-        btnSizeLarger.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeLarger.getId()));
-                }
-                currentSize = btnSizeLarger.getId();
-                singleSizeSelected(currentSize);
-                btnMosaicSize.setImageResource(R.drawable.icon_stroke_big_large_unselected);
-            }
-        });
-
-        ivArrowDown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                editViewAnimOut(scrawlPenSizeView);
-            }
-        });
-
-    }
 
     @Override
     protected int getContentLayout() {
         return R.layout.frag_edit_crop;
     }
 
-    @Override
-    public void onColorClick(String color) {
-        if (!TextUtils.isEmpty(color) && mEditListener != null) {
-            mEditListener.setColor(Color.parseColor(color));
-        }
-    }
 
-    private void singleSizeSelected(int selectedId) {
-        if (scrawlPenSizeView != null && penSize != null) {
-            for (Integer id : penSize.keySet()) {
-                if (id == selectedId) {
-                    rootView.findViewById(id).setSelected(true);
-                } else {
-                    rootView.findViewById(id).setSelected(false);
-                }
-            }
+
+    @Override
+    public void onRatioClick(float ratio) {
+        if (mEditListener != null){
+            mEditListener.onCropRatioChange(ratio);
         }
     }
 }
