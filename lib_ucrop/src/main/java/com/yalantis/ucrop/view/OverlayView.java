@@ -1,4 +1,4 @@
-package com.yalantis.ucrop.view;
+ package com.yalantis.ucrop.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;

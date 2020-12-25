@@ -90,6 +90,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private int mCenterHeight, mCenterWidth;// 图片适应屏幕时的大小（View窗口坐标系上的大小）
     private float mCentreTranX, mCentreTranY;// 图片在适应屏幕时，位于居中位置的偏移（View窗口坐标系上的偏移）
 
+    private int windowWidth, windowHeight;
 
     private int mDoodleRotateDegree = 0; // 相对于初始图片旋转的角度
     private float mRotateScale = 1;  // 在旋转后适应屏幕时的缩放倍数
@@ -127,6 +128,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     private RectF mCropRect;
     private RectF mPreCropRect;
+
+    private RectF currentCropRect;
 
     private float mTouchX, mTouchY;
     /* private boolean mEnableZoomer = false; // 放大镜功能
@@ -364,6 +367,15 @@ public class DoodleView extends FrameLayout implements IDoodle {
         }
     }
 
+
+    public void setCurrentCropRect(RectF rect){
+        if (currentCropRect == null) {
+            currentCropRect = new RectF(rect);
+        }else {
+            currentCropRect.set(rect);
+        }
+    }
+
     /**
      * 获取当前图片在View坐标系中的矩型区域
      *
@@ -392,7 +404,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
                 width = height;
                 height = t;
             }
-            rotatePoint(mTempPoint, mDoodleRotateDegree, mTempPoint.x, mTempPoint.y, getCentreTranX()+getTranslationX() + width/2, getCentreTranY() + getTranslationY() + height/2);
+            rotatePoint(mTempPoint, mDoodleRotateDegree, mTempPoint.x, mTempPoint.y, getWidth() / 2, getHeight() / 2);
             mDoodleBound.set(mTempPoint.x, mTempPoint.y, mTempPoint.x + width, mTempPoint.y + height);
         } else {
             // 转换成屏幕坐标
@@ -774,7 +786,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
      */
 
     @Override
-    public void setDoodleRotation(int degree) {
+    public void  setDoodleRotation(int degree) {
         mDoodleRotateDegree = degree;
         mDoodleRotateDegree = mDoodleRotateDegree % 360;
         if (mDoodleRotateDegree < 0) {
@@ -800,8 +812,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
             scale = 1 / nh;
         }
 
-        int pivotX = mBitmap.getWidth() / 2;
-        int pivotY = mBitmap.getHeight() / 2;
+        int pivotX =  mBitmap.getWidth()/ 2;
+        int pivotY = mBitmap.getHeight()/ 2;
 
         mTransX = mTransY = 0;
         mRotateTranX = mRotateTranY = 0;
@@ -1419,6 +1431,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
         //setDoodleScale(mScale, 0, 0);
     }
 
+    public void setScreenChange(int width,int height){
+        windowWidth  = width;
+        windowHeight = height;
+    }
+
     @Override
     public float getDoodleMaxScale() {
         return mMaxScale;
@@ -1621,7 +1638,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
                 LogUtil.d(TAG, "BackgroundView>>onDraw");
             }
             int count = canvas.save();
-            canvas.rotate(mDoodleRotateDegree, getWidth() / 2, getHeight() / 2);
+            canvas.rotate(mDoodleRotateDegree, getWidth()/2, getHeight() / 2);
             doDraw(canvas);
             canvas.restoreToCount(count);
         }
@@ -1677,7 +1694,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
         protected void onDraw(Canvas canvas) {
             int count = canvas.save();
-            canvas.rotate(mDoodleRotateDegree,getWidth() / 2, getHeight() / 2);
+            canvas.rotate(mDoodleRotateDegree,getWidth()/2, getHeight() / 2);
             doDraw(canvas);
             canvas.restoreToCount(count);
         }
