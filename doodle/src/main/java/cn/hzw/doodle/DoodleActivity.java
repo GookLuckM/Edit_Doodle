@@ -250,7 +250,7 @@ public class DoodleActivity extends Activity {
                     size = mDoodleParams.mPaintPixelSize > 0 ? mDoodleParams.mPaintPixelSize : mDoodle.getSize();
                 }
                 // 设置初始值
-                mDoodle.setSize(size);
+                mDoodle.setSize(size,-1);
                 // 选择画笔
                 mDoodle.setPen(DoodlePen.BRUSH);
                 mDoodle.setShape(DoodleShape.HAND_WRITE);
@@ -305,7 +305,7 @@ public class DoodleActivity extends Activity {
                     mDoodleView.setEditMode(true);
                     mDoodle.setPen(selectableItem.getPen());
                     mDoodle.setColor(selectableItem.getColor());
-                    mDoodle.setSize(selectableItem.getSize());
+                    mDoodle.setSize(selectableItem.getSize(),-1);
                     mEditSizeSeekBar.setProgress((int) selectableItem.getSize());
                     mSelectedEditContainer.setVisibility(View.VISIBLE);
                     mSizeContainer.setVisibility(View.VISIBLE);
@@ -325,7 +325,7 @@ public class DoodleActivity extends Activity {
                             mLastColor = null;
                         }
                         if (mSize != null) {
-                            mDoodle.setSize(mSize);
+                            mDoodle.setSize(mSize,-1);
                             mSize = null;
                         }
                         mSelectedEditContainer.setVisibility(View.GONE);
@@ -493,7 +493,7 @@ public class DoodleActivity extends Activity {
                 if ((int) mDoodle.getSize() == progress) {
                     return;
                 }
-                mDoodle.setSize(progress);
+                mDoodle.setSize(progress,-1);
                 if (mTouchGestureListener.getSelectedItem() != null) {
                     mTouchGestureListener.getSelectedItem().setSize(progress);
                 }
@@ -614,14 +614,14 @@ public class DoodleActivity extends Activity {
                         new ColorPickerDialog.OnColorChangedListener() {
                             public void colorChanged(int color, int size) {
                                 mDoodle.setColor(new DoodleColor(color));
-                                mDoodle.setSize(size);
+                                mDoodle.setSize(size,-1);
                             }
 
                             @Override
                             public void colorChanged(Drawable color, int size) {
                                 Bitmap bitmap = ImageUtils.getBitmapFromDrawable(color);
                                 mDoodle.setColor(new DoodleColor(bitmap));
-                                mDoodle.setSize(size);
+                                mDoodle.setSize(size,-1);
                             }
                         }, themeId).show(mDoodleView, mBtnColor.getBackground(), Math.min(mDoodleView.getWidth(), mDoodleView.getHeight()));
             }
@@ -835,7 +835,7 @@ public class DoodleActivity extends Activity {
                 mPenSizeMap.put(oldPen, getSize()); // save
                 Float size = mPenSizeMap.get(pen); // restore
                 if (size != null) {
-                    mDoodle.setSize(size);
+                    mDoodle.setSize(size,-1);
                 }
                 if (isEditMode()) {
                     mShapeContainer.setVisibility(GONE);
@@ -903,8 +903,8 @@ public class DoodleActivity extends Activity {
         TextView mPaintSizeView = (TextView) DoodleActivity.this.findViewById(R.id.paint_size_text);
 
         @Override
-        public void setSize(float paintSize) {
-            super.setSize(paintSize);
+        public void setSize(float paintSize,int index) {
+            super.setSize(paintSize,index);
             mEditSizeSeekBar.setProgress((int) paintSize);
             mPaintSizeView.setText("" + (int) paintSize);
 

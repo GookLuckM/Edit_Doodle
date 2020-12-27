@@ -1,4 +1,4 @@
- package com.yalantis.ucrop.view;
+package com.yalantis.ucrop.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -70,6 +70,7 @@ public class OverlayView extends View {
 
     private boolean mShouldSetupCropBounds;
     private boolean isTouchScrolling = false;
+    private boolean isLimit = false;
 
     {
         mTouchPointThreshold = getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_rect_corner_touch_threshold);
@@ -96,6 +97,10 @@ public class OverlayView extends View {
         mCropOriginWidth = (int) rect.width();
         mCropOriginHeight = (int) rect.height();
 
+    }
+
+    public void setIsLimit(boolean isLimit){
+        this.isLimit = isLimit;
     }
 
     public OverlayViewChangeListener getOverlayViewChangeListener() {
@@ -448,6 +453,24 @@ public class OverlayView extends View {
 
         boolean changeHeight = mTempRect.height() >= mCropRectMinSize;
         boolean changeWidth = mTempRect.width() >= mCropRectMinSize;
+
+
+        if (isLimit) {
+            switch (mCurrentTouchCornerIndex) {
+                case 0:// 左上角控制点
+                case 1:// 右上角控制点
+                    mTempRect.top = mTempRect.bottom
+                            - (mTempRect.right - mTempRect.left) / this.mTargetAspectRatio;
+
+                    break;
+                case 2:// 左下角控制点
+                case 3:// 右下角控制点
+                    mTempRect.bottom = (mTempRect.right - mTempRect.left) / this.mTargetAspectRatio
+                            + mTempRect.top;
+                    break;
+            }
+        }
+
         if (mTempRect.left <= originRect.left) {
             mTempRect.left = originRect.left;
         }
@@ -463,11 +486,14 @@ public class OverlayView extends View {
         if (mTempRect.bottom >= originRect.bottom) {
             mTempRect.bottom = originRect.bottom;
         }
+
+
         mCropViewRect.set(
                 changeWidth ? mTempRect.left : mCropViewRect.left,
                 changeHeight ? mTempRect.top : mCropViewRect.top,
                 changeWidth ? mTempRect.right : mCropViewRect.right,
                 changeHeight ? mTempRect.bottom : mCropViewRect.bottom);
+
 
         if (changeHeight || changeWidth) {
             updateGridPoints();

@@ -125,7 +125,7 @@ public interface IDoodle {
      *
      * @param paintSize
      */
-    public void setSize(float paintSize);
+    public void setSize(float paintSize,int index);
 
     /**
      * 获取大小
@@ -133,6 +133,9 @@ public interface IDoodle {
      * @return
      */
     public float getSize();
+
+
+    public int getSizeIndex();
 
     /**
      * 设置颜色
@@ -348,7 +351,15 @@ public interface IDoodle {
 
     public boolean cleanCurrentMode();
 
+    public void cleanDoodle();
 
-    public void resetBitmapLocation(float scale , float centerScale,float centerX,float centerY,int centerWidth,int centerHeight);
+    public void cleanMosaic();
+
+
+
+    public List<IDoodleItem> getMosaicBeforeDrawItem();
+
+
+    public List<IDoodleItem> getDoodleBeforeDrawItem();
 
 }

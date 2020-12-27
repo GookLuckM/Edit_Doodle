@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -20,6 +21,9 @@ import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.core.IDoodleColor;
 import cn.hzw.doodle.core.IDoodlePen;
 import cn.hzw.doodle.util.DrawUtil;
+
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 
 /**
  * 涂鸦轨迹
@@ -45,6 +49,7 @@ public class DoodlePath extends DoodleRotatableItemBase {
     private final Matrix mTransform = new Matrix();
     private Rect mRect = new Rect();
     private Matrix mBitmapColorMatrix = new Matrix();
+    private int mSizeIndex;
 
     public DoodlePath(IDoodle doodle) {
         super(doodle, 0, 0, 0);// 这里默认item旋转角度为0
@@ -178,41 +183,121 @@ public class DoodlePath extends DoodleRotatableItemBase {
     private Path mArrowTrianglePath;
 
     private void updateArrowPath(Path path, float touchDownX, float touchDownY, float touchX, float touchY, float size) {
-        float arrowSize = size;
-        double H = arrowSize; // 箭头高度
-        double L = arrowSize / 2; // 底边的一�?
+        PointF beginPoint = new PointF(touchDownX, touchDownY);
+        PointF endPoint = new PointF(touchX, touchY);
+        //箭头的角度
+        float arrowAngle = (float) (70 * Math.PI / 180.f);
+        //箭头腰长
+        float arrowWaistLength = 34f * getDoodle().getUnitSize();
+        //箭头空白地儿宽度
+        float arrowGapWidth = 10f * getDoodle().getUnitSize();
+        //起点圆角半径
+        float radius = 1.7f * getDoodle().getUnitSize();
+        int index = getDoodle().getSizeIndex();
+        if (index == 0) {
+            arrowWaistLength = 20f * getDoodle().getUnitSize();
+            arrowGapWidth = 6f * getDoodle().getUnitSize();
+            radius = 1f * getDoodle().getUnitSize();
+        } else if (index == 1) {
+            arrowWaistLength = 26f * getDoodle().getUnitSize();
+            arrowGapWidth = 8f * getDoodle().getUnitSize();
+            radius = 1.4f * getDoodle().getUnitSize();
+        } else if (index == 2) {
+            arrowWaistLength = 34f * getDoodle().getUnitSize();
+            arrowGapWidth = 10f * getDoodle().getUnitSize();
+            radius = 1.7f * getDoodle().getUnitSize() ;
+        } else if (index == 3) {
+            arrowWaistLength = 48f * getDoodle().getUnitSize();
+            arrowGapWidth = 14f * getDoodle().getUnitSize();
+            radius = 2.4f * getDoodle().getUnitSize();
+        } else if (index == 4) {
+            arrowWaistLength = 66f * getDoodle().getUnitSize();
+            arrowGapWidth = 20f * getDoodle().getUnitSize();
+            radius = 3.5f * getDoodle().getUnitSize();
+        }
 
-        double awrad = Math.atan(L / 2 / H); // 箭头角度
-        double arraow_len = Math.sqrt(L / 2 * L / 2 + H * H) - 5; // 箭头的长�?
-        double[] arrXY_1 = DrawUtil.rotateVec(touchX - touchDownX, touchY - touchDownY, awrad, true, arraow_len);
-        double[] arrXY_2 = DrawUtil.rotateVec(touchX - touchDownX, touchY - touchDownY, -awrad, true, arraow_len);
-        float x_3 = (float) (touchX - arrXY_1[0]); // (x3,y3)是第�?端点
-        float y_3 = (float) (touchY - arrXY_1[1]);
-        float x_4 = (float) (touchX - arrXY_2[0]); // (x4,y4)是第二端�?
-        float y_4 = (float) (touchY - arrXY_2[1]);
-        // 画线
-        path.moveTo(touchDownX, touchDownY);
-        path.lineTo(x_3, y_3);
-        path.lineTo(x_4, y_4);
-        path.close();
+        PointF point2 = new PointF(0, 0);//左边内角
+        PointF point3 = new PointF(0, 0);//左边外角
+        PointF point4 = endPoint;//终点
+        PointF point5 = new PointF(0, 0);//右边外角
+        PointF point6 = new PointF(0, 0);//右边内角
 
-        awrad = Math.atan(L / H); // 箭头角度
-        arraow_len = Math.sqrt(L * L + H * H); // 箭头的长�?
-        arrXY_1 = DrawUtil.rotateVec(touchX - touchDownX, touchY - touchDownY, awrad, true, arraow_len);
-        arrXY_2 = DrawUtil.rotateVec(touchX - touchDownX, touchY - touchDownY, -awrad, true, arraow_len);
-        x_3 = (float) (touchX - arrXY_1[0]); // (x3,y3)是第�?端点
-        y_3 = (float) (touchY - arrXY_1[1]);
-        x_4 = (float) (touchX - arrXY_2[0]); // (x4,y4)是第二端�?
-        y_4 = (float) (touchY - arrXY_2[1]);
+        float lineAngle = angleBetweenStartPoint(beginPoint, endPoint);
+        //箭头底边长
+        float arrowBottomLength = (float) (arrowWaistLength * sin(arrowAngle / 2f) * 2);
+
+        //箭头垂直高度
+        float arrowVerticalLenght = arrowWaistLength * (float) cos(arrowAngle / 2f);
+
+        //图形最小长度
+        float minLength = 12 * getDoodle().getUnitSize() + arrowVerticalLenght;
+
+        if (distanceBetweenStartPoint(beginPoint, endPoint) < minLength) {
+            //尾巴长度小于这个长度
+            if (endPoint.x > beginPoint.x) {
+                endPoint = new PointF((float)(beginPoint.x + minLength *  cos(lineAngle)), (float)(beginPoint.y - minLength *  sin(lineAngle)));
+            } else {
+                endPoint = new PointF((float)(beginPoint.x - minLength * cos(lineAngle)), (float)(beginPoint.y + minLength * sin(lineAngle)));
+            }
+            point4 = endPoint;
+        }
+
+        //箭头垂直中心点
+        PointF arrowGapCenter;
+        if (endPoint.x > beginPoint.x) {
+            arrowGapCenter = new PointF((float)(endPoint.x - arrowVerticalLenght * cos(lineAngle)), (float)(endPoint.y + arrowVerticalLenght * sin(lineAngle)));
+        } else {
+            arrowGapCenter = new PointF((float) (endPoint.x + arrowVerticalLenght * cos(lineAngle)), (float)(endPoint.y - arrowVerticalLenght * sin(lineAngle)));
+        }
+        //两个箭头左右尖端
+        point5 = new PointF((float)(arrowGapCenter.x + arrowBottomLength / 2.f *sin(lineAngle)), (float)(arrowGapCenter.y + arrowBottomLength / 2.f * cos(lineAngle)));
+        point3 = new PointF((float)(arrowGapCenter.x - arrowBottomLength / 2.f * sin(lineAngle)), (float)(arrowGapCenter.y - arrowBottomLength / 2.f * cos(lineAngle)));
+
+        //两个箭头内角
+        point6 = new PointF((float)(arrowGapCenter.x + arrowGapWidth / 2.f * sin(lineAngle)), (float)(arrowGapCenter.y + arrowGapWidth / 2.f * cos(lineAngle)));
+        point2 = new PointF((float)(arrowGapCenter.x - arrowGapWidth / 2.f * sin(lineAngle)), (float)(arrowGapCenter.y - arrowGapWidth / 2.f * cos(lineAngle)));
         if (mArrowTrianglePath == null) {
             mArrowTrianglePath = new Path();
         }
         mArrowTrianglePath.reset();
-        mArrowTrianglePath.moveTo(touchX, touchY);
-        mArrowTrianglePath.lineTo(x_4, y_4);
-        mArrowTrianglePath.lineTo(x_3, y_3);
+
+        //path.lineWidth = 1;
+        //底部半圆弧形
+        if (endPoint.x > beginPoint.x) {
+            PointF arcCenter = new PointF(beginPoint.x + radius * (float) cos(lineAngle), beginPoint.y - radius * (float) sin(lineAngle));
+            //mArrowTrianglePath.addArc();
+            RectF rectF = new RectF(arcCenter.x - radius,arcCenter.y - radius , arcCenter.x+radius,arcCenter.y+radius);
+            mArrowTrianglePath.arcTo(rectF, (float) (Math.PI * 2 - lineAngle), (float) (Math.PI * 2 - lineAngle + Math.PI),false);
+            //[path addArcWithCenter:arcCenter radius:M_PI startAngle:M_PI_2 - lineAngle endAngle:M_PI_2 - lineAngle + M_PI clockwise:YES];
+        } else {
+            PointF arcCenter = new PointF(beginPoint.x - radius * (float)cos(lineAngle), beginPoint.y + radius * (float)sin(lineAngle));
+            RectF rectF = new RectF(arcCenter.x - radius,arcCenter.y - radius , arcCenter.x+radius,arcCenter.y+radius);
+            mArrowTrianglePath.arcTo(rectF, (float) (Math.PI * 2 - lineAngle), (float) (Math.PI * 2 - lineAngle + Math.PI),false);
+            //[path addArcWithCenter:arcCenter radius:M_PI startAngle:M_PI_2 - lineAngle endAngle:M_PI_2 - lineAngle + M_PI clockwise:NO];
+        }
+
+        mArrowTrianglePath.moveTo(touchDownX, touchDownY);
+        mArrowTrianglePath.lineTo(point2.x, point2.y);
+        mArrowTrianglePath.lineTo(point3.x, point3.y);
+        mArrowTrianglePath.lineTo(point4.x, point4.y);
+        mArrowTrianglePath.lineTo(point5.x, point5.y);
+        mArrowTrianglePath.lineTo(point6.x, point6.y);
         mArrowTrianglePath.close();
         path.addPath(mArrowTrianglePath);
+    }
+
+
+    private float distanceBetweenStartPoint(PointF startPoint, PointF endPoint) {
+        float xDist = (endPoint.x - startPoint.x);
+        float yDist = (endPoint.y - startPoint.y);
+        return (float) Math.sqrt((xDist * xDist) + (yDist * yDist));
+    }
+
+    private float angleBetweenStartPoint(PointF startPoint, PointF endPoint) {
+        float height = endPoint.y - startPoint.y;
+        float width = startPoint.x - endPoint.x;
+        float rads = (float) Math.atan(height / width);
+        return rads;
     }
 
     private void updateLinePath(Path path, float sx, float sy, float ex, float ey, float size) {
@@ -285,8 +370,6 @@ public class DoodlePath extends DoodleRotatableItemBase {
     @Override
     public void setSize(float size) {
         super.setSize(size);
-
-
         if (mTransform == null) {
             return;
         }
@@ -299,11 +382,20 @@ public class DoodlePath extends DoodleRotatableItemBase {
         adjustPath(false);
     }
 
+
+    public void setIndex(int sizeIndex){
+        if (sizeIndex != -1){
+            mSizeIndex = sizeIndex;
+        }
+    }
+
     @Override
     public void setScale(float scale) {
         super.setScale(scale);
         adjustMosaic();
     }
+
+
 
     private void adjustMosaic() {
         if (getPen() == DoodlePen.MOSAIC

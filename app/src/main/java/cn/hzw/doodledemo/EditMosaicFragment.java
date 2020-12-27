@@ -90,7 +90,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
                     btnMosaicWipe.setSelected(false);
                     currentLevel = getResources().getDimensionPixelOffset(R.dimen.dp_8);
                     mEditListener.setMosaicLevel(currentLevel);
-                    mEditListener.setMosaicSize(penSize.get(currentSize));
+                    mEditListener.setMosaicSize(penSize.get(currentSize),-1);
                 }
             }
         });
@@ -106,7 +106,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
                     btnMosaicWipe.setSelected(false);
                     currentLevel = getResources().getDimensionPixelOffset(R.dimen.dp_2_5);
                     mEditListener.setMosaicLevel(currentLevel);
-                    mEditListener.setMosaicSize(penSize.get(currentSize));
+                    mEditListener.setMosaicSize(penSize.get(currentSize),-1);
                 }
             }
         });
@@ -148,7 +148,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeSmall.getId()));
+                    mEditListener.setMosaicSize(penSize.get(btnSizeSmall.getId()),-1);
                 }
                 currentSize = btnSizeSmall.getId();
                 singleSizeSelected(currentSize);
@@ -160,7 +160,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeMid.getId()));
+                    mEditListener.setMosaicSize(penSize.get(btnSizeMid.getId()),-1);
                 }
                 currentSize = btnSizeMid.getId();
                 singleSizeSelected(currentSize);
@@ -172,7 +172,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeNormal.getId()));
+                    mEditListener.setMosaicSize(penSize.get(btnSizeNormal.getId()),-1);
                 }
                 currentSize = btnSizeNormal.getId();
                 singleSizeSelected(currentSize);
@@ -184,7 +184,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeLarge.getId()));
+                    mEditListener.setMosaicSize(penSize.get(btnSizeLarge.getId()),-1);
                 }
                 currentSize = btnSizeLarge.getId();
                 singleSizeSelected(currentSize);
@@ -196,7 +196,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null) {
-                    mEditListener.setMosaicSize(penSize.get(btnSizeLarger.getId()));
+                    mEditListener.setMosaicSize(penSize.get(btnSizeLarger.getId()),-1);
                 }
                 currentSize = btnSizeLarger.getId();
                 singleSizeSelected(currentSize);

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.EditPhotoActivity">
+
+    <FrameLayout
+        android:id="@+id/doodle_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--<com.yalantis.ucrop.view.OverlayView
+        android:id="@+id/ucrop_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />-->
+
+    <LinearLayout
+        android:id="@+id/ll_delete_rect"
+        android:layout_width="139dp"
+        android:layout_height="70dp"
+        android:background="@drawable/bg_delete_rect"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="9dp"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:src="@drawable/icon_delete"
+            android:layout_marginBottom="8dp"/>
+
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="拖动到此处删除"
+            android:textSize="10sp"
+            android:textColor="@color/white"/>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="27dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="7dp"
+        android:background="@drawable/bg_tab_edit"
+        android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:id="@+id/iv_scrawl"
+            android:layout_width="0dp"
+            android:layout_height="21dp"
+            android:layout_weight="1"
+            android:src="@drawable/scrawl_unselected" />
+
+        <ImageView
+            android:id="@+id/iv_text"
+            android:layout_width="0dp"
+            android:layout_height="21dp"
+            android:layout_weight="1"
+            android:src="@drawable/text_unselected" />
+
+        <ImageView
+            android:id="@+id/iv_mosaic"
+            android:layout_width="0dp"
+            android:layout_height="21dp"
+            android:layout_weight="1"
+            android:src="@drawable/mosaic_unselected" />
+
+        <ImageView
+            android:id="@+id/iv_crop"
+            android:layout_width="0dp"
+            android:layout_height="21dp"
+            android:layout_weight="1"
+            android:src="@drawable/crop_unselected" />
+
+
+        <TextView
+            android:id="@+id/tv_done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="13dp"
+            android:background="@android:color/holo_orange_light"
+            android:gravity="center"
+            android:paddingLeft="13dp"
+            android:paddingTop="4dp"
+            android:paddingRight="13dp"
+            android:paddingBottom="4dp"
+            android:text="完成"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+
+
+
+
+
+    <FrameLayout
+        android:id="@+id/frag_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:layout_below="@+id/doodle_container" />
+
+
+
+</RelativeLayout>

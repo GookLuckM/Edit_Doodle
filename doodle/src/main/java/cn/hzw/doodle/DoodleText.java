@@ -122,10 +122,10 @@ public class DoodleText extends DoodleRotatableItemBase {
         canvas.save();
         if (isShowTextBg){
             RectF tempRect = new RectF();
-            tempRect.left = mRect.left - 8*getDoodle().getUnitSize();
-            tempRect.top = mRect.top - 8*getDoodle().getUnitSize();
-            tempRect.right = mRect.right + 8*getDoodle().getUnitSize();
-            tempRect.bottom = mRect.bottom + 8*getDoodle().getUnitSize();
+            tempRect.left = mRect.left - 8*getDoodle().getUnitSize() * getScale();
+            tempRect.top = mRect.top - 8*getDoodle().getUnitSize() * getScale();
+            tempRect.right = mRect.right + 8*getDoodle().getUnitSize() * getScale();
+            tempRect.bottom = mRect.bottom + 8*getDoodle().getUnitSize() * getScale();
             bgPaint.setColor(getColor().getColor());
             bgPaint.setStyle(Paint.Style.FILL);
             canvas.drawRoundRect(tempRect, 9*getDoodle().getUnitSize(), 9*getDoodle().getUnitSize(), bgPaint);

@@ -200,7 +200,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null){
-                    mEditListener.setSize(penSizeMap.get(btnSizeSmall.getId()));
+                    mEditListener.setSize(penSizeMap.get(btnSizeSmall.getId()),0);
                 }
                 singleSizeSelected(btnSizeSmall.getId());
                 btnScrawlPaintSize.setImageResource(R.drawable.icon_stroke_small_unselected);
@@ -211,7 +211,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null){
-                    mEditListener.setSize(penSizeMap.get(btnSizeMid.getId()));
+                    mEditListener.setSize(penSizeMap.get(btnSizeMid.getId()),1);
                 }
                 singleSizeSelected(btnSizeMid.getId());
                 btnScrawlPaintSize.setImageResource(R.drawable.icon_stroke_small_unselected);
@@ -222,7 +222,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null){
-                    mEditListener.setSize(penSizeMap.get(btnSizeNormal.getId()));
+                    mEditListener.setSize(penSizeMap.get(btnSizeNormal.getId()),2);
                 }
                 singleSizeSelected(btnSizeNormal.getId());
                 btnScrawlPaintSize.setImageResource(R.drawable.icon_stroke_mid_unselected);
@@ -233,7 +233,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null){
-                    mEditListener.setSize(penSizeMap.get(btnSizeLarge.getId()));
+                    mEditListener.setSize(penSizeMap.get(btnSizeLarge.getId()),3);
                 }
                 singleSizeSelected(btnSizeLarge.getId());
                 btnScrawlPaintSize.setImageResource(R.drawable.icon_stroke_large_unselected);
@@ -244,7 +244,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
             @Override
             public void onClick(View v) {
                 if (mEditListener != null){
-                    mEditListener.setSize(penSizeMap.get(btnSizeLarger.getId()));
+                    mEditListener.setSize(penSizeMap.get(btnSizeLarger.getId()),4);
                 }
                 singleSizeSelected(btnSizeLarger.getId());
                 btnScrawlPaintSize.setImageResource(R.drawable.icon_stroke_big_large_unselected);

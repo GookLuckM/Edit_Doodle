@@ -42,7 +42,7 @@ public class MosaicDemo extends Activity {
 
             @Override
             public void onReady(IDoodle doodle) {
-                doodle.setSize(30 * doodle.getUnitSize());
+                doodle.setSize(30 * doodle.getUnitSize(),-1);
             }
         });
 

@@ -2,4 +2,16 @@
 <resources>
     <color name="doodle_btn_pressed_color">#ffffd943</color>
     <color name="doodle_btn_border">#88cccccc</color>
+
+
+    <color name="image_color_primary">#FFFFFF</color>
+    <color name="image_color_accent">#4CA1FB</color>
+
+    <color name="image_color_grey">#F2F2F2</color>
+    <color name="image_color_black">#2B2B2B</color>
+    <color name="image_color_red">#FA5051</color>
+    <color name="image_color_green">#04C160</color>
+    <color name="image_color_yellow">#FFC300</color>
+    <color name="image_color_blue">#11AEFF</color>
+    <color name="image_color_purple">#6467F0</color>
 </resources>

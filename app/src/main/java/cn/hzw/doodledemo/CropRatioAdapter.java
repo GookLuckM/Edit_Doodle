@@ -24,7 +24,7 @@ public class CropRatioAdapter extends RecyclerView.Adapter<CropRatioAdapter.Scra
     List<Float> ratioList;
     List<Integer> radioDrawableList;
     Context mContext;
-    float selectedRatio = 0f;
+    float selectedRatio = -1f;
     OnRatioClickListener mListener;
 
     public CropRatioAdapter(Context context, List<String> ratioNameList, List<Float> ratioList,List<Integer> radioDrawableList) {
@@ -75,6 +75,11 @@ public class CropRatioAdapter extends RecyclerView.Adapter<CropRatioAdapter.Scra
             }
         });
 
+    }
+
+    public void  setSelectedRatio(float ratio){
+        selectedRatio = ratio;
+        notifyDataSetChanged();
     }
 
     public interface OnRatioClickListener{

@@ -10,6 +10,13 @@
         <activity android:name=".DoodleActivity"
             android:configChanges="screenSize|orientation|keyboardHidden|navigation|keyboard"
             />
+
+        <activity android:name="ui.AddTextActivity"
+            android:theme="@style/TranslucentTheme"
+            android:windowSoftInputMode="adjustResize|stateVisible"></activity>
+        <activity android:name="ui.EditPhotoActivity" />
     </application>
+
+
 
 </manifest>

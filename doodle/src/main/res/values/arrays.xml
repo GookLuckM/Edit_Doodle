@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="color_arr">
+        <item>#F2F2F2</item>
+        <item>#2B2B2B</item>
+        <item>#FA5051</item>
+        <item>#FFC300</item>
+        <item>#04C160</item>
+        <item>#11AEFF</item>
+        <item>#6467F0</item>
+    </string-array>
+
+    <string-array name="color_names">
+        <item>浅灰</item>
+        <item>黑色</item>
+        <item>红色</item>
+        <item>黄色</item>
+        <item>绿色</item>
+        <item>蓝色</item>
+        <item>紫色</item>
+    </string-array>
+
+
+    <string-array name="crop_ratio">
+        <item>原始</item>
+        <item>自由</item>
+        <item>1:1</item>
+        <item>3:4</item>
+        <item>4:3</item>
+        <item>9:16</item>
+        <item>16:9</item>
+    </string-array>
+</resources>

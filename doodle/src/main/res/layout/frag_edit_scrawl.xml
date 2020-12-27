@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp"
+    android:background="@android:color/white">
+
+
+    <ImageButton
+        android:id="@+id/btn_wipe"
+        android:layout_width="45dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="17dp"
+        android:background="@android:color/transparent"
+        android:paddingLeft="13dp"
+        android:paddingTop="10dp"
+        android:paddingRight="9dp"
+        android:paddingBottom="8dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/icon_wipe_selector"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/btn_shape"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_wipe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="擦除"
+        android:textColor="#666666"
+        android:textSize="9sp"
+        app:layout_constraintLeft_toLeftOf="@id/btn_wipe"
+        app:layout_constraintRight_toRightOf="@id/btn_wipe"
+        app:layout_constraintTop_toBottomOf="@id/btn_wipe" />
+
+    <ImageButton
+        android:id="@+id/btn_shape"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="17dp"
+        android:background="@android:color/transparent"
+        android:paddingLeft="9dp"
+        android:paddingTop="10dp"
+        android:paddingRight="9dp"
+        android:paddingBottom="8dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/icon_shape_normal_unselect"
+        app:layout_constraintLeft_toRightOf="@+id/btn_wipe"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_shape"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="形状"
+        android:textColor="#666666"
+        android:textSize="9sp"
+        app:layout_constraintLeft_toLeftOf="@id/btn_shape"
+        app:layout_constraintRight_toRightOf="@id/btn_shape"
+        app:layout_constraintTop_toBottomOf="@id/btn_shape" />
+
+    <ImageButton
+        android:id="@+id/btn_paint_size"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="17dp"
+        android:background="@android:color/transparent"
+        android:paddingLeft="9dp"
+        android:paddingTop="10dp"
+        android:paddingRight="9dp"
+        android:paddingBottom="8dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/icon_stroke_mid_unselected"
+        app:layout_constraintLeft_toRightOf="@+id/btn_shape"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_paint_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="大小"
+        android:textColor="#666666"
+        android:textSize="9sp"
+        app:layout_constraintLeft_toLeftOf="@id/btn_paint_size"
+        app:layout_constraintRight_toRightOf="@id/btn_paint_size"
+        app:layout_constraintTop_toBottomOf="@id/btn_paint_size" />
+
+    <ImageView
+        android:id="@+id/iv_divide_line"
+        android:layout_width="1dp"
+        android:layout_height="16dp"
+        android:layout_marginLeft="9dp"
+        android:src="@drawable/divide_line"
+        app:layout_constraintBottom_toBottomOf="@id/btn_paint_size"
+        app:layout_constraintLeft_toRightOf="@+id/btn_paint_size"
+        app:layout_constraintTop_toTopOf="@+id/btn_paint_size" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_colors"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="17dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_paint_size"
+        app:layout_constraintLeft_toRightOf="@+id/iv_divide_line"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btn_paint_size" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

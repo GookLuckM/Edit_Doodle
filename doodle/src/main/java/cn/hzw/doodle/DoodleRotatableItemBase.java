@@ -1,9 +1,11 @@
 package cn.hzw.doodle;
 
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.util.DrawUtil;
@@ -47,6 +49,7 @@ public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
             mPaint.setColor(0x00888888);
             mPaint.setStyle(Paint.Style.FILL);
             mPaint.setStrokeWidth(1);
+            mPaint.setPathEffect(new DashPathEffect(new float[]{4, 4}, 0));
             canvas.drawRect(mRectTemp, mPaint);
 
             // border
@@ -69,18 +72,19 @@ public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
             } else {
                 mPaint.setColor(0x88ffffff);
             }
+            mPaint.setPathEffect(null);
             mPaint.setStyle(Paint.Style.STROKE);
             mPaint.setStrokeWidth(2 * unit);
-           /* canvas.drawLine(mRectTemp.right, mRectTemp.top + mRectTemp.height() / 2,
-                    mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 16) * unit, mRectTemp.top + mRectTemp.height() / 2, mPaint);*/
-            canvas.drawCircle(mRectTemp.right, mRectTemp.bottom, 8 * unit, mPaint);
-            // rotation line
-           /* mPaint.setColor(0x44888888);
-            mPaint.setStrokeWidth(0.8f * unit);
-            canvas.drawLine(mRectTemp.right, mRectTemp.top + mRectTemp.height() / 2,
-                    mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 16) * unit, mRectTemp.top + mRectTemp.height() / 2, mPaint);
-            canvas.drawCircle(mRectTemp.right + (DoodleSelectableItemBase.ITEM_CAN_ROTATE_BOUND - 8) * unit, mRectTemp.top + mRectTemp.height() / 2, 8 * unit, mPaint);*/
-
+            float scale = getScale();
+            if (scale < 1f) {
+                scale = 1f;
+            }else if (scale > 2){
+                scale = 2f;
+            }
+            canvas.drawCircle(mRectTemp.right, mRectTemp.bottom, 8 * unit * scale, mPaint);
+            RectF rect = new RectF(mRectTemp.right - 5 * unit * scale,mRectTemp.bottom - 5 * unit * scale,mRectTemp.right + 5 * unit * scale,mRectTemp.top + 5 * unit * scale);
+            canvas.drawArc(rect,360,130,false,mPaint);
+            canvas.drawArc(rect,0,130,false,mPaint);
 
             canvas.restoreToCount(count);
         }
@@ -101,13 +105,13 @@ public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
 
         // 计算旋转把柄的位置，由于绘制时反向缩放了画布，所以这里也应算上相应的getDoodle().getDoodleScale()
         mRectTemp.set(getBounds());
-        float padding = 22 * getDoodle().getUnitSize() / getDoodle().getDoodleScale();
+        float padding = 22 * getDoodle().getUnitSize();
         mRectTemp.top -= padding;
         mRectTemp.right -= padding;
         mRectTemp.bottom += padding;
         return xy.x >= mRectTemp.right
-                && xy.x <= mRectTemp.right + ITEM_CAN_ROTATE_BOUND * doodle.getUnitSize() / getDoodle().getDoodleScale()
-                && xy.y >= mRectTemp.top
+                && xy.x <= mRectTemp.right + padding*2
+                && xy.y >= mRectTemp.bottom - padding * 2
                 && xy.y <= mRectTemp.bottom;
     }
 

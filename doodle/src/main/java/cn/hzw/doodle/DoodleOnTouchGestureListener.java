@@ -150,19 +150,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
                 }
             }
         } else {
-            // 点击copy
-            /*if (mDoodle.getPen() == DoodlePen.COPY && mCopyLocation.contains(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY), mDoodle.getSize())) {
-                mCopyLocation.setRelocating(true);
-                mCopyLocation.setCopying(false);
-            } else {
-                if (mDoodle.getPen() == DoodlePen.COPY) {
-                    mCopyLocation.setRelocating(false);
-                    if (!mCopyLocation.isCopying()) {
-                        mCopyLocation.setCopying(true);
-                        mCopyLocation.setStartPosition(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
-                    }
-                }*/
-
             // 初始化绘制
             mCurrPath = new Path();
             mCurrPath.moveTo(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
@@ -208,9 +195,9 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         }
 
         if (mCurrDoodlePath != null) {
-            if (mDoodle.isOptimizeDrawing()) {
+            /*if (mDoodle.isOptimizeDrawing()) {
                 mDoodle.notifyItemFinishedDrawing(mCurrDoodlePath);
-            }
+            }*/
             mCurrDoodlePath = null;
         }
 
@@ -228,10 +215,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         if (mDoodle.isEditMode() || isPenEditable(mDoodle.getPen())) { //画笔是否是可选择的
             if (mSelectedItem != null) {
                 if ((mSelectedItem instanceof DoodleRotatableItemBase) && (((DoodleRotatableItemBase) mSelectedItem).isRotating())) { // 旋转item
-                    float totalx = mTouchX - mTouchDownX;
-                    float totalY = mTouchY - mTouchDownY;
-                    float dx = mTouchX - mLastTouchX;
-                    float dy = mTouchY - mLastTouchY;
 
                     float scale = 1f;
                     double radius = Math.sqrt(mDoodle.toX(mTouchX) * mDoodle.toX(mTouchX) + mDoodle.toX(mTouchY) + mDoodle.toX(mTouchY));
@@ -258,14 +241,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             }
         } else {
             if (mCurrPath != null ) {
-            /*if (mDoodle.getPen() == DoodlePen.COPY && mCopyLocation.isRelocating()) {
-                // 正在定位location
-                mCopyLocation.updateLocation(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
-            } else {
-                if (mDoodle.getPen() == DoodlePen.COPY) {
-                    mCopyLocation.updateLocation(mCopyLocation.getCopyStartX() + mDoodle.toX(mTouchX) - mCopyLocation.getTouchStartX(),
-                            mCopyLocation.getCopyStartY() + mDoodle.toY(mTouchY) - mCopyLocation.getTouchStartY());
-                }*/
                 if (mDoodle.getShape() == DoodleShape.HAND_WRITE) { // 手写
                     mCurrPath.quadTo(
                             mDoodle.toX(mLastTouchX),
@@ -312,7 +287,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
                 item = (IDoodleSelectableItem) elem;
 
-                if (item.contains(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)) && item instanceof DoodleText) {
+                if (item.contains(mDoodle.toX(mTouchX), mDoodle.toY(mTouchY)) && (item instanceof DoodleText || (item instanceof DoodlePath && !(item.getShape().equals(DoodleShape.HAND_WRITE))) )) {
                     found = true;
                     setSelectedItem(item);
                     PointF xy = item.getLocation();
@@ -407,7 +382,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             limitCropBound(cropViewRect, bound);
             return;
         }
-
         if (mDoodle.isEditMode()) {
             limitBound(true);
             return;
@@ -434,7 +408,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
 
 
     private void limitCropBound(final RectF cropViewRect, RectF bound) {
-        int lastOverlayViewIndex = mOverlayView.getLastTouchCornerIndex();
         final float oldX = mDoodle.getDoodleTranslationX(), oldY = mDoodle.getDoodleTranslationY();
         float x = mDoodle.getDoodleTranslationX() + mDoodle.getCentreTranX(), y = mDoodle.getDoodleTranslationY() + mDoodle.getCentreTranY();
 
@@ -451,22 +424,83 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         if (bitmapLeft <= cropLeft && bitmapRight >= cropRight && bitmapTop <= cropTop && bitmapBottom >= cropBottom) {
             return;
         } else {
-            if (bitmapLeft > cropLeft) {
-                x = cropLeft;
+
+            switch (mDoodle.getDoodleRotation()){
+                case 0:
+                    if (bitmapLeft > cropLeft) {
+                        x = cropLeft - mDoodle.getCentreTranX();
+                    }
+
+                    if (bitmapRight < cropRight) {
+                        x = cropRight - bound.width() - mDoodle.getCentreTranX();
+                    }
+
+
+                    if (bitmapTop > cropTop) {
+                        y = cropTop - mDoodle.getCentreTranY();
+                    }
+
+                    if (bitmapBottom < cropBottom) {
+                        y = cropBottom - bound.height() - mDoodle.getCentreTranY();
+                    }
+                    break;
+                case 90:
+                    if (bitmapLeft > cropLeft) {
+                        y = bitmapLeft - cropLeft + mDoodle.getDoodleTranslationY();
+                    }
+
+                    if (bitmapRight < cropRight) {
+                        y = bitmapRight - cropRight + mDoodle.getDoodleTranslationY();
+                    }
+
+
+                    if (bitmapTop > cropTop) {
+                        x = cropTop - bitmapTop + mDoodle.getDoodleTranslationX();
+                    }
+
+                    if (bitmapBottom < cropBottom) {
+                        x = cropBottom - bitmapBottom  + mDoodle.getDoodleTranslationX() ;
+                    }
+                    break;
+                case 180:
+                    if (bitmapLeft > cropLeft) {
+                        x = bitmapLeft - cropLeft + mDoodle.getDoodleTranslationX();
+                    }
+
+                    if (bitmapRight < cropRight) {
+                        x = bitmapRight - cropRight + mDoodle.getDoodleTranslationX();
+                    }
+
+
+                    if (bitmapTop > cropTop) {
+                        y = bitmapTop - cropTop + mDoodle.getDoodleTranslationY();
+                    }
+
+                    if (bitmapBottom < cropBottom) {
+                        y = bitmapBottom - cropBottom + mDoodle.getDoodleTranslationY();
+                    }
+                    break;
+                case 270:
+                    if (bitmapLeft > cropLeft) {
+                        y = cropLeft - bitmapLeft + mDoodle.getDoodleTranslationY();
+                    }
+
+                    if (bitmapRight < cropRight) {
+                        y = cropRight - bitmapRight + mDoodle.getDoodleTranslationY();
+                    }
+
+
+                    if (bitmapTop > cropTop) {
+                        x = bitmapTop - cropTop + mDoodle.getDoodleTranslationX();
+                    }
+
+                    if (bitmapBottom < cropBottom) {
+                        x = bitmapBottom - cropBottom + mDoodle.getDoodleTranslationX();
+                    }
+                    break;
+
             }
 
-            if (bitmapRight < cropRight) {
-                x = cropRight - bound.width();
-            }
-
-
-            if (bitmapTop > cropTop) {
-                y = cropTop;
-            }
-
-            if (bitmapBottom < cropBottom) {
-                y = cropBottom - bound.height();
-            }
 
         }
         if (mCropTranslateAnimator == null) {
@@ -504,9 +538,9 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             });
 
         }
-        mCropTranslateAnimator.setFloatValues(oldX, x - mDoodle.getCentreTranX());
+        mCropTranslateAnimator.setFloatValues(oldX, x);
         mTransAnimOldY = oldY;
-        mTransAnimY = y - mDoodle.getCentreTranY();
+        mTransAnimY = y;
         mCropTranslateAnimator.start();
 
     }

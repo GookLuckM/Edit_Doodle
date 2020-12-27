@@ -25,15 +25,17 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
     private List<Float> cropRatioFloatList;
     private List<Integer> cropRatioIconList;
     private ImageButton btnRotate;
+    private CropRatioAdapter mCropRatioAdapter;
+    private float mOriginRatio;
 
     @Override
     protected void init() {
         setTitle("裁切旋转");
-        float originRatio = getArguments().getFloat(EXTRA_ORIGIN_RATIO);
+        mOriginRatio = getArguments().getFloat(EXTRA_ORIGIN_RATIO);
         String[] cropRatio = getResources().getStringArray(R.array.crop_ratio);
         cropRatioList = Arrays.asList(cropRatio);
         cropRatioFloatList = new ArrayList<>();
-        cropRatioFloatList.add(originRatio);
+        cropRatioFloatList.add(99f);
         cropRatioFloatList.add(-1f);
         cropRatioFloatList.add(1f);
         cropRatioFloatList.add(0.75f);
@@ -63,10 +65,10 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
         });
         RecyclerView rvRatioList = rootView.findViewById(R.id.rv_ratios);
 
-        CropRatioAdapter cropRatioAdapter = new CropRatioAdapter(getContext(),cropRatioList,cropRatioFloatList,cropRatioIconList);
+        mCropRatioAdapter = new CropRatioAdapter(getContext(),cropRatioList,cropRatioFloatList,cropRatioIconList);
         rvRatioList.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
-        rvRatioList.setAdapter(cropRatioAdapter);
-        cropRatioAdapter.setOnRatioClickListener(this);
+        rvRatioList.setAdapter(mCropRatioAdapter);
+        mCropRatioAdapter.setOnRatioClickListener(this);
     }
 
 
@@ -76,6 +78,13 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
         return R.layout.frag_edit_crop;
     }
 
+
+    public void setCropRatio(float ratio){
+        if (!cropRatioFloatList.contains(ratio)){
+            ratio = -1f;
+        }
+        mCropRatioAdapter.setSelectedRatio(ratio);
+    }
 
 
     @Override

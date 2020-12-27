@@ -29,10 +29,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -49,7 +46,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
 import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.core.IDoodleColor;
 import cn.hzw.doodle.core.IDoodleItem;
@@ -60,8 +56,6 @@ import cn.hzw.doodle.util.DimenUtils;
 import cn.hzw.doodle.util.ImageUtils;
 import cn.hzw.doodle.util.LogUtil;
 
-import static cn.hzw.doodle.util.DrawUtil.drawCircle;
-import static cn.hzw.doodle.util.DrawUtil.drawRect;
 import static cn.hzw.doodle.util.DrawUtil.rotatePoint;
 
 /**
@@ -90,22 +84,19 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private int mCenterHeight, mCenterWidth;// 图片适应屏幕时的大小（View窗口坐标系上的大小）
     private float mCentreTranX, mCentreTranY;// 图片在适应屏幕时，位于居中位置的偏移（View窗口坐标系上的偏移）
 
-    private int windowWidth, windowHeight;
-
     private int mDoodleRotateDegree = 0; // 相对于初始图片旋转的角度
     private float mRotateScale = 1;  // 在旋转后适应屏幕时的缩放倍数
     private float mRotateTranX, mRotateTranY; // 旋转后适应屏幕居中时的偏移
-    private float mPreRotateWidth, mPreRotateHeight; // 旋转前显示图片宽高
-    private float mRotateWidth, mRotateHeight; // 旋转后显示图片宽高
-    private float mRotateCenterX,mRotateCenterY;
-    private float mPreRotateCenterX,mPreRotateCenterY;
 
-    private float mScale = 1; // 在适应屏幕时的缩放基础上的缩放倍数 （ 图片真实的缩放倍数为 mCenterScale*mScale ）
+
+
+    private float mScale = 1f; // 在适应屏幕时的缩放基础上的缩放倍数 （ 图片真实的缩放倍数为 mCenterScale*mScale ）
     private float mTransX = 0, mTransY = 0; // 图片在适应屏幕且处于居中位置的基础上的偏移量（ 图片真实偏移量为mCentreTranX + mTransX，View窗口坐标系上的偏移）
     private float mMinScale = MIN_SCALE; // 最小缩放倍数
     private float mMaxScale = MAX_SCALE; // 最大缩放倍数
 
     private float mSize;
+    private int mSizeIndex;
     private IDoodleColor mColor; // 画笔底色
     private boolean isDrawTextBg;
     private Rect resultTextRect;
@@ -129,9 +120,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private RectF mCropRect;
     private RectF mPreCropRect;
 
-    private RectF currentCropRect;
 
-    private float mTouchX, mTouchY;
+
+
+
     /* private boolean mEnableZoomer = false; // 放大镜功能
      private boolean mEnableOverview = true; // 全图预览功能，建立在放大镜功能开启的前提下
      private float mLastZoomerY;
@@ -153,13 +145,13 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private ForegroundView mForegroundView;
     private RectF mDoodleBound = new RectF();
     private PointF mTempPoint = new PointF();
-    private RectF mClipBound = new RectF();
-    private RectF originBound = new RectF();
+    private RectF rotateOriginBound = new RectF();
+
+    private Map<Integer,RectF> rotateOriginBoundMaps =  new HashMap<>();
 
     private boolean mIsEditMode = false; //是否是编辑模式，可移动缩放涂鸦
     private boolean mIsSaving = false;
 
-    private boolean mIsReset = true;
 
     /**
      * Whether or not to optimize drawing, it is suggested to open, which can optimize the drawing speed and performance.
@@ -179,6 +171,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private Canvas mDoodleBitmapCanvas;
     private BackgroundView mBackgroundView;
     private Rect mBitmapCropRect;
+
 
     public DoodleView(Context context, Bitmap bitmap, IDoodleListener listener) {
         this(context, bitmap, false, listener, null);
@@ -271,8 +264,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
                 return true;
             }
         }
-        mTouchX = event.getX();
-        mTouchY = event.getY();
 
         // 把事件转发给innerView，避免在区域外不可点击
         MotionEvent transformedEvent = MotionEvent.obtain(event);
@@ -289,9 +280,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
-    public void setIsReset(boolean isReset) {
-        mIsReset = isReset;
-    }
 
     @Override
     public void setOnTouchListener(OnTouchListener l) {
@@ -317,11 +305,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mCentreTranX = (getWidth() - mCenterWidth) / 2f;
         mCentreTranY = (getHeight() - mCenterHeight) / 2f;
 
-        mRotateCenterX = mCentreTranX + mCenterWidth/2;
-        mRotateCenterY = mCentreTranY + mCenterHeight/2;
-
-        mPreRotateCenterX = mRotateCenterX;
-        mPreRotateCenterY = mRotateCenterY;
 
         mDoodleSizeUnit = DimenUtils.dp2px(getContext(), 1) / mCenterScale;
 
@@ -331,14 +314,13 @@ public class DoodleView extends FrameLayout implements IDoodle {
         // 居中适应屏幕
         mTransX = mTransY = 0;
         mScale = 1;
-        if (mIsReset) {
-            initDoodleBitmap();
-        }
 
-        originBound.left = mCentreTranX;
-        originBound.top = mCentreTranY;
-        originBound.right = mCentreTranX + mCenterWidth;
-        originBound.bottom = mCentreTranY + mCenterHeight;
+        initDoodleBitmap();
+
+        rotateOriginBound.left = mCentreTranX;
+        rotateOriginBound.top = mCentreTranY;
+        rotateOriginBound.right = mCentreTranX + mCenterWidth;
+        rotateOriginBound.bottom = mCentreTranY + mCenterHeight;
 
         refreshWithBackground();
     }
@@ -355,26 +337,50 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mDoodleBitmapCanvas = new Canvas(mDoodleBitmap);
     }
 
+
+
     private void resetDoodleBitmap() {
-        if (mCropRect != null && !mCropRect.isEmpty() ) {
-            //Bitmap bitmap = Bitmap.createScaledBitmap(mDoodleBitmap, mCenterWidth , mCenterHeight , true);
-            //mDoodleBitmapCanvas = new Canvas(mDoodleBitmap);
+        RectF doodleBound = getDoodleBound();
+        if (mBitmapCropRect == null) {
             mBitmapCropRect = new Rect();
-            mBitmapCropRect.left = (int) (toX(mCropRect.left));
-            mBitmapCropRect.right = (int) (toX(mCropRect.right));
-            mBitmapCropRect.top = (int) (toY(mCropRect.top));
-            mBitmapCropRect.bottom = (int) (toY(mCropRect.bottom));
         }
-    }
+        if (mCropRect != null && !mCropRect.isEmpty() ) {
+            switch (mDoodleRotateDegree){
+                case 0:
+                    mBitmapCropRect.left = (int) ((mCropRect.left - doodleBound.left)/getAllScale());
+                    mBitmapCropRect.top = (int) ((mCropRect.top - doodleBound.top)/getAllScale());
+                    mBitmapCropRect.right = (int) ((mCropRect.right - doodleBound.left)/getAllScale());
+                    mBitmapCropRect.bottom = (int) ((mCropRect.bottom - doodleBound.top)/getAllScale());
+                    break;
+                case 90:
+                    mBitmapCropRect.left = (int) ((mCropRect.top - doodleBound.top)/getAllScale());
+                    mBitmapCropRect.top = (int) ((doodleBound.right - mCropRect.right)/getAllScale());
+                    mBitmapCropRect.right = (int) (mBitmapCropRect.left + mCropRect.height()/getAllScale());
+                    mBitmapCropRect.bottom = (int) (mBitmapCropRect.top + mCropRect.width()/getAllScale());
+                    break;
+                case 180:
+                    mBitmapCropRect.left = (int) ((doodleBound.right - mCropRect.right)/getAllScale());
+                    mBitmapCropRect.top = (int) ((doodleBound.bottom - mCropRect.bottom)/getAllScale());
+                    mBitmapCropRect.right = (int) (mBitmapCropRect.left + mCropRect.width()/getAllScale());
+                    mBitmapCropRect.bottom = (int) (mBitmapCropRect.left + mCropRect.height()/getAllScale());
+                    break;
+                case 270:
+                    mBitmapCropRect.left = (int) ((doodleBound.bottom - mCropRect.bottom)/getAllScale());
+                    mBitmapCropRect.top = (int) ((mCropRect.left - doodleBound.left)/getAllScale());
+                    mBitmapCropRect.right = (int) (mBitmapCropRect.left + mCropRect.height()/getAllScale());
+                    mBitmapCropRect.bottom = (int) (mCropRect.bottom + mCropRect.width()/getAllScale());
+                    break;
+            }
 
-
-    public void setCurrentCropRect(RectF rect){
-        if (currentCropRect == null) {
-            currentCropRect = new RectF(rect);
         }else {
-            currentCropRect.set(rect);
+            mBitmapCropRect.left = (int) (toX(doodleBound.left));
+            mBitmapCropRect.right = (int) (toX(doodleBound.right));
+            mBitmapCropRect.top = (int) (toY(doodleBound.top));
+            mBitmapCropRect.bottom = (int) (toY(doodleBound.bottom));
         }
     }
+
+
 
     /**
      * 获取当前图片在View坐标系中的矩型区域
@@ -444,8 +450,14 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
-    public RectF getOriginDoodleBound() {
-       return originBound;
+    public void setRotateOriginBound(RectF rectF){
+        if (rotateOriginBound != null){
+            rotateOriginBound.set(rectF);
+        }
+    }
+
+    public RectF getRotateOriginDoodleBound() {
+       return rotateOriginBound;
     }
 
 
@@ -727,8 +739,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     private void refreshWithBackground() {
         addFlag(FLAG_REFRESH_BACKGROUND);
-
-        mIsReset = true;
         refresh();
     }
 
@@ -793,10 +803,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
             mDoodleRotateDegree = 360 + mDoodleRotateDegree;
         }
 
-        mPreRotateCenterX = mRotateCenterX;
-        mPreRotateCenterY = mRotateCenterY;
-
-
 
        // 居中
         RectF rectF = getDoodleBound();
@@ -826,9 +832,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         // 缩放后，偏移图片，以产生围绕某个点缩放的效果
         tx = toTransX(touchX, pivotX);
         ty = toTransY(touchY, pivotY);
-
-        mRotateWidth = mCenterWidth;
-        mRotateHeight = mCenterHeight;
 
         mRotateTranX = tx;
         mRotateTranY = ty;
@@ -928,11 +931,17 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
                 if (mOptimizeDrawing) {
                     refreshDoodleBitmap(true);
-                    savedBitmap = mDoodleBitmap;
+                    if (mBitmapCropRect == null){
+                        resetDoodleBitmap();
+                    }
+                    savedBitmap = mDoodleBitmap.createBitmap(mDoodleBitmap,mBitmapCropRect.left,mBitmapCropRect.top,mBitmapCropRect.width(),mBitmapCropRect.height());
                 } else {
                     savedBitmap = mBitmap.copy(mBitmap.getConfig(), true);
                     Canvas canvas = new Canvas(savedBitmap);
-
+                    canvas.rotate(getDoodleRotation(),getWidth()/2,getHeight()/2);
+                    canvas.translate(getAllTranX(),getAllTranY());
+                    canvas.scale(getAllScale(),getAllScale());
+                    canvas.clipRect(mBitmapCropRect);
                     for (IDoodleItem item : mMosaicItemStack) {
                         item.draw(canvas);
                     }
@@ -944,6 +953,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     for (IDoodleItem item : mTextItemStack) {
                         item.draw(canvas);
                     }
+
 
                 }
 
@@ -1046,14 +1056,28 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
     @Override
-    public void resetBitmapLocation(float scale, float centerScale, float centerX, float centerY, int centerWidth, int centerHeight) {
-        this.mScale = scale;
-        this.mCenterScale = centerScale;
-        this.mCentreTranX = centerX;
-        this.mCentreTranY = centerY;
-        this.mCenterWidth = centerWidth;
-        this.mCenterHeight = centerHeight;
+    public void cleanDoodle() {
+        if (mItemStackOnViewCanvas != null && mItemStackOnViewCanvas.size() > 0){
+            if (mRedoItemStack != null){
+                mRedoItemStack.clear();
+            }
+            mItemStackOnViewCanvas.clear();
+            refresh();
+        }
     }
+
+    @Override
+    public void cleanMosaic() {
+        if (mMosaicItemStackOnViewCanvas != null && mMosaicItemStackOnViewCanvas.size() > 0){
+            if (mMosaicRedoItemStack != null){
+                mMosaicRedoItemStack.clear();
+            }
+            mMosaicItemStackOnViewCanvas.clear();
+            refresh();
+        }
+    }
+
+
 
     @Override
     public boolean redo() {
@@ -1167,11 +1191,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mTransX = toTransX(touchX, pivotX);
         mTransY = toTransY(touchY, pivotY);
 
-        mRotateCenterX = getAllTranX() + getCenterWidth() * mScale /2;
-        mRotateCenterY = getAllTranY() + getCenterHeight() * mScale /2;
-
-        LogUtil.d(TAG, "setDoodleScale");
-        System.out.println("doodle scale :" + scale  + "mTransX : " + mTransX + "mTransY : " + mTransY + "mCenterTransX:" + mCentreTranX + "mCenterTransY:" + mCentreTranY + "mRotateTranX:" + mRotateTranX + "mRotateTransX:" + mRotateTranY + "mRotateScale:" + mRotateScale);
 
         addFlag(FLAG_REFRESH_BACKGROUND);
         refresh();
@@ -1227,8 +1246,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         LogUtil.d(TAG, "setDoodleTranslation");
         mTransX = transX;
         mTransY = transY;
-        mRotateCenterX = getAllTranX() + getCenterWidth() * mScale /2;
-        mRotateCenterY = getAllTranY() + getCenterHeight() * mScale /2;
         refreshWithBackground();
     }
 
@@ -1241,7 +1258,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
     @Override
     public void setDoodleTranslationX(float transX) {
         this.mTransX = transX;
-        mRotateCenterX = getAllTranX() + getCenterWidth() * mScale /2;
         refreshWithBackground();
     }
 
@@ -1255,7 +1271,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
     @Override
     public void setDoodleTranslationY(float transY) {
         this.mTransY = transY;
-        mRotateCenterY = getAllTranY() + getCenterHeight() * mScale /2;
         refreshWithBackground();
     }
 
@@ -1267,14 +1282,22 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
 
     @Override
-    public void setSize(float paintSize) {
+    public void setSize(float paintSize,int index) {
         mSize = paintSize;
+        if (index != -1) {
+            mSizeIndex = index;
+        }
         refresh();
     }
 
     @Override
     public float getSize() {
         return mSize;
+    }
+
+    @Override
+    public int getSizeIndex() {
+        return mSizeIndex;
     }
 
     /**
@@ -1431,11 +1454,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         //setDoodleScale(mScale, 0, 0);
     }
 
-    public void setScreenChange(int width,int height){
-        windowWidth  = width;
-        windowHeight = height;
-    }
-
     @Override
     public float getDoodleMaxScale() {
         return mMaxScale;
@@ -1539,6 +1557,16 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
     @Override
+    public List<IDoodleItem> getMosaicBeforeDrawItem() {
+        return new ArrayList<>(mMosaicItemStackOnViewCanvas);
+    }
+
+    @Override
+    public List<IDoodleItem> getDoodleBeforeDrawItem() {
+        return new ArrayList<>(mItemStackOnViewCanvas);
+    }
+
+    @Override
     public int getRedoItemCount() {
         return mRedoItemStack.size();
     }
@@ -1601,6 +1629,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
+    public void setEditScale(float editScale){
+
+    }
+
+
     public RectF switchCropToCanvas(RectF cropRect) {
 
         RectF rectF = new RectF();
@@ -1660,7 +1693,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
             Bitmap bitmap = mOptimizeDrawing ? mDoodleBitmap : mBitmap;
             if (mCropRect != null && !mCropRect.isEmpty()) {
                 canvas.clipRect(mBitmapCropRect);
-                canvas.drawBitmap(bitmap, mBitmapCropRect,mBitmapCropRect , null);
+                canvas.drawBitmap(bitmap, 0,0,null);
             }else {
                 // 绘制涂鸦后的图片
                 canvas.drawBitmap(bitmap, 0, 0, null);
@@ -1715,12 +1748,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
             Bitmap bitmap = mOptimizeDrawing ? mDoodleBitmap : mBitmap;
 
             if (mCropRect != null && !mCropRect.isEmpty()) {
-                /*RectF rectF = switchCropToCanvas(mCropRect);
-                int bitmapLeft = (int) (rectF.left);
-                int bitmapTop = (int) (rectF.top);
-                int bitmapRight = (int) (rectF.right);
-                int bitmapBottom = (int) (rectF.bottom);
-                Rect rect = new Rect(bitmapLeft, bitmapTop,  bitmapRight, bitmapBottom);*/
                 canvas.clipRect(mBitmapCropRect);
             }
 
