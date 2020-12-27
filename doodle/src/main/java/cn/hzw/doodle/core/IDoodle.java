@@ -245,6 +245,8 @@ public interface IDoodle {
      */
     public List<IDoodleItem> getAllRedoItem();
 
+    public List<IDoodleItem> getMosaicRedoItem();
+
     /**
      * 设置放大镜倍数
      *
