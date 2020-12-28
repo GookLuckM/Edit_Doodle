@@ -1,42 +1,42 @@
-package cn.hzw.doodle.ui;
-
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.os.Environment;
-import android.os.PersistableBundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.yalantis.ucrop.callback.OverlayViewChangeListener;
-import com.yalantis.ucrop.view.OverlayView;
+    package cn.hzw.doodle.ui;
+    
+    import android.animation.Animator;
+    import android.animation.AnimatorSet;
+    import android.animation.ObjectAnimator;
+    import android.animation.ValueAnimator;
+    import android.app.Activity;
+    import android.content.Context;
+    import android.content.Intent;
+    import android.content.res.Resources;
+    import android.graphics.Bitmap;
+    import android.graphics.Color;
+    import android.graphics.Rect;
+    import android.graphics.RectF;
+    import android.os.Environment;
+    import android.os.PersistableBundle;
+    
+    import androidx.fragment.app.Fragment;
+    import androidx.fragment.app.FragmentManager;
+    import androidx.fragment.app.FragmentTransaction;
+    import androidx.appcompat.app.AppCompatActivity;
+    
+    import android.os.Bundle;
+    import android.text.TextUtils;
+    import android.view.MotionEvent;
+    import android.view.View;
+    import android.view.ViewGroup;
+    import android.view.ViewTreeObserver;
+    import android.view.Window;
+    import android.view.WindowManager;
+    import android.widget.FrameLayout;
+    import android.widget.ImageView;
+    import android.widget.LinearLayout;
+    import android.widget.RelativeLayout;
+    import android.widget.TextView;
+    import android.widget.Toast;
+    
+import cn.hzw.doodle.OverlayViewChangeListener;
+import cn.hzw.doodle.view.OverlayView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -69,7 +69,8 @@ import cn.hzw.doodle.util.ImageUtils;
 import cn.hzw.doodle.util.LogUtil;
 import cn.hzw.doodle.util.StatusBarUtil;
 import cn.hzw.doodle.util.Util;
-import cn.hzw.doodledemo.IEditListener;
+import cn.hzw.doodle.ui.IEditListener;
+
 
 public class EditPhotoActivity extends AppCompatActivity implements View.OnClickListener, ScrawlColorsAdapter.OnColorClickListener, IEditListener {
 
@@ -150,6 +151,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     private float preCropScale;
     private float preCropTransX;
     private float preCropTransY;
+    private RectF mPreCropRect;
 
 
     @Override
@@ -451,7 +453,11 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             if (mUCropFrame != null && mUCropFrame.getVisibility() == View.VISIBLE) {
                 mUCropFrame.setVisibility(View.GONE);
             }
-            CURRENT_MODE = MODE_SCRAWL;
+            if (CURRENT_MODE == MODE_ERASER){
+                CURRENT_MODE = MODE_ERASER;
+            }else {
+                CURRENT_MODE = MODE_SCRAWL;
+            }
             mDoodleView.setEditMode(false);
             llEdit.setVisibility(View.GONE);
             showFragment(MODE_SCRAWL);
@@ -459,7 +465,11 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             if (mUCropFrame != null && mUCropFrame.getVisibility() == View.VISIBLE) {
                 mUCropFrame.setVisibility(View.GONE);
             }
-            CURRENT_MODE = MODE_MOSAIC;
+            if (CURRENT_MODE == MODE_MOSAIC_ERASER){
+                CURRENT_MODE = MODE_MOSAIC_ERASER;
+            }else {
+                CURRENT_MODE = MODE_MOSAIC;
+            }
             mDoodleView.setEditMode(false);
             llEdit.setVisibility(View.GONE);
             showFragment(MODE_MOSAIC);
@@ -472,6 +482,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             startActivityForResult(new Intent(EditPhotoActivity.this, AddTextActivity.class), EDIT_TEXT_REQUEST_CODE);
         } else if (v.getId() == R.id.iv_crop) {
             CURRENT_MODE = MODE_CROP;
+            mPreCropRect = mCropViewRect;
             preCropScale = cropScale;
             preCropTransX = cropTransX;
             preCropTransY = cropTransY;
@@ -557,6 +568,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 hideFragment(MODE_MOSAIC);
                 break;
             case MODE_CROP:
+                mCropViewRect = mPreCropRect;
                 cropScale = preCropScale;
                 cropTransX = preCropTransX;
                 cropTransY = preCropTransY;
@@ -621,10 +633,12 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         editFragment = (BaseEditFragment) getSupportFragmentManager().findFragmentByTag(showTag);
         if (editFragment == null) {
             switch (showTag) {
+                case MODE_ERASER:
                 case MODE_SCRAWL:
                     // 没有找到表示没有被创建过
                     editFragment = new EditScrawlFragment();
                     break;
+                case MODE_MOSAIC_ERASER:
                 case MODE_MOSAIC:
                     editFragment = new EditMosaicFragment();
                     break;
@@ -723,6 +737,9 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         // 旋转图片
         mDoodle.setDoodleRotation(mDoodle.getDoodleRotation() + 90);
         changeDoodleSize(editLayout.getMeasuredHeight());
+        cropScale = animScale;
+        cropTransX = scaleAnimTransX;
+        cropTransY = scaleAnimTranY;
         mDoodleView.setDoodleScale(animScale, 0, 0);
         mDoodle.setDoodleTranslation(scaleAnimTransX, scaleAnimTranY);
         mDoodleView.setRotateOriginBound(mDoodleView.getDoodleBound());
@@ -1005,12 +1022,19 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 public void onAnimationEnd(Animator animation) {
 
                     switch (CURRENT_MODE) {
+                        case MODE_ERASER:
+                            mDoodle.setPen(DoodlePen.ERASER);
+                            mDoodle.setSize(mScrawlSize, mScrawlIndex);
+                            break;
                         case MODE_SCRAWL:
                             mDoodle.setPen(DoodlePen.BRUSH);
                             mDoodle.setColor(new DoodleColor(selectedColor));
                             mDoodle.setSize(mScrawlSize, mScrawlIndex);
                             mDoodle.setShape(selectedShape);
                             break;
+                        case MODE_MOSAIC_ERASER:
+                            mDoodle.setPen(DoodlePen.MOSAIC_ERASER);
+                            mDoodle.setSize(mMosaicSize, -1);
                         case MODE_MOSAIC:
                             mDoodle.setPen(DoodlePen.MOSAIC);
                             mDoodle.setSize(mMosaicSize, -1);

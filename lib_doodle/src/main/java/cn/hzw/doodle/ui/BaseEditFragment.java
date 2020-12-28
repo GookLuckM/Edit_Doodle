@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import cn.hzw.doodle.R;
 import cn.hzw.doodle.core.IDoodle;
-import cn.hzw.doodledemo.IEditListener;
+import cn.hzw.doodle.ui.IEditListener;
 
 public abstract class BaseEditFragment extends Fragment {
 

@@ -1,4 +1,4 @@
-package cn.hzw.doodledemo;
+package cn.hzw.doodle.ui;
 
 import cn.hzw.doodle.DoodlePen;
 import cn.hzw.doodle.DoodleShape;

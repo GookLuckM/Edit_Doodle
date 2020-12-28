@@ -1082,7 +1082,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         while (iterator.hasNext()) {
             IDoodleItem item = iterator.next();
             iterator.remove();
-            addItemInner(item);
+            redoItemInner(item);
             break;
         }
         return true;
@@ -1097,7 +1097,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         while (iterator.hasNext()) {
             IDoodleItem item = iterator.next();
             iterator.remove();
-            addItemInner(item);
+            redoItemInner(item);
             break;
         }
         return true;
@@ -1494,6 +1494,29 @@ public class DoodleView extends FrameLayout implements IDoodle {
         item.onAdd();
 
         addFlag(FLAG_DRAW_PENDINGS_TO_BACKGROUND);
+
+        refresh();
+    }
+
+    private void redoItemInner(IDoodleItem item) {
+        if (item == null) {
+            throw new RuntimeException("item is null");
+        }
+
+        if (this != item.getDoodle()) {
+            throw new RuntimeException("the object Doodle is illegal");
+        }
+        if (mItemStackOnViewCanvas.contains(item) || mMosaicItemStackOnViewCanvas.contains(item)) {
+            throw new RuntimeException("the item has been added");
+        }
+        if (item.getPen().equals(DoodlePen.BRUSH) || item.getPen().equals(DoodlePen.ERASER)) {
+            mItemStackOnViewCanvas.add(item);
+        } else if (item.getPen().equals(DoodlePen.MOSAIC) || item.getPen().equals(DoodlePen.MOSAIC_ERASER)) {
+            mMosaicItemStackOnViewCanvas.add(item);
+        }
+        item.onAdd();
+
+        addFlag(FLAG_REFRESH_BACKGROUND);
 
         refresh();
     }
