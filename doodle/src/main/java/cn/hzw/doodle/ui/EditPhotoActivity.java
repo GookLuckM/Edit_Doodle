@@ -83,6 +83,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public static final String MODE_TEXT = "mode_text";
     public static final String MODE_CROP = "mode_crop";
     public static final String MODE_MOSAIC = "mode_mosaic";
+    public static final String MODE_MOSAIC_ERASER = "mode_mosaic_eraser";
 
 
     public static final int RESULT_ERROR = -111; // 出现错误
@@ -500,10 +501,13 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         if (doodlePen.equals(DoodlePen.ERASER)) {
             CURRENT_MODE = MODE_ERASER;
             mDoodle.setShape(DoodleShape.HAND_WRITE);
-        } else if (doodlePen.equals(DoodlePen.ERASER)) {
+        } else if (doodlePen.equals(DoodlePen.BRUSH)) {
             CURRENT_MODE = MODE_SCRAWL;
             mDoodle.setShape(selectedShape);
-        } else if (doodlePen.equals(DoodlePen.MOSAIC)) {
+        } else if (doodlePen.equals(DoodlePen.MOSAIC_ERASER)) {
+            CURRENT_MODE = MODE_MOSAIC_ERASER;
+            mDoodle.setShape(DoodleShape.HAND_WRITE);
+        }else if (doodlePen.equals(DoodlePen.MOSAIC)) {
             CURRENT_MODE = MODE_MOSAIC;
             mDoodle.setShape(DoodleShape.HAND_WRITE);
         }
@@ -547,6 +551,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 mDoodle.cleanDoodle();
                 hideFragment(MODE_SCRAWL);
                 break;
+            case MODE_MOSAIC_ERASER:
             case MODE_MOSAIC:
                 mDoodle.cleanMosaic();
                 hideFragment(MODE_MOSAIC);
@@ -571,6 +576,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 }
                 hideFragment(MODE_SCRAWL);
                 break;
+            case MODE_MOSAIC_ERASER:
             case MODE_MOSAIC:
                 for (IDoodleItem iDoodleItem : mDoodleView.getMosaicBeforeDrawItem()) {
                     mDoodleView.notifyItemFinishedDrawing(iDoodleItem);
@@ -675,7 +681,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void onPre() {
         if (CURRENT_MODE == MODE_SCRAWL || CURRENT_MODE == MODE_ERASER) {
             mDoodle.undo();
-        }else if (CURRENT_MODE == MODE_MOSAIC){
+        }else if (CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER){
             mDoodle.mosaicUndo();
         }
         refreshEditBackOrNextStatus();
@@ -685,7 +691,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void onNext() {
         if (CURRENT_MODE == MODE_SCRAWL || CURRENT_MODE == MODE_ERASER) {
             mDoodle.redo();
-        }else if (CURRENT_MODE == MODE_MOSAIC){
+        }else if (CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER){
             mDoodle.mosaicRedo();
         }
         refreshEditBackOrNextStatus();
@@ -931,6 +937,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         if (mUCropFrame != null && mUCropFrame.getVisibility() == View.VISIBLE) {
             mUCropFrame.setVisibility(View.GONE);
         }
+        cleanAnim();
         if (editFragment != null) {
             hideFragment(CURRENT_MODE);
         } else {
@@ -1194,7 +1201,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                     allItem.addAll(mDoodle.getDoodleBeforeDrawItem());
                 }
                 allRedoItem = mDoodle.getAllRedoItem();
-            }else if(CURRENT_MODE == MODE_MOSAIC ){
+            }else if(CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER){
                 allItem = mDoodle.getMosaicItem();
                 if (allItem == null ){
                     allItem = mDoodle.getMosaicBeforeDrawItem();
@@ -1455,5 +1462,23 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         }
         mCropTransAnimY = y - mDoodleView.getCentreTranY();
         mDoodle.setDoodleTranslation(x - mDoodleView.getCentreTranX(), mCropTransAnimY);
+    }
+
+    private void cleanAnim(){
+        if (mInScaleAnimator != null){
+            mInScaleAnimator.cancel();
+        }
+
+        if (mOutScaleAnimator != null){
+            mOutScaleAnimator.cancel();
+        }
+
+        if (inAnimatorSet != null){
+            inAnimatorSet.cancel();
+        }
+
+        if (outAnimatorSet != null){
+            outAnimatorSet.cancel();
+        }
     }
 }

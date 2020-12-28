@@ -20,13 +20,14 @@ public enum DoodlePen implements IDoodlePen {
     ERASER, // 橡皮擦
     TEXT, // 文本
     BITMAP, // 贴图
-    MOSAIC; // 马赛克
+    MOSAIC, // 马赛克
+    MOSAIC_ERASER; // 马赛克
 
     private CopyLocation mCopyLocation;
 
     @Override
     public void config(IDoodleItem item, Paint paint) {
-        if (this == DoodlePen.COPY || this == DoodlePen.ERASER) {
+        if (this == DoodlePen.COPY || this == DoodlePen.ERASER || this == DoodlePen.MOSAIC_ERASER) {
             IDoodle doodle = item.getDoodle();
             if ((item.getColor() instanceof DoodleColor)
                     && ((DoodleColor) item.getColor()).getBitmap() == doodle.getBitmap()) {

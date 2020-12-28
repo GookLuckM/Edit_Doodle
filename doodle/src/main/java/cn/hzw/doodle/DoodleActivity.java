@@ -376,6 +376,7 @@ public class DoodleActivity extends Activity {
 
     private boolean canChangeColor(IDoodlePen pen) {
         return pen != DoodlePen.ERASER
+                && pen != DoodlePen.MOSAIC_ERASER
                 && pen != DoodlePen.BITMAP
                 && pen != DoodlePen.COPY
                 && pen != DoodlePen.MOSAIC;

@@ -71,7 +71,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
 
                 if (mEditListener != null) {
                     if (btnMosaicWipe.isSelected()) {
-                        mEditListener.setMode(DoodlePen.ERASER);
+                        mEditListener.setMode(DoodlePen.MOSAIC_ERASER);
                     } else {
                         mEditListener.setMode(DoodlePen.MOSAIC);
                     }

@@ -16,6 +16,9 @@
             android:theme="@style/TranslucentTheme"
             android:windowSoftInputMode="adjustResize|stateVisible"></activity>
         <activity android:name="cn.hzw.doodle.ui.EditPhotoActivity" />
+        <activity android:name="cn.hzw.doodle.ui.AddTextActivity"
+            android:theme="@style/TranslucentTheme"
+            android:windowSoftInputMode="adjustResize|stateVisible"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

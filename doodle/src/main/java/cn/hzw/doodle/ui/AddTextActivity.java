@@ -20,6 +20,9 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.hzw.doodle.R;
 import cn.hzw.doodle.util.DrawUtil;
 
@@ -39,6 +42,7 @@ public class AddTextActivity extends Activity {
     private boolean isChangedColor;
     private EditText etInput;
     private int current_alignment_mode = 0;
+    private List<Integer> colorViewId = new ArrayList<>();
 
 
 
@@ -54,7 +58,13 @@ public class AddTextActivity extends Activity {
 
         final ImageView ivAlignment = findViewById(R.id.iv_alignment);
 
-
+        colorViewId.add(R.id.rb_scrawl_grey);
+        colorViewId.add(R.id.rb_scrawl_black);
+        colorViewId.add(R.id.rb_scrawl_red);
+        colorViewId.add(R.id.rb_scrawl_yellow);
+        colorViewId.add(R.id.rb_scrawl_green);
+        colorViewId.add(R.id.rb_scrawl_blue);
+        colorViewId.add(R.id.rb_scrawl_purple);
 
         etInput = findViewById(R.id.et_input);
 
@@ -146,6 +156,10 @@ public class AddTextActivity extends Activity {
                         break;
 
                 }*/
+                int index = colorViewId.indexOf(checkedId);
+                if (index > 0 && index < colorArr.length){
+                    selectedColor = Color.parseColor(colorArr[index]);
+                }
                 isChangedColor = false;
                 if (!TextUtils.isEmpty(etInput.getText().toString().trim())){
                     changeColor();

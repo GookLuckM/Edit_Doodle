@@ -423,6 +423,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         float bitmapBottom = bound.bottom;
 
         if (bitmapLeft <= cropLeft && bitmapRight >= cropRight && bitmapTop <= cropTop && bitmapBottom >= cropBottom) {
+            mOverlayView.getOverlayViewChangeListener().onCropRectEnd(mOverlayView.getCropViewRect());
             return;
         } else {
 
