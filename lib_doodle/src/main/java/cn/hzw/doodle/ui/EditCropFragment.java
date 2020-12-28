@@ -20,15 +20,16 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
     private List<Integer> cropRatioIconList;
     private ImageButton btnRotate;
     private CropRatioAdapter mCropRatioAdapter;
+    private float mOriginRatio;
 
     @Override
     protected void init() {
         setTitle("裁切旋转");
-        float originRatio = getArguments().getFloat(EXTRA_ORIGIN_RATIO);
+        mOriginRatio = getArguments().getFloat(EXTRA_ORIGIN_RATIO);
         String[] cropRatio = getResources().getStringArray(R.array.crop_ratio);
         cropRatioList = Arrays.asList(cropRatio);
         cropRatioFloatList = new ArrayList<>();
-        cropRatioFloatList.add(originRatio);
+        cropRatioFloatList.add(99f);
         cropRatioFloatList.add(-1f);
         cropRatioFloatList.add(1f);
         cropRatioFloatList.add(0.75f);

@@ -1,4 +1,4 @@
-package cn.hzw.doodledemo;
+package cn.hzw.doodle.view;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -10,11 +10,15 @@ import android.util.AttributeSet;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.RadioButton;
 
+import androidx.appcompat.widget.AppCompatRadioButton;
+
+import cn.hzw.doodle.R;
+
 /**
  * Created by felix on 2017/12/1 下午2:50.
  */
 
-public class IMGColorRadio extends RadioButton implements ValueAnimator.AnimatorUpdateListener {
+public class IMGColorRadio extends AppCompatRadioButton implements ValueAnimator.AnimatorUpdateListener {
 
     private static final String TAG = "IMGColorRadio";
 

@@ -1,22 +1,19 @@
-package cn.hzw.doodledemo;
+package cn.hzw.doodle.ui;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+
+import cn.hzw.doodle.R;
+import cn.hzw.doodle.util.DimenUtils;
 
 public class CropRatioAdapter extends RecyclerView.Adapter<CropRatioAdapter.ScrawlColorsViewHolder> {
 
@@ -27,7 +24,7 @@ public class CropRatioAdapter extends RecyclerView.Adapter<CropRatioAdapter.Scra
     float selectedRatio = -1f;
     OnRatioClickListener mListener;
 
-    public CropRatioAdapter(Context context, List<String> ratioNameList, List<Float> ratioList,List<Integer> radioDrawableList) {
+    public CropRatioAdapter(Context context, List<String> ratioNameList, List<Float> ratioList, List<Integer> radioDrawableList) {
         mContext = context;
         this.ratioNameList = ratioNameList;
         this.ratioList = ratioList;
@@ -48,7 +45,7 @@ public class CropRatioAdapter extends RecyclerView.Adapter<CropRatioAdapter.Scra
         if (i == 0){
             itemParams.leftMargin = 0;
         }else {
-            itemParams.leftMargin = mContext.getResources().getDimensionPixelOffset(R.dimen.dp_22);
+            itemParams.leftMargin = DimenUtils.dp2px(mContext,22);
         }
 
         holder.ivRatio.setImageResource(radioDrawableList.get(i));
