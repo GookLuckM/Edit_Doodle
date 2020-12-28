@@ -275,6 +275,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             boolean found = false;
             IDoodleSelectableItem item;
             List<IDoodleItem> items = mDoodle.getTextItem();
+            items.addAll(mDoodle.getAllItem());
             for (int i = items.size() - 1; i >= 0; i--) {
                 IDoodleItem elem = items.get(i);
                 if (!elem.isDoodleEditable()) {

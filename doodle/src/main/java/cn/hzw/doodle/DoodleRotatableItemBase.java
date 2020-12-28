@@ -49,7 +49,7 @@ public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
             mPaint.setColor(0x00888888);
             mPaint.setStyle(Paint.Style.FILL);
             mPaint.setStrokeWidth(1);
-            mPaint.setPathEffect(new DashPathEffect(new float[]{4, 4}, 0));
+            mPaint.setPathEffect(new DashPathEffect(new float[]{4 * getDoodle().getUnitSize(), 4 * getDoodle().getUnitSize()}, 0));
             canvas.drawRect(mRectTemp, mPaint);
 
             // border
