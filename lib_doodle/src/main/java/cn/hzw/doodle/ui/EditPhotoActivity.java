@@ -1,40 +1,40 @@
-    package cn.hzw.doodle.ui;
-    
-    import android.animation.Animator;
-    import android.animation.AnimatorSet;
-    import android.animation.ObjectAnimator;
-    import android.animation.ValueAnimator;
-    import android.app.Activity;
-    import android.content.Context;
-    import android.content.Intent;
-    import android.content.res.Resources;
-    import android.graphics.Bitmap;
-    import android.graphics.Color;
-    import android.graphics.Rect;
-    import android.graphics.RectF;
-    import android.os.Environment;
-    import android.os.PersistableBundle;
-    
-    import androidx.fragment.app.Fragment;
-    import androidx.fragment.app.FragmentManager;
-    import androidx.fragment.app.FragmentTransaction;
-    import androidx.appcompat.app.AppCompatActivity;
-    
-    import android.os.Bundle;
-    import android.text.TextUtils;
-    import android.view.MotionEvent;
-    import android.view.View;
-    import android.view.ViewGroup;
-    import android.view.ViewTreeObserver;
-    import android.view.Window;
-    import android.view.WindowManager;
-    import android.widget.FrameLayout;
-    import android.widget.ImageView;
-    import android.widget.LinearLayout;
-    import android.widget.RelativeLayout;
-    import android.widget.TextView;
-    import android.widget.Toast;
-    
+package cn.hzw.doodle.ui;
+
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.os.Environment;
+import android.os.PersistableBundle;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import cn.hzw.doodle.OverlayViewChangeListener;
 import cn.hzw.doodle.view.OverlayView;
 
@@ -453,9 +453,9 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             if (mUCropFrame != null && mUCropFrame.getVisibility() == View.VISIBLE) {
                 mUCropFrame.setVisibility(View.GONE);
             }
-            if (CURRENT_MODE == MODE_ERASER){
+            if (CURRENT_MODE == MODE_ERASER) {
                 CURRENT_MODE = MODE_ERASER;
-            }else {
+            } else {
                 CURRENT_MODE = MODE_SCRAWL;
             }
             mDoodleView.setEditMode(false);
@@ -465,9 +465,9 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             if (mUCropFrame != null && mUCropFrame.getVisibility() == View.VISIBLE) {
                 mUCropFrame.setVisibility(View.GONE);
             }
-            if (CURRENT_MODE == MODE_MOSAIC_ERASER){
+            if (CURRENT_MODE == MODE_MOSAIC_ERASER) {
                 CURRENT_MODE = MODE_MOSAIC_ERASER;
-            }else {
+            } else {
                 CURRENT_MODE = MODE_MOSAIC;
             }
             mDoodleView.setEditMode(false);
@@ -502,9 +502,10 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void setColor(int color) {
         selectedColor = color;
-        if (mDoodle.getPen().equals(DoodlePen.BRUSH)) {
-            mDoodle.setColor(new DoodleColor(color));
-        }
+        mDoodle.setPen(DoodlePen.BRUSH);
+        mDoodle.setShape(selectedShape);
+        mDoodle.setColor(new DoodleColor(color));
+
     }
 
     @Override
@@ -518,7 +519,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         } else if (doodlePen.equals(DoodlePen.MOSAIC_ERASER)) {
             CURRENT_MODE = MODE_MOSAIC_ERASER;
             mDoodle.setShape(DoodleShape.HAND_WRITE);
-        }else if (doodlePen.equals(DoodlePen.MOSAIC)) {
+        } else if (doodlePen.equals(DoodlePen.MOSAIC)) {
             CURRENT_MODE = MODE_MOSAIC;
             mDoodle.setShape(DoodleShape.HAND_WRITE);
         }
@@ -547,8 +548,10 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void setShape(DoodleShape doodleShape) {
         selectedShape = doodleShape;
-        mDoodle.setPen(DoodlePen.BRUSH);
-        mDoodle.setShape(doodleShape);
+        if (CURRENT_MODE != MODE_ERASER) {
+            mDoodle.setPen(DoodlePen.BRUSH);
+            mDoodle.setShape(doodleShape);
+        }
     }
 
     @Override
@@ -583,16 +586,16 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         switch (CURRENT_MODE) {
             case MODE_ERASER:
             case MODE_SCRAWL:
-                for (IDoodleItem iDoodleItem : mDoodleView.getDoodleBeforeDrawItem()) {
+                /*for (IDoodleItem iDoodleItem : mDoodleView.getDoodleBeforeDrawItem()) {
                     mDoodleView.notifyItemFinishedDrawing(iDoodleItem);
-                }
+                }*/
                 hideFragment(MODE_SCRAWL);
                 break;
             case MODE_MOSAIC_ERASER:
             case MODE_MOSAIC:
-                for (IDoodleItem iDoodleItem : mDoodleView.getMosaicBeforeDrawItem()) {
+                /*for (IDoodleItem iDoodleItem : mDoodleView.getMosaicBeforeDrawItem()) {
                     mDoodleView.notifyItemFinishedDrawing(iDoodleItem);
-                }
+                }*/
                 hideFragment(MODE_MOSAIC);
                 break;
             case MODE_CROP:
@@ -695,7 +698,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void onPre() {
         if (CURRENT_MODE == MODE_SCRAWL || CURRENT_MODE == MODE_ERASER) {
             mDoodle.undo();
-        }else if (CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER){
+        } else if (CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER) {
             mDoodle.mosaicUndo();
         }
         refreshEditBackOrNextStatus();
@@ -705,7 +708,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void onNext() {
         if (CURRENT_MODE == MODE_SCRAWL || CURRENT_MODE == MODE_ERASER) {
             mDoodle.redo();
-        }else if (CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER){
+        } else if (CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER) {
             mDoodle.mosaicRedo();
         }
         refreshEditBackOrNextStatus();
@@ -988,39 +991,25 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             changeDoodleSize(view.getMeasuredHeight());
         }
         mDoodleView.setDoodleMinScale(animScale);
-        if (mInScaleAnimator == null) {
-            mInScaleAnimator = new ValueAnimator();
-            mInScaleAnimator.setDuration(1000);
-            mInScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    float value = (float) animation.getAnimatedValue();
-                    float fraction = animation.getAnimatedFraction();
-                    mDoodle.setDoodleScale(value, 0, 0);
-                    mDoodle.setDoodleTranslation(scaleAnimTransX * fraction, scaleAnimTranY * fraction);
-
-                }
-            });
-        }
-
-        mInScaleAnimator.setFloatValues(1, animScale * cropScale);
 
 
         if (inAnimatorSet == null) {
-            ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0, -view.getMeasuredHeight()).setDuration(500);
+            ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0, -view.getMeasuredHeight()).setDuration(200);
             inAnimatorSet = new AnimatorSet();
-            inAnimatorSet.playTogether(translateAnimator, mInScaleAnimator);
+            inAnimatorSet.playTogether(translateAnimator);
             //animatorSet.playTogether(translateAnimator, scaleXAnimator,scaleYAnimator,doodleTranslateAnimator);
             inAnimatorSet.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
+
                     //mDoodleView.resetBitmapLocation(1.0f, animScale * doodleOriginCenterScale, centerX, centerY, mCenterWidth, mCenterHeight);
                     //mDoodleView.setDoodleScale(1 / animScale, 0, 0);
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-
+                    mDoodle.setDoodleScale(animScale * cropScale, 0, 0);
+                    mDoodle.setDoodleTranslation(scaleAnimTransX , scaleAnimTranY );
                     switch (CURRENT_MODE) {
                         case MODE_ERASER:
                             mDoodle.setPen(DoodlePen.ERASER);
@@ -1139,7 +1128,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         }
         if (mOutScaleAnimator == null) {
             mOutScaleAnimator = new ValueAnimator();
-            mOutScaleAnimator.setDuration(1000);
+            mOutScaleAnimator.setDuration(200);
             final boolean finalIsReverse = isReverse;
             mOutScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -1148,7 +1137,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                     if (finalIsReverse) {
                         fraction = 1 - fraction;
                     }
-                    mDoodle.setDoodleTranslation(scaleAnimTransX * fraction, scaleAnimTranY * fraction);
+
                 }
             });
 
@@ -1156,6 +1145,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 @Override
                 public void onAnimationStart(Animator animation) {
                     mDoodle.setDoodleScale(cropScale, mPivotX, mPivotY);
+                    mDoodle.setDoodleTranslation(scaleAnimTransX , scaleAnimTranY );
                 }
 
                 @Override
@@ -1177,7 +1167,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         mOutScaleAnimator.setFloatValues(animScale * cropScale, cropScale);
 
         if (outAnimatorSet == null) {
-            ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", -view.getMeasuredHeight(), 0).setDuration(1000);
+            ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", -view.getMeasuredHeight(), 0).setDuration(200);
             outAnimatorSet = new AnimatorSet();
             outAnimatorSet.playTogether(translateAnimator, mOutScaleAnimator);
             outAnimatorSet.addListener(new Animator.AnimatorListener() {
@@ -1219,17 +1209,17 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             if (CURRENT_MODE == MODE_SCRAWL || CURRENT_MODE == MODE_ERASER) {
                 allItem = mDoodle.getAllItem();
 
-                if (allItem == null){
+                if (allItem == null) {
                     allItem = mDoodle.getDoodleBeforeDrawItem();
-                }else {
+                } else {
                     allItem.addAll(mDoodle.getDoodleBeforeDrawItem());
                 }
                 allRedoItem = mDoodle.getAllRedoItem();
-            }else if(CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER){
+            } else if (CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER) {
                 allItem = mDoodle.getMosaicItem();
-                if (allItem == null ){
+                if (allItem == null) {
                     allItem = mDoodle.getMosaicBeforeDrawItem();
-                }else {
+                } else {
                     allItem.addAll(mDoodle.getMosaicBeforeDrawItem());
                 }
                 allRedoItem = mDoodle.getMosaicRedoItem();
@@ -1239,12 +1229,12 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             boolean isShowNext = false;
             if (allItem != null) {
                 for (IDoodleItem item : allItem) {
-                        isShowBack = true;
+                    isShowBack = true;
                 }
             }
             if (allRedoItem != null) {
                 for (IDoodleItem item : allRedoItem) {
-                        isShowNext = true;
+                    isShowNext = true;
                 }
             }
 
@@ -1488,20 +1478,20 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         mDoodle.setDoodleTranslation(x - mDoodleView.getCentreTranX(), mCropTransAnimY);
     }
 
-    private void cleanAnim(){
-        if (mInScaleAnimator != null){
+    private void cleanAnim() {
+        if (mInScaleAnimator != null) {
             mInScaleAnimator.cancel();
         }
 
-        if (mOutScaleAnimator != null){
+        if (mOutScaleAnimator != null) {
             mOutScaleAnimator.cancel();
         }
 
-        if (inAnimatorSet != null){
+        if (inAnimatorSet != null) {
             inAnimatorSet.cancel();
         }
 
-        if (outAnimatorSet != null){
+        if (outAnimatorSet != null) {
             outAnimatorSet.cancel();
         }
     }

@@ -107,7 +107,6 @@ public class DoodleText extends DoodleRotatableItemBase {
                 alignment = Layout.Alignment.ALIGN_OPPOSITE;
                 break;
         }
-
         layout = new StaticLayout(mText, (TextPaint) mPaint, maxWidth, alignment, 1.0F, 0.0F, false);
         rect.set(0,0,maxWidth,layout.getHeight());
         rect.offset(0, rect.height());
@@ -134,8 +133,9 @@ public class DoodleText extends DoodleRotatableItemBase {
             getColor().config(this, mPaint);
         }
         canvas.translate(0, getBounds().height() / getScale());
+        //canvas.rotate(-getDoodle().getDoodleRotation());
         if (layout == null) {
-            canvas.drawText(mText, 0, 0, mPaint);
+            canvas.drawText(mText, getLocation().x, getLocation().y, mPaint);
         } else {
             layout.draw(canvas);
         }

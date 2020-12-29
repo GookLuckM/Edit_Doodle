@@ -158,6 +158,8 @@ public class MainActivity extends Activity {
                     params.mPaintColor = Color.RED;
                     // 是否支持缩放item
                     params.mSupportScaleItem = true;
+
+                    params.mOptimizeDrawing =false;
                     // 启动涂鸦页面
                     //startUcrop(list.get(0));
                     cn.hzw.doodle.ui.EditPhotoActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);

@@ -20,13 +20,17 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import cn.hzw.doodle.R;
 import cn.hzw.doodle.util.DrawUtil;
 
-public class AddTextActivity extends Activity {
+public class AddTextActivity extends Activity implements TextColorsAdapter.OnColorClickListener {
 
     public static final int ALIGNMENT_LEFT = 0;
     public static final int ALIGNMENT_MID = 1;
@@ -36,14 +40,15 @@ public class AddTextActivity extends Activity {
     public static final String RESULT_ALIGNMENT = "result_alignment";
     public static final String RESULT_IS_DRAW_TEXT_BG = "result_is_draw_text_bg";
     public static final String RESULT_RECT = "result_rect";
+    private String[] colorNames;
     private String[] colorArr;
+    private List<String> colorList;
+    private List<String> colorNamesList;
     private int selectedColor;
     private boolean isShowEditBg;
     private boolean isChangedColor;
     private EditText etInput;
     private int current_alignment_mode = 0;
-    private List<Integer> colorViewId = new ArrayList<>();
-
 
 
     @Override
@@ -54,26 +59,33 @@ public class AddTextActivity extends Activity {
         selectedColor = Color.parseColor(colorArr[0]);
         TextView tvCancel = findViewById(R.id.tv_cancel);
         TextView tvDone = findViewById(R.id.tv_done);
-        RadioGroup rgColor = findViewById(R.id.rg_color);
+
 
         final ImageView ivAlignment = findViewById(R.id.iv_alignment);
 
-        colorViewId.add(R.id.rb_scrawl_grey);
-        colorViewId.add(R.id.rb_scrawl_black);
-        colorViewId.add(R.id.rb_scrawl_red);
-        colorViewId.add(R.id.rb_scrawl_yellow);
-        colorViewId.add(R.id.rb_scrawl_green);
-        colorViewId.add(R.id.rb_scrawl_blue);
-        colorViewId.add(R.id.rb_scrawl_purple);
 
         etInput = findViewById(R.id.et_input);
 
         etInput.requestFocus();
 
+        RecyclerView rvColors = findViewById(R.id.rv_colors);
+
+        colorArr = getResources().getStringArray(R.array.color_arr);
+        colorNames = getResources().getStringArray(R.array.color_names);
+        if (colorArr != null && colorArr.length > 1 && colorNames != null && colorNames.length > 1 && colorArr.length == colorNames.length) {
+            colorList = Arrays.asList(colorArr);
+            colorNamesList = Arrays.asList(colorNames);
+        }
+
+        TextColorsAdapter textColorsAdapter = new TextColorsAdapter(this, colorList);
+        textColorsAdapter.setOnColorClickListener(this);
+        rvColors.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rvColors.setAdapter(textColorsAdapter);
+
         ivAlignment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch(current_alignment_mode){
+                switch (current_alignment_mode) {
                     case ALIGNMENT_LEFT:
                         current_alignment_mode = ALIGNMENT_MID;
                         etInput.setGravity(Gravity.CENTER);
@@ -115,53 +127,15 @@ public class AddTextActivity extends Activity {
         cbBackGround.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (cbBackGround.isSelected()){
+                if (cbBackGround.isSelected()) {
                     isShowEditBg = false;
                     cbBackGround.setSelected(false);
-                }else {
+                } else {
                     isShowEditBg = true;
                     cbBackGround.setSelected(true);
                 }
                 isChangedColor = false;
                 if (!TextUtils.isEmpty(etInput.getText().toString().trim())) {
-                    changeColor();
-                }
-            }
-        });
-
-        rgColor.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                /*switch (checkedId) {
-                    case R.id.rb_scrawl_grey:
-                        selectedColor = Color.parseColor(colorArr[0]);
-                        break;
-                    case R.id.rb_scrawl_black:
-                        selectedColor = Color.parseColor(colorArr[1]);
-                        break;
-                    case R.id.rb_scrawl_red:
-                        selectedColor = Color.parseColor(colorArr[2]);
-                        break;
-                    case R.id.rb_scrawl_yellow:
-                        selectedColor = Color.parseColor(colorArr[3]);
-                        break;
-                    case R.id.rb_scrawl_green:
-                        selectedColor = Color.parseColor(colorArr[4]);
-                        break;
-                    case R.id.rb_scrawl_blue:
-                        selectedColor = Color.parseColor(colorArr[5]);
-                        break;
-                    case R.id.rb_scrawl_purple:
-                        selectedColor = Color.parseColor(colorArr[6]);
-                        break;
-
-                }*/
-                int index = colorViewId.indexOf(checkedId);
-                if (index > 0 && index < colorArr.length){
-                    selectedColor = Color.parseColor(colorArr[index]);
-                }
-                isChangedColor = false;
-                if (!TextUtils.isEmpty(etInput.getText().toString().trim())){
                     changeColor();
                 }
             }
@@ -183,19 +157,19 @@ public class AddTextActivity extends Activity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!TextUtils.isEmpty(etInput.getText().toString().trim())){
+                if (!TextUtils.isEmpty(etInput.getText().toString().trim())) {
                     changeColor();
-                }else {
+                } else {
                     etInput.setBackground(new ColorDrawable(Color.TRANSPARENT));
                     isChangedColor = false;
                 }
 
-                if (TextUtils.isEmpty(etInput.getText().toString())){
+                if (TextUtils.isEmpty(etInput.getText().toString())) {
                     etInput.setText(" ");
-                }else {
+                } else {
                     String content = etInput.getText().toString();
-                    if (content.length() > 1 && content.substring(0,1).equals(" ")){
-                            etInput.setText(content.trim());
+                    if (content.length() > 1 && content.substring(0, 1).equals(" ")) {
+                        etInput.setText(content.trim());
                     }
                 }
                 Selection.setSelection(etInput.getText(), etInput.getText().toString().length());
@@ -213,20 +187,20 @@ public class AddTextActivity extends Activity {
                 System.out.println("width" + etInput.getMeasuredWidth());
                 String text = etInput.getText().toString().trim();
                 Intent intent = new Intent();
-                intent.putExtra(RESULT_TEXT,text);
-                intent.putExtra(RESULT_COLOR,selectedColor);
-                intent.putExtra(RESULT_ALIGNMENT,current_alignment_mode);
-                intent.putExtra(RESULT_IS_DRAW_TEXT_BG,isShowEditBg);
+                intent.putExtra(RESULT_TEXT, text);
+                intent.putExtra(RESULT_COLOR, selectedColor);
+                intent.putExtra(RESULT_ALIGNMENT, current_alignment_mode);
+                intent.putExtra(RESULT_IS_DRAW_TEXT_BG, isShowEditBg);
                 Rect rect = new Rect();
                 etInput.getDrawingRect(rect);
-                intent.putExtra(RESULT_RECT,rect);
-                setResult(RESULT_OK,intent);
+                intent.putExtra(RESULT_RECT, rect);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });
     }
 
-    private void changeColor(){
+    private void changeColor() {
         if (!isChangedColor) {
             if (isShowEditBg) {
                 Drawable drawable = etInput.getBackground();
@@ -240,9 +214,9 @@ public class AddTextActivity extends Activity {
                     drawable1.setColor(selectedColor);
                     etInput.setBackground(drawable1);
                 }
-                if (DrawUtil.isLightColor(selectedColor)){
+                if (DrawUtil.isLightColor(selectedColor)) {
                     etInput.setTextColor(Color.BLACK);
-                }else {
+                } else {
                     etInput.setTextColor(Color.WHITE);
                 }
             } else {
@@ -252,5 +226,14 @@ public class AddTextActivity extends Activity {
             }
         }
         isChangedColor = true;
+    }
+
+    @Override
+    public void onColorClick(String color) {
+        selectedColor = Color.parseColor(color);
+        isChangedColor = false;
+        if (!TextUtils.isEmpty(etInput.getText().toString().trim())) {
+            changeColor();
+        }
     }
 }

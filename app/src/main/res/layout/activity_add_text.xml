@@ -75,120 +75,14 @@
 
             />
 
-        <RadioGroup
-            android:id="@+id/rg_color"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_colors"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_24"
             android:layout_marginRight="@dimen/dp_33"
             android:layout_toRightOf="@+id/cb_background"
-            android:checkedButton="@+id/rb_scrawl_grey"
-            android:orientation="horizontal">
+            />
 
-            <cn.hzw.doodledemo.IMGColorRadio
-                android:id="@+id/rb_scrawl_grey"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:image_color="@color/image_color_grey" />
-
-            <cn.hzw.doodledemo.IMGColorRadio
-                android:id="@+id/rb_scrawl_black"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:image_color="@color/image_color_black" />
-
-            <cn.hzw.doodledemo.IMGColorRadio
-                android:id="@+id/rb_scrawl_red"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:image_color="@color/image_color_red" />
-
-            <cn.hzw.doodledemo.IMGColorRadio
-                android:id="@+id/rb_scrawl_yellow"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:image_color="@color/image_color_yellow" />
-
-            <cn.hzw.doodledemo.IMGColorRadio
-                android:id="@+id/rb_scrawl_green"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:image_color="@color/image_color_green" />
-
-            <cn.hzw.doodledemo.IMGColorRadio
-                android:id="@+id/rb_scrawl_blue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:image_color="@color/image_color_blue" />
-
-            <cn.hzw.doodledemo.IMGColorRadio
-                android:id="@+id/rb_scrawl_purple"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:image_color="@color/image_color_purple" />
-
-            <!-- <RadioButton
-                 android:id="@+id/rb_scrawl_grey"
-                 android:layout_width="0dp"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:button="@null"
-                 android:drawableRight="@drawable/icon_scrawl_grey_selector" />
-
-             <RadioButton
-                 android:id="@+id/rb_scrawl_black"
-                 android:layout_width="0dp"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:button="@null"
-                 android:drawableRight="@drawable/icon_scrawl_black_selector" />
-
-             <RadioButton
-                 android:id="@+id/rb_scrawl_red"
-                 android:layout_width="0dp"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:button="@null"
-                 android:drawableRight="@drawable/icon_scrawl_red_selector" />
-
-             <RadioButton
-                 android:id="@+id/rb_scrawl_yellow"
-                 android:layout_width="0dp"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:button="@null"
-                 android:drawableRight="@drawable/icon_scrawl_yellow_selector" />
-
-             <RadioButton
-                 android:id="@+id/rb_scrawl_green"
-                 android:layout_width="0dp"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:button="@null"
-                 android:drawableRight="@drawable/icon_scrawl_green_selector" />
-
-             <RadioButton
-                 android:id="@+id/rb_scrawl_blue"
-                 android:layout_width="0dp"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:button="@null"
-                 android:drawableRight="@drawable/icon_scrawl_blue_selector" />
-
-             <RadioButton
-                 android:id="@+id/rb_scrawl_purple"
-                 android:layout_width="0dp"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:button="@null"
-                 android:drawableRight="@drawable/icon_scrawl_purple_selector" />-->
-        </RadioGroup>
     </LinearLayout>
 </RelativeLayout>

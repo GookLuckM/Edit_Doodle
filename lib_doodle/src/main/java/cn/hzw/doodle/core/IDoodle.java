@@ -351,7 +351,6 @@ public interface IDoodle {
     public void refresh();
 
 
-    public boolean cleanCurrentMode();
 
     public void cleanDoodle();
 

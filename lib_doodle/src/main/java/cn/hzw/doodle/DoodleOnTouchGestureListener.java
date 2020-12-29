@@ -72,14 +72,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         mSelectionListener = listener;
     }
 
-    /*public DoodleOnTouchGestureListener(DoodleView doodle, OverlayView overlayView, ISelectionListener listener) {
-        mDoodle = doodle;
-        mOverlayView = overlayView;
-        mCopyLocation = DoodlePen.COPY.getCopyLocation();
-        mCopyLocation.reset();
-        mCopyLocation.updateLocation(doodle.getBitmap().getWidth() / 2, doodle.getBitmap().getHeight() / 2);
-        mSelectionListener = listener;
-    }*/
 
     public void setOverlayView(OverlayView overlayView) {
         mOverlayView = overlayView;

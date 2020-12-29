@@ -33,6 +33,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
     private ImageButton btnScrawlPaintSize;
     private View scrawlPenSizeView;
     private HashMap<Integer, Integer> penSizeMap;
+    private String mSelectedColor = "#FA5051";
 
     @Override
     protected void init() {
@@ -51,7 +52,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
         btnScrawlShape = rootView.findViewById(R.id.btn_shape);
         btnScrawlPaintSize = rootView.findViewById(R.id.btn_paint_size);
         RecyclerView rvColors = rootView.findViewById(R.id.rv_colors);
-        ScrawlColorsAdapter scrawlColorsAdapter = new ScrawlColorsAdapter(getActivity(), colorList,colorNamesList);
+        final ScrawlColorsAdapter scrawlColorsAdapter = new ScrawlColorsAdapter(getActivity(), colorList,colorNamesList);
         scrawlColorsAdapter.setOnColorClickListener(this);
         rvColors.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
         rvColors.setAdapter(scrawlColorsAdapter);
@@ -69,8 +70,14 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
                 if (mEditListener != null){
                     if (btnScrawlWipe.isSelected()) {
                         mEditListener.setMode(DoodlePen.ERASER);
+                        if (scrawlColorsAdapter != null){
+                            scrawlColorsAdapter.setSelectedColor("");
+                        }
                     }else {
                         mEditListener.setMode(DoodlePen.BRUSH);
+                        if (scrawlColorsAdapter != null){
+                            scrawlColorsAdapter.setSelectedColor(mSelectedColor);
+                        }
                     }
                 }
 
@@ -270,6 +277,8 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
 
     @Override
     public void onColorClick(String color) {
+        btnScrawlWipe.setSelected(false);
+        mSelectedColor = color;
         if (!TextUtils.isEmpty(color) && mEditListener != null){
             mEditListener.setColor(Color.parseColor(color));
         }
