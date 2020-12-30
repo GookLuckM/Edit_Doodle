@@ -1,1 +1,1 @@
-include ':app', ':lib_doodle',':lib_ucrop',':androids',':lib_picture_library'
+include ':app', ':lib_doodle',':lib_ucrop',':lib_picture_library'

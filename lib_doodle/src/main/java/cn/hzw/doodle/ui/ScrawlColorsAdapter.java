@@ -76,10 +76,10 @@ public class ScrawlColorsAdapter extends RecyclerView.Adapter<ScrawlColorsAdapte
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) holder.tvColorName.getLayoutParams();
         if (!TextUtils.isEmpty(selectedColor) && selectedColor.equals(color) ){
             holder.ivColor.setImageDrawable(layerDrawable);
-            layoutParams.topMargin = DimenUtils.dp2px(mContext,6);
+            //layoutParams.topMargin = DimenUtils.dp2px(mContext,6);
         }else {
             holder.ivColor.setImageDrawable(gradientDrawable);
-            layoutParams.topMargin = DimenUtils.dp2px(mContext,13);
+            //layoutParams.topMargin = DimenUtils.dp2px(mContext,13);
         }
         holder.tvColorName.setLayoutParams(layoutParams);
 

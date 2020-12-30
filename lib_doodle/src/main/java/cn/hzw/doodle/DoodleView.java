@@ -1278,6 +1278,100 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
+
+    public void setDoodleToRect(RectF origin,RectF result , SwitchBean switchBean){
+        LogUtil.d("DoodleView", "onCropRectEnd");
+
+        mScale = switchBean.scale;
+        mTransX = switchBean.mTransX;
+        mTransY = switchBean.mTransY;
+        RectF doodleBound = getDoodleBound();
+        float sw = origin.width() * 1f / result.width();
+        float sh = origin.height() * 1f / result.height();
+        float scale = 1f;
+        if (sw > sh) {
+            scale = 1f / sw;
+        } else {
+            scale = 1f / sh;
+        }
+
+        float resultScale = scale * getDoodleScale();
+
+        if (resultScale < mMinScale){
+            mMinScale = resultScale;
+        }
+
+        float pivotX = 0f;
+        float pivotY = 0f;
+        float tranX = 0f;
+        float tranY = 0f;
+        float touchX = 0f;
+        float touchY = 0f;
+
+        switch (getDoodleRotation()) {
+            case 0:
+                pivotX = (origin.left - doodleBound.left) / getAllScale();
+                pivotY = (origin.bottom - doodleBound.top) / getAllScale();
+                touchX = toTouchX(pivotX);
+                touchY = toTouchY(pivotY);
+                this.mScale = resultScale;
+
+                // 缩放后，偏移图片，以产生围绕某个点缩放的效果
+                tranX = toTransX(touchX, pivotX);
+                tranY = toTransY(touchY, pivotY);
+                mTransX = (result.left - origin.left) + tranX;
+                mTransY = (result.bottom - origin.bottom) + tranY;
+                break;
+            case 90:
+                pivotX = (origin.bottom - doodleBound.top) / getAllScale();
+                pivotY = (doodleBound.right - origin.left) / getAllScale();
+                touchX = toTouchX(pivotX);
+                touchY = toTouchY(pivotY);
+                this.mScale = resultScale;
+
+                // 缩放后，偏移图片，以产生围绕某个点缩放的效果
+                tranX = toTransX(touchX, pivotX);
+                tranY = toTransY(touchY, pivotY);
+                mTransX = (result.bottom - origin.bottom) + tranX;
+                mTransY = (origin.left - result.left) + tranY;
+                break;
+            case 180:
+                pivotX = (doodleBound.right - origin.left) / getAllScale();
+                pivotY = (doodleBound.bottom - origin.bottom) / getAllScale();
+                touchX = toTouchX(pivotX);
+                touchY = toTouchY(pivotY);
+                this.mScale = resultScale;
+
+                // 缩放后，偏移图片，以产生围绕某个点缩放的效果
+                tranX = toTransX(touchX, pivotX);
+                tranY = toTransY(touchY, pivotY);
+                mTransX = (origin.left - result.left) + tranX;
+                mTransY = (origin.bottom - result.bottom) + tranY;
+                break;
+            case 270:
+                pivotX = (doodleBound.bottom - origin.bottom) / getAllScale();
+                pivotY = (origin.left - doodleBound.left) / getAllScale();
+                touchX = toTouchX(pivotX);
+                touchY = toTouchY(pivotY);
+                this.mScale = resultScale;
+
+                // 缩放后，偏移图片，以产生围绕某个点缩放的效果
+                tranX = toTransX(touchX, pivotX);
+                tranY = toTransY(touchY, pivotY);
+                mTransX = (origin.bottom - result.bottom) + tranX;
+                mTransY = (result.left - origin.left) + tranY;
+                break;
+
+        }
+
+        refreshWithBackground();
+
+
+
+
+    }
+
+
     @Override
     public float getDoodleScale() {
         return mScale;
@@ -2103,10 +2197,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
             int saveCount = canvas.save(); // 1
 
             List<IDoodleItem> shapeItems = new ArrayList<>(mShapeStack);
-            if (mOptimizeDrawing) {
-                shapeItems = mShapeStackOnViewCanvas;
-
-            }
             boolean canvasClipped = false;
             if (!mIsDrawableOutside) { // 裁剪绘制区域为图片区域
                 canvasClipped = true;
@@ -2221,10 +2311,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
             int saveCount = canvas.save(); // 1
 
             List<IDoodleItem> textItems = new ArrayList<>(mTextItemStack);
-            if (mOptimizeDrawing) {
-                textItems = mTextItemStackOnViewCanvas;
 
-            }
             boolean canvasClipped = false;
             if (!mIsDrawableOutside) { // 裁剪绘制区域为图片区域
                 canvasClipped = true;

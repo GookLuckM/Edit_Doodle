@@ -147,7 +147,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
         final ImageButton btnSizeLarge = rootView.findViewById(R.id.btn_large);
         final ImageButton btnSizeLarger = rootView.findViewById(R.id.btn_larger);
         ImageView ivArrowDown = rootView.findViewById(R.id.iv_size_arrow_down);
-
+        btnSizeNormal.setSelected(true);
 
         btnSizeSmall.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -243,15 +243,17 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
     }
 
     public void refreshWipeStatue(boolean isWipeEnable){
-        if (!isWipeEnable){
-            btnMosaicWipe.setImageResource(R.drawable.icon_wipe_disable);
-            btnMosaicWipe.setClickable(false);
-            if (mEditListener != null){
-                mEditListener.setMode(DoodlePen.MOSAIC);
+        if (btnMosaicWipe != null) {
+            if (!isWipeEnable) {
+                btnMosaicWipe.setImageResource(R.drawable.icon_wipe_disable);
+                btnMosaicWipe.setClickable(false);
+                if (mEditListener != null) {
+                    mEditListener.setMode(DoodlePen.MOSAIC);
+                }
+            } else {
+                btnMosaicWipe.setImageResource(R.drawable.icon_wipe_selector);
+                btnMosaicWipe.setClickable(true);
             }
-        }else {
-            btnMosaicWipe.setImageResource(R.drawable.icon_wipe_selector);
-            btnMosaicWipe.setClickable(true);
         }
     }
 }

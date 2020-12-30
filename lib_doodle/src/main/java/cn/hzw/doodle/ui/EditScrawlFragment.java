@@ -145,6 +145,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
         shapeIds.add(R.id.btn_shape_circle);
         shapeIds.add(R.id.btn_shape_rectangle);
         shapeIds.add(R.id.btn_shape_arrow);
+        btnShapeNormal.setSelected(true);
         btnShapeNormal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,6 +212,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
         penSizeMap.put(R.id.btn_normal,DimenUtils.dp2px(getContext(),7));
         penSizeMap.put(R.id.btn_large,DimenUtils.dp2px(getContext(),10));
         penSizeMap.put(R.id.btn_larger,DimenUtils.dp2px(getContext(),16));
+        btnSizeNormal.setSelected(true);
         btnSizeSmall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -314,18 +316,20 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
     }
 
     public void refreshWipeStatue(boolean isWipeEnable){
-        if (!isWipeEnable){
-            btnScrawlWipe.setImageResource(R.drawable.icon_wipe_disable);
-            btnScrawlWipe.setClickable(false);
-            if (mEditListener != null){
-                mEditListener.setMode(DoodlePen.BRUSH);
-                if (scrawlColorsAdapter != null){
-                    scrawlColorsAdapter.setSelectedColor(mSelectedColor);
+        if (btnScrawlWipe != null) {
+            if (!isWipeEnable) {
+                btnScrawlWipe.setImageResource(R.drawable.icon_wipe_disable);
+                btnScrawlWipe.setClickable(false);
+                if (mEditListener != null) {
+                    mEditListener.setMode(DoodlePen.BRUSH);
+                    if (scrawlColorsAdapter != null) {
+                        scrawlColorsAdapter.setSelectedColor(mSelectedColor);
+                    }
                 }
+            } else {
+                btnScrawlWipe.setImageResource(R.drawable.icon_wipe_selector);
+                btnScrawlWipe.setClickable(true);
             }
-        }else {
-            btnScrawlWipe.setImageResource(R.drawable.icon_wipe_selector);
-            btnScrawlWipe.setClickable(true);
         }
     }
 }

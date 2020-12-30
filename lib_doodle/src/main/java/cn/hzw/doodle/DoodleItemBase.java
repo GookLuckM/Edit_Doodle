@@ -195,7 +195,7 @@ public abstract class DoodleItemBase implements IDoodleItem, IDoodleItemListener
 
         int count = canvas.save();
         mLocation = getLocation(); // 获取旋转后的起始坐标
-        canvas.translate(mLocation.x, mLocation.y); // 偏移，把坐标系平移到item矩形范围
+        canvas.translate(mLocation.x , mLocation.y); // 偏移，把坐标系平移到item矩形范围
         float px = mPivotX - mLocation.x, py = mPivotY - mLocation.y; // 需要减去偏移
         canvas.rotate(mItemRotate, px, py); // 旋转坐标系
         canvas.scale(mScale, mScale, px, py); // 缩放

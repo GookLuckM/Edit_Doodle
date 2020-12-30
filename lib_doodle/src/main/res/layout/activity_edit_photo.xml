@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:text="拖动到此处删除"
             android:textSize="10sp"
-            android:textColor="@color/white"/>
+            android:textColor="@android:color/white"/>
 
 
     </LinearLayout>
@@ -93,13 +93,13 @@
             android:scaleType="fitCenter"
             android:src="@drawable/mosaic_unselected" />
 
-        <ImageView
+        <!--<ImageView
             android:id="@+id/iv_crop"
             android:layout_width="0dp"
             android:layout_height="21dp"
             android:layout_weight="1"
             android:scaleType="fitCenter"
-            android:src="@drawable/crop_unselected" />
+            android:src="@drawable/crop_unselected" />-->
 
 
         <TextView

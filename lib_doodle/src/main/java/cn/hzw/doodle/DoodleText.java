@@ -20,10 +20,7 @@ import cn.hzw.doodle.core.IDoodle;
 import cn.hzw.doodle.core.IDoodleColor;
 import cn.hzw.doodle.util.DimenUtils;
 
-/**
- * 文字item
- * Created by huangziwei on 2017/3/16.
- */
+
 
 public class DoodleText extends DoodleRotatableItemBase {
 
@@ -31,16 +28,15 @@ public class DoodleText extends DoodleRotatableItemBase {
     private final Paint mPaint = new TextPaint();
     private String mText;
     private boolean isShowTextBg;
-    private Rect textRect;
     private StaticLayout layout;
     private Paint bgPaint = new Paint();
     private int alignmentMode;
+    private boolean isFirst;
 
 
     public DoodleText(IDoodle doodle, String text, float size, IDoodleColor color, float x, float y, boolean isShowTextBg) {
         super(doodle, -doodle.getDoodleRotation(), x, y);
         this.isShowTextBg = isShowTextBg;
-        textRect = doodle.getTextRect();
         setPen(DoodlePen.TEXT);
         mText = text;
         setSize(size);
@@ -51,7 +47,6 @@ public class DoodleText extends DoodleRotatableItemBase {
     public DoodleText(IDoodle doodle, String text, float size, IDoodleColor color, float x, float y, boolean isShowTextBg,int alignmentMode) {
         super(doodle, -doodle.getDoodleRotation(), x, y);
         this.isShowTextBg = isShowTextBg;
-        textRect = doodle.getTextRect();
         this.alignmentMode = alignmentMode;
         setPen(DoodlePen.TEXT);
         mText = text;

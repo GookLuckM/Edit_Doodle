@@ -81,6 +81,7 @@ public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
             }else if (scale > 2){
                 scale = 2f;
             }
+            mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             canvas.drawCircle(mRectTemp.right, mRectTemp.bottom, 8 * unit * scale, mPaint);
             RectF rect = new RectF(mRectTemp.right - 5 * unit * scale,mRectTemp.bottom - 5 * unit * scale,mRectTemp.right + 5 * unit * scale,mRectTemp.top + 5 * unit * scale);
             canvas.drawArc(rect,360,130,false,mPaint);
