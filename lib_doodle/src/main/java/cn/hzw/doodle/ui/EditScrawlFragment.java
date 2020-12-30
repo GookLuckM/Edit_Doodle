@@ -34,6 +34,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
     private View scrawlPenSizeView;
     private HashMap<Integer, Integer> penSizeMap;
     private String mSelectedColor = "#FA5051";
+    private ScrawlColorsAdapter scrawlColorsAdapter;
 
     @Override
     protected void init() {
@@ -46,13 +47,14 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
         }
     }
 
+
     @Override
     protected void initView() {
         btnScrawlWipe = rootView.findViewById(R.id.btn_wipe);
         btnScrawlShape = rootView.findViewById(R.id.btn_shape);
         btnScrawlPaintSize = rootView.findViewById(R.id.btn_paint_size);
         RecyclerView rvColors = rootView.findViewById(R.id.rv_colors);
-        final ScrawlColorsAdapter scrawlColorsAdapter = new ScrawlColorsAdapter(getActivity(), colorList,colorNamesList);
+        scrawlColorsAdapter = new ScrawlColorsAdapter(getActivity(), colorList,colorNamesList);
         scrawlColorsAdapter.setOnColorClickListener(this);
         rvColors.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
         rvColors.setAdapter(scrawlColorsAdapter);
@@ -83,6 +85,9 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
 
             }
         });
+
+        btnScrawlWipe.setClickable(false);
+        btnScrawlWipe.setImageResource(R.drawable.icon_wipe_disable);
 
         btnScrawlShape.setOnClickListener(new View.OnClickListener() {
 
@@ -213,7 +218,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
                     mEditListener.setSize(penSizeMap.get(btnSizeSmall.getId()),0);
                 }
                 singleSizeSelected(btnSizeSmall.getId());
-                btnScrawlPaintSize.setImageResource(R.drawable.icon_stroke_small_unselected);
+                btnScrawlPaintSize.setImageResource(R.drawable.icon_stroke_smaller_unselected);
             }
         });
 
@@ -305,6 +310,22 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
                     rootView.findViewById(id).setSelected(false);
                 }
             }
+        }
+    }
+
+    public void refreshWipeStatue(boolean isWipeEnable){
+        if (!isWipeEnable){
+            btnScrawlWipe.setImageResource(R.drawable.icon_wipe_disable);
+            btnScrawlWipe.setClickable(false);
+            if (mEditListener != null){
+                mEditListener.setMode(DoodlePen.BRUSH);
+                if (scrawlColorsAdapter != null){
+                    scrawlColorsAdapter.setSelectedColor(mSelectedColor);
+                }
+            }
+        }else {
+            btnScrawlWipe.setImageResource(R.drawable.icon_wipe_selector);
+            btnScrawlWipe.setClickable(true);
         }
     }
 }

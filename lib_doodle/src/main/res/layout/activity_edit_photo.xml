@@ -74,6 +74,7 @@
             android:layout_width="0dp"
             android:layout_height="21dp"
             android:layout_weight="1"
+            android:scaleType="fitCenter"
             android:src="@drawable/scrawl_unselected" />
 
         <ImageView
@@ -81,13 +82,15 @@
             android:layout_width="0dp"
             android:layout_height="21dp"
             android:layout_weight="1"
-            android:src="@drawable/text_unselected" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/text_selected" />
 
         <ImageView
             android:id="@+id/iv_mosaic"
             android:layout_width="0dp"
             android:layout_height="21dp"
             android:layout_weight="1"
+            android:scaleType="fitCenter"
             android:src="@drawable/mosaic_unselected" />
 
         <ImageView
@@ -95,6 +98,7 @@
             android:layout_width="0dp"
             android:layout_height="21dp"
             android:layout_weight="1"
+            android:scaleType="fitCenter"
             android:src="@drawable/crop_unselected" />
 
 
@@ -103,7 +107,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="13dp"
-            android:background="@android:color/holo_orange_light"
+            android:background="@drawable/bg_done"
             android:gravity="center"
             android:paddingLeft="13dp"
             android:paddingTop="4dp"

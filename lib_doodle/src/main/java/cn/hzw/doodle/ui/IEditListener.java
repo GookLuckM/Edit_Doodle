@@ -31,6 +31,8 @@ public interface IEditListener {
 
     public void onRotate();
 
+    public void resetDoodle();
+
 
 
 }

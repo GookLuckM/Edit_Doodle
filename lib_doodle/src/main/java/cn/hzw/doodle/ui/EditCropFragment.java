@@ -52,6 +52,7 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
         btnRotate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onRefreshOrigin(true);
                 if (mEditListener != null){
                     mEditListener.onRotate();
                 }
@@ -84,7 +85,28 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
     @Override
     public void onRatioClick(float ratio) {
         if (mEditListener != null){
+            onRefreshOrigin(true);
             mEditListener.onCropRatioChange(ratio);
+        }
+    }
+
+
+    public void onRefreshOrigin(boolean isShow){
+        if (isShow){
+            setTitle("还原");
+            tvCurrentControl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mEditListener != null) {
+                        mEditListener.resetDoodle();
+                    }
+                    setTitle("裁切旋转");
+                    tvCurrentControl.setClickable(false);
+                }
+            });
+        }else{
+            setTitle("裁切旋转");
+            tvCurrentControl.setClickable(false);
         }
     }
 }

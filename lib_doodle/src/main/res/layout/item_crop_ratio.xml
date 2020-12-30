@@ -3,7 +3,6 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    android:layout_marginLeft="22dp"
     android:orientation="vertical">
 
     <ImageButton
@@ -12,6 +11,7 @@
         android:layout_height="19dp"
         android:clickable="false"
         android:background="@color/transparent"
+        android:scaleType="fitCenter"
         />
 
     <TextView

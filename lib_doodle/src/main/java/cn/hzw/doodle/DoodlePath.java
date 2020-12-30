@@ -103,7 +103,7 @@ public class DoodlePath extends DoodleRotatableItemBase {
         DoodlePath path = new DoodlePath(doodle);
         path.setPen(doodle.getPen().copy());
         path.setShape(doodle.getShape().copy());
-        path.setSize(doodle.getSize());
+        path.setSize(doodle.getSize()/ doodle.getDoodleScale());
         path.setColor(doodle.getColor().copy());
 
         path.updateXY(sx, sy, dx, dy);
@@ -340,12 +340,10 @@ public class DoodlePath extends DoodleRotatableItemBase {
         int w = doodle.getBitmap().getWidth() / level;
         int h = doodle.getBitmap().getHeight() / level;
 
-
-        Bitmap mosaicBitmap = Bitmap.createScaledBitmap(doodle.getBitmap(), w, h, false);
-        if (mosaicBitmap != null) {
-            map.put(level, mosaicBitmap);
+        Bitmap mosaicBitmap = map.get(level);
+        if (mosaicBitmap == null) {
+           mosaicBitmap = Bitmap.createScaledBitmap(doodle.getBitmap(), w, h, false);
         }
-
         DoodleColor doodleColor = new DoodleColor(mosaicBitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
         doodleColor.setLevel(level);
         return doodleColor;

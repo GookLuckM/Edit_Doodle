@@ -183,8 +183,6 @@ public class AddTextActivity extends Activity implements TextColorsAdapter.OnCol
         tvDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("height" + etInput.getMeasuredHeight());
-                System.out.println("width" + etInput.getMeasuredWidth());
                 String text = etInput.getText().toString().trim();
                 Intent intent = new Intent();
                 intent.putExtra(RESULT_TEXT, text);

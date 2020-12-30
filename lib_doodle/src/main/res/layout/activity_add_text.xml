@@ -32,7 +32,7 @@
 
     <EditText
         android:id="@+id/et_input"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="5"
         android:layout_below="@+id/tv_cancel"
@@ -75,12 +75,19 @@
 
             />
 
+
+        <ImageView
+            android:layout_width="1dp"
+            android:layout_height="15dp"
+            android:layout_marginLeft="26dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/divide_line"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_colors"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/dp_24"
-            android:layout_marginRight="@dimen/dp_33"
+            android:layout_marginRight="33dp"
             android:layout_toRightOf="@+id/cb_background"
             />
     </LinearLayout>

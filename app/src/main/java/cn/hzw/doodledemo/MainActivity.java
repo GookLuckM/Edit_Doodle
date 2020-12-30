@@ -29,6 +29,7 @@ import java.util.List;
 import cn.hzw.doodle.DoodleActivity;
 import cn.hzw.doodle.DoodleParams;
 import cn.hzw.doodle.DoodleView;
+import cn.hzw.doodle.ui.EditPhotoActivity;
 import cn.hzw.doodle.util.LogUtil;
 import cn.hzw.doodledemo.guide.DoodleGuideActivity;
 
@@ -159,10 +160,10 @@ public class MainActivity extends Activity {
                     // 是否支持缩放item
                     params.mSupportScaleItem = true;
 
-                    params.mOptimizeDrawing =false;
+                    params.mOptimizeDrawing =true;
                     // 启动涂鸦页面
                     //startUcrop(list.get(0));
-                    cn.hzw.doodle.ui.EditPhotoActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
+                    EditPhotoActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
                     //DoodleActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
                 }
 

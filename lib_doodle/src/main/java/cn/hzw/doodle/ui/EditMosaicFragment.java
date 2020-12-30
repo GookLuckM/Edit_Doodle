@@ -80,6 +80,9 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
             }
         });
 
+        btnMosaicWipe.setClickable(false);
+        btnMosaicWipe.setImageResource(R.drawable.icon_wipe_disable);
+
 
         btnMosaicThick.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -236,6 +239,19 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
                     rootView.findViewById(id).setSelected(false);
                 }
             }
+        }
+    }
+
+    public void refreshWipeStatue(boolean isWipeEnable){
+        if (!isWipeEnable){
+            btnMosaicWipe.setImageResource(R.drawable.icon_wipe_disable);
+            btnMosaicWipe.setClickable(false);
+            if (mEditListener != null){
+                mEditListener.setMode(DoodlePen.MOSAIC);
+            }
+        }else {
+            btnMosaicWipe.setImageResource(R.drawable.icon_wipe_selector);
+            btnMosaicWipe.setClickable(true);
         }
     }
 }

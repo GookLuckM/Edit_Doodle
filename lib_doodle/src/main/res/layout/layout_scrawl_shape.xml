@@ -49,7 +49,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_shape_circle"
         app:layout_constraintLeft_toLeftOf="@+id/btn_shape_circle"
         app:layout_constraintRight_toRightOf="@id/btn_shape_circle"
-        android:text="涂鸦"
+        android:text="圆形"
         android:textColor="#666666"
         android:textSize="9sp"/>
 
@@ -72,7 +72,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_shape_rectangle"
         app:layout_constraintLeft_toLeftOf="@+id/btn_shape_rectangle"
         app:layout_constraintRight_toRightOf="@id/btn_shape_rectangle"
-        android:text="涂鸦"
+        android:text="矩形"
         android:textColor="#666666"
         android:textSize="9sp"/>
 
@@ -95,7 +95,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_shape_arrow"
         app:layout_constraintLeft_toLeftOf="@+id/btn_shape_arrow"
         app:layout_constraintRight_toRightOf="@id/btn_shape_arrow"
-        android:text="涂鸦"
+        android:text="箭头"
         android:textColor="#666666"
         android:textSize="9sp"/>
 

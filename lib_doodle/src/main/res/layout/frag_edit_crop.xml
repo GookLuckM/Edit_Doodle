@@ -9,19 +9,19 @@
 
     <ImageButton
         android:id="@+id/iv_rotate"
-        android:layout_width="41dp"
-        android:layout_height="41dp"
+        android:layout_width="49dp"
+        android:layout_height="37dp"
         android:src="@drawable/icon_rotate"
-        android:layout_marginLeft="5dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         android:background="@color/transparent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/iv_line"
-        android:paddingTop="10dp"
+        android:scaleType="fitCenter"
+        android:paddingTop="8dp"
         android:paddingBottom="8dp"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="14sp"
+        android:layout_marginTop="16dp"
         />
 
     <TextView
@@ -39,17 +39,16 @@
     <ImageView
         android:id="@+id/iv_line"
         android:layout_width="1dp"
-        android:layout_height="wrap_content"
+        android:layout_height="15dp"
         app:layout_constraintTop_toTopOf="@id/iv_rotate"
         app:layout_constraintBottom_toBottomOf="@+id/iv_rotate"
         app:layout_constraintLeft_toRightOf="@+id/iv_rotate"
-        android:layout_marginLeft="6dp"
         android:src="@drawable/divide_line"/>
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_ratios"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
         app:layout_constraintLeft_toRightOf="@+id/iv_line"
         app:layout_constraintTop_toTopOf="@+id/iv_rotate"

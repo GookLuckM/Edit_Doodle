@@ -26,7 +26,7 @@ public abstract class BaseEditFragment extends Fragment {
     private LinearLayout llPreOrNext;
     private ImageView ivPre;
     private ImageView ivNext;
-    private TextView tvCurrentControl;
+    protected TextView tvCurrentControl;
     private IDoodle doodle;
     protected IEditListener mEditListener;
 

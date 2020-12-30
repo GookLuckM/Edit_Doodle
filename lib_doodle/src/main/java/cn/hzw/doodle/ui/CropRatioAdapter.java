@@ -1,6 +1,7 @@
 package cn.hzw.doodle.ui;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,17 +45,27 @@ public class CropRatioAdapter extends RecyclerView.Adapter<CropRatioAdapter.Scra
         RecyclerView.LayoutParams itemParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
         if (i == 0){
             itemParams.leftMargin = 0;
+            itemParams.rightMargin = DimenUtils.dp2px(mContext,0);
+        }else if (i == ratioList.size() - 1){
+            itemParams.leftMargin = DimenUtils.dp2px(mContext,24);
+            itemParams.rightMargin = DimenUtils.dp2px(mContext,17);
         }else {
-            itemParams.leftMargin = DimenUtils.dp2px(mContext,22);
+            itemParams.leftMargin = DimenUtils.dp2px(mContext,24);
+            itemParams.rightMargin = DimenUtils.dp2px(mContext,0);
         }
+        holder.itemView.setLayoutParams(itemParams);
+
+
 
         holder.ivRatio.setImageResource(radioDrawableList.get(i));
         holder.tvRatioName.setText(ratioNameList.get(i));
 
         if (selectedRatio == ratio){
             holder.ivRatio.setSelected(true);
+            holder.tvRatioName.setTextColor(Color.parseColor("#FE7B1A"));
         }else {
             holder.ivRatio.setSelected(false);
+            holder.tvRatioName.setTextColor(Color.parseColor("#666666"));
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

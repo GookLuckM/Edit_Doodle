@@ -64,9 +64,15 @@ public class ScrawlColorsAdapter extends RecyclerView.Adapter<ScrawlColorsAdapte
         RecyclerView.LayoutParams itemParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
         if (i == 0){
             itemParams.leftMargin = 0;
+            itemParams.rightMargin = DimenUtils.dp2px(mContext,0);
+        }else if (i == colorList.size() - 1){
+            itemParams.leftMargin = DimenUtils.dp2px(mContext,22);
+            itemParams.rightMargin = DimenUtils.dp2px(mContext,17);
         }else {
             itemParams.leftMargin = DimenUtils.dp2px(mContext,22);
+            itemParams.rightMargin = DimenUtils.dp2px(mContext,0);
         }
+        holder.itemView.setLayoutParams(itemParams);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) holder.tvColorName.getLayoutParams();
         if (!TextUtils.isEmpty(selectedColor) && selectedColor.equals(color) ){
             holder.ivColor.setImageDrawable(layerDrawable);

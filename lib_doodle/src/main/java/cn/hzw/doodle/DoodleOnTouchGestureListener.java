@@ -262,7 +262,6 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         mLastTouchY = mTouchY;
         mTouchX = e.getX();
         mTouchY = e.getY();
-
         if (mDoodle.isEditMode()) {
             boolean found = false;
             IDoodleSelectableItem item;
@@ -415,7 +414,8 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
         float bitmapBottom = bound.bottom;
 
         if (bitmapLeft <= cropLeft && bitmapRight >= cropRight && bitmapTop <= cropTop && bitmapBottom >= cropBottom) {
-            mOverlayView.getOverlayViewChangeListener().onCropRectEnd(mOverlayView.getCropViewRect());
+            //mOverlayView.getOverlayViewChangeListener().onCropRectEnd(mOverlayView.getCropViewRect());
+            //mDoodle.setDoodleCropRect(cropViewRect,0);
             return;
         } else {
 

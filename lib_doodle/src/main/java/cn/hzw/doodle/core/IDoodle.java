@@ -53,6 +53,9 @@ public interface IDoodle {
      */
     public float getDoodleScale();
 
+
+    public float getAllScale();
+
     /**
      * 设置画笔
      *

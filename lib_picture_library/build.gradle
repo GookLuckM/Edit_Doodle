@@ -30,10 +30,11 @@ android {
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':lib_doodle')
     //noinspection GradleCompatible
     //implementation rootProject.ext.dependencies.recyclerViewV7
     //implementation rootProject.ext.dependencies.glide
     implementation 'io.reactivex.rxjava2:rxjava:2.1.16'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
-    api project(':lib_ucrop')
+
 }

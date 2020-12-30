@@ -16,7 +16,7 @@
         android:padding="10dp"
         android:layout_marginTop="16dp"
         android:background="@android:color/transparent"
-        android:src="@drawable/icon_stroke_small_selector"/>
+        android:src="@drawable/icon_stroke_smaller_selector"/>
 
     <TextView
         android:id="@+id/tv_shape_scrawl"
