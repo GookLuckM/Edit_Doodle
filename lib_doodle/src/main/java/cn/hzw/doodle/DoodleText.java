@@ -69,7 +69,7 @@ public class DoodleText extends DoodleRotatableItemBase {
         refresh();
     }
 
-    public void setAlignmentMode(){
+    public void setAlignmentMode(int alignmentMode){
         this.alignmentMode = alignmentMode;
         refresh();
     }
@@ -135,6 +135,19 @@ public class DoodleText extends DoodleRotatableItemBase {
             layout.draw(canvas);
         }
         canvas.restore();
+    }
+
+
+    public int getAlignmentMode(){
+        return alignmentMode;
+    }
+
+    public boolean isShowTextBg(){
+        return isShowTextBg;
+    }
+
+    public void setIsShowTextBg(boolean isShowTextBg){
+        this.isShowTextBg = isShowTextBg;
     }
 
 

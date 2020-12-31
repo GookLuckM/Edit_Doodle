@@ -62,7 +62,7 @@ public class ScaleGestureItemDemo extends Activity {
             }
 
             @Override
-            public void onCreateSelectableItem(final IDoodle doodle, final float x, final float y) {
+            public void onCreateSelectableItem(final IDoodle doodle, DoodleText doodleText,final float x, final float y) {
                 if (doodle.getPen() != DoodlePen.TEXT) {
                     return;
                 }

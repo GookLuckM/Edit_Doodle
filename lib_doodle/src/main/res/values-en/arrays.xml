@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="color_arr">
+        <item>#F2F2F2</item>
+        <item>#2B2B2B</item>
+        <item>#FA5051</item>
+        <item>#FFC300</item>
+        <item>#04C160</item>
+        <item>#11AEFF</item>
+    </string-array>
+
+    <string-array name="color_names">
+        <item>Grey</item>
+        <item>Black</item>
+        <item>Red</item>
+        <item>Yellow</item>
+        <item>Green</item>
+        <item>Blue</item>
+    </string-array>
+
+
+    <string-array name="crop_ratio">
+        <item>Original</item>
+        <item>Free</item>
+        <item>1:1</item>
+        <item>3:4</item>
+        <item>4:3</item>
+        <item>9:16</item>
+        <item>16:9</item>
+    </string-array>
+</resources>

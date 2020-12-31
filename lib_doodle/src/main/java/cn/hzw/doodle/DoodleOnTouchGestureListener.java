@@ -80,20 +80,25 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
     public void setSelectedItem(IDoodleSelectableItem selectedItem) {
         IDoodleSelectableItem old = mSelectedItem;
         mSelectedItem = selectedItem;
-
-        if (old != null) { // 取消选定
-            old.setSelected(false);
+        if (old == mSelectedItem && mSelectedItem instanceof DoodleText){
             if (mSelectionListener != null) {
-                mSelectionListener.onSelectedItem(mDoodle, old, false);
+                mSelectionListener.onCreateSelectableItem(mDoodle, (DoodleText) mSelectedItem,mDoodle.toX(mTouchX), mDoodle.toY(mTouchY));
             }
-            mDoodle.notifyItemFinishedDrawing(old);
-        }
-        if (mSelectedItem != null) {
-            mSelectedItem.setSelected(true);
-            if (mSelectionListener != null) {
-                mSelectionListener.onSelectedItem(mDoodle, mSelectedItem, true);
+        }else {
+            if (old != null) { // 取消选定
+                old.setSelected(false);
+                if (mSelectionListener != null) {
+                    mSelectionListener.onSelectedItem(mDoodle, old, false);
+                }
+                mDoodle.notifyItemFinishedDrawing(old);
             }
-            mDoodle.markItemToOptimizeDrawing(mSelectedItem);
+            if (mSelectedItem != null) {
+                mSelectedItem.setSelected(true);
+                if (mSelectionListener != null) {
+                    mSelectionListener.onSelectedItem(mDoodle, mSelectedItem, true);
+                }
+                mDoodle.markItemToOptimizeDrawing(mSelectedItem);
+            }
         }
 
     }
@@ -267,6 +272,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
             IDoodleSelectableItem item;
             List<IDoodleItem> items = mDoodle.getTextItem();
             items.addAll(mDoodle.getAllItem());
+            items.addAll(mDoodle.getShapeItem());
             for (int i = items.size() - 1; i >= 0; i--) {
                 IDoodleItem elem = items.get(i);
                 if (!elem.isDoodleEditable()) {
@@ -718,7 +724,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
          * @param x
          * @param y
          */
-        void onCreateSelectableItem(IDoodle doodle, float x, float y);
+        void onCreateSelectableItem(IDoodle doodle, DoodleText doodleText,float x, float y);
 
 
         void onChangeSelectedItemLocation(IDoodleSelectableItem selectableItem);

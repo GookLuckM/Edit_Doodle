@@ -889,16 +889,22 @@ public class DoodleView extends FrameLayout implements IDoodle {
             return;
         }
 
-        if (mItemStackOnViewCanvas.contains(item) || mShapeStackOnViewCanvas.contains(item) || mMosaicItemStackOnViewCanvas.contains(item) || mTextItemStackOnViewCanvas.contains(item)) {
+        if (mItemStackOnViewCanvas.contains(item) || mMosaicItemStackOnViewCanvas.contains(item) || mTextItemStackOnViewCanvas.contains(item)) {
             throw new RuntimeException("The item has been added");
         }
         if ((item.getPen().equals(DoodlePen.BRUSH) && item.getShape().equals(DoodleShape.HAND_WRITE)) || item.getPen().equals(DoodlePen.ERASER)) {
             mItemStackOnViewCanvas.add(item);
             mUnDoItemStack.add(item);
         } else if (item.getPen().equals(DoodlePen.BRUSH)) {
-            mShapeStack.add(item);
-            mShapeStackOnViewCanvas.add(item);
-            mUnDoItemStack.add(item);
+            if (!mShapeStack.contains(item)) {
+                mShapeStack.add(item);
+            }
+            if (!mShapeStackOnViewCanvas.contains(item)) {
+                mShapeStackOnViewCanvas.add(item);
+            }
+            if (!mUnDoItemStack.contains(item)) {
+                mUnDoItemStack.add(item);
+            }
         } else if (item.getPen().equals(DoodlePen.MOSAIC) || item.getPen().equals(DoodlePen.MOSAIC_ERASER)) {
             mMosaicItemStackOnViewCanvas.add(item);
         } else if (item.getPen().equals(DoodlePen.TEXT)) {
@@ -1141,7 +1147,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
             mItemStackOnViewCanvas.clear();
             mShapeStackOnViewCanvas.clear();
             addFlag(FLAG_RESET_BACKGROUND);
-            refresh();
+            //refresh();
         }
 
     }
@@ -1276,6 +1282,23 @@ public class DoodleView extends FrameLayout implements IDoodle {
         addFlag(FLAG_REFRESH_BACKGROUND);
         refresh();
     }
+
+    public void setDoodleScaleAndTrans(float scale, float transX, float transY){
+        if (scale < mMinScale) {
+            scale = mMinScale;
+        } else if (scale > mMaxScale) {
+            scale = mMaxScale;
+        }
+
+        this.mScale = scale;
+
+        mTransX = transX;
+        mTransY = transY;
+
+        addFlag(FLAG_REFRESH_BACKGROUND);
+        refresh();
+    }
+
 
 
 

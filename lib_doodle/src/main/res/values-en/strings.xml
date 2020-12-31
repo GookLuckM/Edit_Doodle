@@ -16,4 +16,28 @@
     <string name="doodle_select_image">Select a image</string>
 
     <string name="doodle_edit_mode">Edit mode</string>
+
+
+    <string name="doodle_crop">Crop</string>
+    <string name="doodle_drag_to_delete">Drag to here to delete</string>
+    <string name="doodle_release_to_delete">Release to delete</string>
+    <string name="doodle">Doodle</string>
+    <string name="doodle_shape_circle">Circle</string>
+    <string name="doodle_shape_rect">Rectangle</string>
+    <string name="doodle_shape_arrow">Arrow</string>
+    <string name="doodle_erase">Erase</string>
+    <string name="doodle_shape">Shape</string>
+    <string name="doodle_size">Size</string>
+    <string name="doodle_size_smaller">Minimum</string>
+    <string name="doodle_size_small">Small</string>
+    <string name="doodle_size_mid">Medium</string>
+    <string name="doodle_size_large">Large</string>
+    <string name="doodle_size_max">Maximum</string>
+    <string name="doodle_rotate">Rotate</string>
+    <string name="doodle_reset">Reset</string>
+    <string name="doodle_done">Done</string>
+    <string name="doodle_send">Send</string>
+    <string name="doodle_mosaic">Mosaic</string>
+    <string name="doodle_mosaic_large">Coarse</string>
+    <string name="doodle_mosaic_small">Fine</string>
 </resources>

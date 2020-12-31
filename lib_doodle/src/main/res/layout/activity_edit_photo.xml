@@ -2,6 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_content"
+    android:background="@android:color/black"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.EditPhotoActivity">
@@ -29,21 +31,21 @@
         android:id="@+id/ll_delete_rect"
         android:layout_width="139dp"
         android:layout_height="70dp"
-        android:background="@drawable/bg_delete_rect"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="9dp"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="9dp"
+        android:background="@drawable/bg_delete_rect"
         android:gravity="center"
-        android:visibility="invisible"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="invisible">
 
 
         <ImageView
             android:id="@+id/iv_delete"
             android:layout_width="19dp"
             android:layout_height="19dp"
-            android:src="@drawable/icon_delete"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/icon_delete" />
 
 
         <TextView
@@ -51,85 +53,121 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="拖动到此处删除"
-            android:textSize="10sp"
-            android:textColor="@android:color/white"/>
+            android:textColor="@android:color/white"
+            android:textSize="10sp" />
 
 
     </LinearLayout>
 
-
-    <LinearLayout
-        android:id="@+id/ll_edit"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="27dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingTop="7dp"
-        android:background="@drawable/bg_tab_edit"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="9dp"
+        android:background="@drawable/bg_tab_edit">
 
-        <ImageView
-            android:id="@+id/iv_scrawl"
-            android:layout_width="0dp"
-            android:layout_height="21dp"
-            android:layout_weight="1"
-            android:scaleType="fitCenter"
-            android:src="@drawable/scrawl_unselected" />
+        <LinearLayout
+            android:id="@+id/ll_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="7dp"
 
-        <ImageView
-            android:id="@+id/iv_text"
-            android:layout_width="0dp"
-            android:layout_height="21dp"
-            android:layout_weight="1"
-            android:scaleType="fitCenter"
-            android:src="@drawable/text_selected" />
+            >
 
-        <ImageView
-            android:id="@+id/iv_mosaic"
-            android:layout_width="0dp"
-            android:layout_height="21dp"
-            android:layout_weight="1"
-            android:scaleType="fitCenter"
-            android:src="@drawable/mosaic_unselected" />
+            <ImageView
+                android:id="@+id/iv_scrawl"
+                android:layout_width="0dp"
+                android:layout_height="21dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:src="@drawable/scrawl_unselected" />
 
-        <!--<ImageView
-            android:id="@+id/iv_crop"
-            android:layout_width="0dp"
-            android:layout_height="21dp"
-            android:layout_weight="1"
-            android:scaleType="fitCenter"
-            android:src="@drawable/crop_unselected" />-->
+            <ImageView
+                android:id="@+id/iv_text"
+                android:layout_width="0dp"
+                android:layout_height="21dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:src="@drawable/text_selected" />
 
+            <ImageView
+                android:id="@+id/iv_mosaic"
+                android:layout_width="0dp"
+                android:layout_height="21dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:src="@drawable/mosaic_unselected" />
+
+            <ImageView
+                android:id="@+id/iv_crop"
+                android:layout_width="0dp"
+                android:layout_height="21dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:src="@drawable/crop_unselected" />
+
+
+            <TextView
+                android:id="@+id/tv_done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="13dp"
+                android:background="@drawable/bg_done"
+                android:gravity="center"
+                android:paddingLeft="13dp"
+                android:paddingTop="4dp"
+                android:paddingRight="13dp"
+                android:paddingBottom="4dp"
+                android:text="完成"
+                android:textColor="@android:color/white"
+                android:textSize="12sp" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/tv_done"
+            android:id="@+id/tv_sendTo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="10sp"
             android:layout_marginRight="13dp"
-            android:background="@drawable/bg_done"
-            android:gravity="center"
-            android:paddingLeft="13dp"
-            android:paddingTop="4dp"
-            android:paddingRight="13dp"
-            android:paddingBottom="4dp"
-            android:text="完成"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-
-    </LinearLayout>
-
-
-
-
+            android:layout_below="@+id/ll_edit"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="8dp"
+            android:visibility="invisible"
+            android:text="> Jason"/>
+    </RelativeLayout>
 
 
     <FrameLayout
         android:id="@+id/frag_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="9dp"
-        android:layout_below="@+id/doodle_container" />
+        android:layout_below="@+id/doodle_container"
+        android:layout_marginTop="9dp" />
+
+    <FrameLayout
+        android:id="@+id/fl_finish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_top_edit"
+        android:paddingBottom="10dp"
+        android:paddingTop="18dp">
+
+        <TextView
+            android:id="@+id/tv_finish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="取消"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:layout_marginLeft="13dp"
+
+            />
+
+    </FrameLayout>
+
 
 
 

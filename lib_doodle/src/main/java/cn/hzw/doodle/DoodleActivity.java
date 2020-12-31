@@ -334,7 +334,7 @@ public class DoodleActivity extends Activity {
             }
 
             @Override
-            public void onCreateSelectableItem(IDoodle doodle, float x, float y) {
+            public void onCreateSelectableItem(IDoodle doodle, DoodleText doodleText,float x, float y) {
                 if (mDoodle.getPen() == DoodlePen.TEXT) {
                     createDoodleText(null, x, y);
                 } else if (mDoodle.getPen() == DoodlePen.BITMAP) {

@@ -40,15 +40,24 @@ public class AddTextActivity extends Activity implements TextColorsAdapter.OnCol
     public static final String RESULT_ALIGNMENT = "result_alignment";
     public static final String RESULT_IS_DRAW_TEXT_BG = "result_is_draw_text_bg";
     public static final String RESULT_RECT = "result_rect";
+    public static final String EXTRA_TEXT = "extra_text";
+    public static final String EXTRA_COLOR = "extra_color";
+    public static final String EXTRA_ALLIGMENT = "extra_allignment";
+    public static final String EXTRA_IS_SHOW_BG = "extra_is_show_bg";
+    public static final String EXTRA_IS_EDIT = "extra_is_edit";
     private String[] colorNames;
     private String[] colorArr;
     private List<String> colorList;
     private List<String> colorNamesList;
     private int selectedColor;
+    private String selectedColorStr;
     private boolean isShowEditBg;
     private boolean isChangedColor;
     private EditText etInput;
     private int current_alignment_mode = 0;
+    private int color;
+    private boolean isEdit;
+    private String text;
 
 
     @Override
@@ -63,10 +72,20 @@ public class AddTextActivity extends Activity implements TextColorsAdapter.OnCol
 
         final ImageView ivAlignment = findViewById(R.id.iv_alignment);
 
+        current_alignment_mode = getIntent().getIntExtra(EXTRA_ALLIGMENT, 0);
+        text = getIntent().getStringExtra(EXTRA_TEXT);
+        isEdit = getIntent().getBooleanExtra(EXTRA_IS_EDIT, false);
+        color = getIntent().getIntExtra(EXTRA_COLOR, Color.parseColor("#FA5051"));
+        isShowEditBg = getIntent().getBooleanExtra(EXTRA_IS_SHOW_BG, false);
 
         etInput = findViewById(R.id.et_input);
 
         etInput.requestFocus();
+
+        if (!TextUtils.isEmpty(text)) {
+            etInput.setText(text);
+        }
+
 
         RecyclerView rvColors = findViewById(R.id.rv_colors);
 
@@ -81,6 +100,37 @@ public class AddTextActivity extends Activity implements TextColorsAdapter.OnCol
         textColorsAdapter.setOnColorClickListener(this);
         rvColors.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvColors.setAdapter(textColorsAdapter);
+
+        switch (current_alignment_mode) {
+            case ALIGNMENT_LEFT:
+                current_alignment_mode = ALIGNMENT_LEFT;
+                etInput.setGravity(Gravity.LEFT);
+                ivAlignment.setImageResource(R.drawable.icon_alignment_left);
+                break;
+            case ALIGNMENT_MID:
+                current_alignment_mode = ALIGNMENT_MID;
+                etInput.setGravity(Gravity.CENTER);
+                ivAlignment.setImageResource(R.drawable.icon_alignment_mid);
+
+                break;
+            case ALIGNMENT_RIGHT:
+                current_alignment_mode = ALIGNMENT_RIGHT;
+                etInput.setGravity(Gravity.RIGHT);
+                ivAlignment.setImageResource(R.drawable.icon_alignment_right);
+                break;
+        }
+
+        for (String colorStr : colorList) {
+            if (color == Color.parseColor(colorStr)) {
+                selectedColorStr = colorStr;
+                selectedColor = color;
+            }
+        }
+
+        if (!TextUtils.isEmpty(selectedColorStr)){
+            textColorsAdapter.setSelectedColor(selectedColorStr);
+        }
+
 
         ivAlignment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,6 +156,7 @@ public class AddTextActivity extends Activity implements TextColorsAdapter.OnCol
 
             }
         });
+
 
         final ImageButton cbBackGround = findViewById(R.id.cb_background);
 
@@ -141,6 +192,17 @@ public class AddTextActivity extends Activity implements TextColorsAdapter.OnCol
             }
         });
 
+
+        if (isShowEditBg) {
+            cbBackGround.setSelected(true);
+        } else {
+            cbBackGround.setSelected(false);
+        }
+
+        isChangedColor = false;
+        if (!TextUtils.isEmpty(etInput.getText().toString().trim())) {
+            changeColor();
+        }
 
         tvCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,6 +251,7 @@ public class AddTextActivity extends Activity implements TextColorsAdapter.OnCol
                 intent.putExtra(RESULT_COLOR, selectedColor);
                 intent.putExtra(RESULT_ALIGNMENT, current_alignment_mode);
                 intent.putExtra(RESULT_IS_DRAW_TEXT_BG, isShowEditBg);
+                intent.putExtra(EXTRA_IS_EDIT, isEdit);
                 Rect rect = new Rect();
                 etInput.getDrawingRect(rect);
                 intent.putExtra(RESULT_RECT, rect);
