@@ -3,7 +3,6 @@ package cn.hzw.doodle.ui;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +32,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import cn.hzw.doodle.OverlayViewChangeListener;
 import cn.hzw.doodle.R;
@@ -69,7 +67,6 @@ import cn.hzw.doodle.util.ImageUtils;
 import cn.hzw.doodle.util.LogUtil;
 import cn.hzw.doodle.util.StatusBarUtil;
 import cn.hzw.doodle.util.Util;
-import cn.hzw.doodle.ui.IEditListener;
 
 
 public class EditPhotoActivity extends AppCompatActivity implements View.OnClickListener, ScrawlColorsAdapter.OnColorClickListener, IEditListener {
@@ -124,46 +121,62 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     private int mScrawlSize;
     private int mScrawlIndex;
     private OverlayView mUCropFrame;
-    private float scaleAnimTransX;
-    private float scaleAnimTranY;
-    private float animScale;
+    private boolean isCropReset;
+
+
+    /*private float scaleAnimTransX;
+    private float scaleAnimTranY;*/
+
+
+    /*private float animScale;
     private int mCenterWidth;
-    private int mCenterHeight;
+    private int mCenterHeight;*/
 
 
-    private AnimatorSet outAnimatorSet;
-    private AnimatorSet inAnimatorSet;
-    private float centerX;
-    private float centerY;
-    private float mCropTransAnimY;
-    private ValueAnimator mInScaleAnimator;
-    private ValueAnimator mOutScaleAnimator;
+    /*private float centerX;
+    private float centerY;*/
+
+
     private LinearLayout llDeleteRectView;
     private ImageView ivDelete;
     private TextView tvDelete;
+
     private int[] deleteLocation;
-    private float cropScale = 1f;
+
     private int textAlignmentMode;
+
     private float mSelectedRatio;
-    private float cropTransX = -1f;
-    private float cropTransY = -1f;
+
+
     private int screenWidth;
     private int switchScreenHeight;
     private int screenHeight;
-    private float mPivotX;
-    private float mPivotY;
+
+
     private RectF mCropViewRect;
+    private float cropTransX = 0f;
+    private float cropTransY = 0f;
+    private float cropScale = 1f;
+
+
     private float preCropScale;
     private float preCropTransX;
     private float preCropTransY;
     private RectF mPreCropRect;
     private int mPreRatio = 0;
+
+
     private boolean isFirst = true;
     private float editScale = 1f;
     private RectF editRect = new RectF();
-    private float editTransX  = 0f;
+    private float editTransX = 0f;
     private float editTransY = 0f;
-    private boolean isReset;
+    private float editWidth;
+    private float editHeight;
+    private float editX;
+    private float editY;
+
+
     private RectF origin;
     private RelativeLayout rlContent;
     private String sendTo;
@@ -171,6 +184,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     private TextView tvFinish;
     private FrameLayout flFinish;
     private DoodleText editText;
+    private ObjectAnimator mInTranslateAnimator;
+    private ObjectAnimator mOutTranslateAnimator;
 
 
     @Override
@@ -226,12 +241,12 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         fragmentManager = getSupportFragmentManager();
 
         sendTo = getIntent().getStringExtra(EXTRA_SEND_TO);
-        from = getIntent().getIntExtra(EXTRA_FROM,0);
+        from = getIntent().getIntExtra(EXTRA_FROM, 0);
 
         initView();
         initParams();
 
-        Util.setToolbarPaddingTop(this,rlContent,12);
+        //Util.setToolbarPaddingTop(this, rlContent, 12);
         /*
         Whether or not to optimize drawing, it is suggested to open, which can optimize the drawing speed and performance.
         Note: When item is selected for editing after opening, it will be drawn at the top level, and not at the corresponding level until editing is completed.
@@ -392,7 +407,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             }
 
             @Override
-            public void onCreateSelectableItem(IDoodle doodle, DoodleText doodleText,float x, float y) {
+            public void onCreateSelectableItem(IDoodle doodle, DoodleText doodleText, float x, float y) {
                 if (mDoodle.getPen() == DoodlePen.TEXT) {
                     if (mUCropFrame != null && mUCropFrame.getVisibility() == View.VISIBLE) {
                         mUCropFrame.setVisibility(View.GONE);
@@ -400,12 +415,12 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                     CURRENT_MODE = MODE_TEXT;
                     editText = doodleText;
                     mDoodle.setPen(DoodlePen.TEXT);
-                    Intent intent = new Intent(EditPhotoActivity.this,AddTextActivity.class);
-                    intent.putExtra(AddTextActivity.EXTRA_TEXT,doodleText.getText());
-                    intent.putExtra(AddTextActivity.EXTRA_ALLIGMENT,doodleText.getAlignmentMode());
-                    intent.putExtra(AddTextActivity.EXTRA_COLOR,doodleText.getColor().getColor());
-                    intent.putExtra(AddTextActivity.EXTRA_IS_SHOW_BG,doodleText.isShowTextBg());
-                    intent.putExtra(AddTextActivity.EXTRA_IS_EDIT,true);
+                    Intent intent = new Intent(EditPhotoActivity.this, AddTextActivity.class);
+                    intent.putExtra(AddTextActivity.EXTRA_TEXT, doodleText.getText());
+                    intent.putExtra(AddTextActivity.EXTRA_ALLIGMENT, doodleText.getAlignmentMode());
+                    intent.putExtra(AddTextActivity.EXTRA_COLOR, doodleText.getColor().getColor());
+                    intent.putExtra(AddTextActivity.EXTRA_IS_SHOW_BG, doodleText.isShowTextBg());
+                    intent.putExtra(AddTextActivity.EXTRA_IS_EDIT, true);
 
                     startActivityForResult(intent, EDIT_TEXT_REQUEST_CODE);
                 }
@@ -484,8 +499,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         TextView tvSendTO = findViewById(R.id.tv_sendTo);
         TextView tvDone = findViewById(R.id.tv_done);
 
-        if (from == FROM_CAMERA ){
-            if(!TextUtils.isEmpty(sendTo)) {
+        if (from == FROM_CAMERA) {
+            if (!TextUtils.isEmpty(sendTo)) {
                 tvSendTO.setVisibility(View.VISIBLE);
                 tvSendTO.setText("> " + sendTo);
             }
@@ -549,10 +564,12 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         } else if (v.getId() == R.id.iv_crop) {
             CURRENT_MODE = MODE_CROP;
             mPreRatio = mDoodle.getDoodleRotation();
-            mPreCropRect = new RectF(mCropViewRect);
-            preCropScale = cropScale;
-            preCropTransX = cropTransX;
-            preCropTransY = cropTransY;
+            if (mCropViewRect != null) {
+                mPreCropRect = new RectF(mCropViewRect);
+                preCropScale = cropScale;
+                preCropTransX = cropTransX;
+                preCropTransY = cropTransY;
+            }
             mDoodleView.setEditMode(true);
             llEdit.setVisibility(View.GONE);
             mDoodle.setDoodleCropRect(null, 1);
@@ -638,12 +655,18 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 hideFragment(MODE_MOSAIC);
                 break;
             case MODE_CROP:
-                mCropViewRect = mPreCropRect;
-                cropScale = preCropScale;
-                cropTransX = preCropTransX;
-                cropTransY = preCropTransY;
-                mDoodleView.setDoodleRotation(mPreRatio);
+                if (mPreCropRect != null) {
+                    if (mCropViewRect == null) {
+                        mCropViewRect = new RectF(mPreCropRect);
+                    } else {
+                        mCropViewRect.set(mPreCropRect);
+                    }
+                    cropScale = preCropScale;
+                    cropTransX = preCropTransX;
+                    cropTransY = preCropTransY;
+                }
                 mDoodleView.setDoodleCropRect(null, 2);
+                mDoodleView.setDoodleRotation(mPreRatio);
                 hideFragment(MODE_CROP);
                 break;
         }
@@ -668,8 +691,12 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 break;
             case MODE_CROP:
                 if (mUCropFrame != null) {
-                    mCropViewRect = mUCropFrame.getCropViewRect();
-                    resetDoodleCropSize(mCropViewRect);
+                    if (mCropViewRect == null) {
+                        mCropViewRect = new RectF(mUCropFrame.getCropViewRect());
+                    } else {
+                        mCropViewRect.set(mUCropFrame.getCropViewRect());
+                    }
+                    //resetDoodleCropSize(mCropViewRect);
                     mDoodleView.setDoodleCropRect(mCropViewRect, 0);
                     if (mUCropFrame.getVisibility() == View.VISIBLE) {
                         mUCropFrame.setVisibility(View.GONE);
@@ -732,16 +759,14 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             fragmentTransaction.show(editFragment);
         }
         fragmentTransaction.commit();
-        /*editLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                editViewAnimIn(editLayout);
-            }
-        });*/
+
         editLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 if (editLayout.getMeasuredHeight() > 0) {
+                    if (isFirst) {
+                        getChangeEdit(editLayout.getHeight());
+                    }
                     editViewAnimIn(editLayout);
                     editLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }
@@ -810,12 +835,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void onRotate() {
         // 旋转图片
         mDoodle.setDoodleRotation(mDoodle.getDoodleRotation() + 90);
-        changeDoodleSize(editLayout.getMeasuredHeight());
-        cropScale = animScale;
-        cropTransX = scaleAnimTransX;
-        cropTransY = scaleAnimTranY;
-        mDoodleView.setDoodleScale(animScale, 0, 0);
-        mDoodle.setDoodleTranslation(scaleAnimTransX, scaleAnimTranY);
+        changeCurrentDoodleEdit(editLayout.getMeasuredHeight());
+        mDoodleView.setDoodleScaleAndTrans(cropScale, cropTransX, cropTransY);
         mDoodleView.setRotateOriginBound(mDoodleView.getDoodleBound());
         if (mUCropFrame != null) {
             mUCropFrame.setOriginRect(mDoodleView.getRotateOriginDoodleBound());
@@ -837,14 +858,15 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
+
     @Override
     public void resetDoodle() {
-        isReset = true;
+        isCropReset = true;
         mDoodleView.setDoodleMinScale(editScale);
         mDoodleView.setDoodleRotation(0);
-        mDoodleView.setDoodleScale(editScale,0,0);
-        mDoodleView.setDoodleTranslation(editTransX,editTransY);
-        float ratio = editRect.width() * 1f / editRect.height() *1f;
+        mDoodleView.setDoodleScale(editScale, 0, 0);
+        mDoodleView.setDoodleTranslation(editTransX, editTransY);
+        float ratio = editRect.width() * 1f / editRect.height() * 1f;
         mUCropFrame.setOriginRect(editRect);
         mUCropFrame.setTargetAspectRatio(ratio);
         mSelectedRatio = ratio;
@@ -921,7 +943,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             super.setSize(paintSize, index);
 
             if (mTouchGestureListener.getSelectedItem() != null) {
-                mTouchGestureListener.getSelectedItem().setSize(getSize()/getDoodleScale());
+                mTouchGestureListener.getSelectedItem().setSize(getSize() / getDoodleScale());
             }
         }
 
@@ -1029,7 +1051,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
      * @see DoodleParams
      */
     public static void startActivityForResult(Activity activity, DoodleParams params,
-                                              int from,String sendTo,int requestCode) {
+                                              int from, String sendTo, int requestCode) {
         Intent intent = new Intent(activity, EditPhotoActivity.class);
         intent.putExtra(KEY_PARAMS, params);
         intent.putExtra(EXTRA_FROM, from);
@@ -1080,20 +1102,10 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void editViewAnimIn(final View view) {
-        if (cropTransX != -1 && cropTransY != -1) {
-            scaleAnimTransX = cropTransX;
-            scaleAnimTranY = cropTransY;
-        } else {
-            getChangeEdit(view.getMeasuredHeight());
-        }
-        mDoodleView.setDoodleMinScale(animScale);
-
-        if (inAnimatorSet == null) {
-            ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0, -view.getMeasuredHeight() - DimenUtils.dp2px(this, 9)).setDuration(200);
-            inAnimatorSet = new AnimatorSet();
-            inAnimatorSet.playTogether(translateAnimator);
-            //animatorSet.playTogether(translateAnimator, scaleXAnimator,scaleYAnimator,doodleTranslateAnimator);
-            inAnimatorSet.addListener(new Animator.AnimatorListener() {
+        mDoodleView.setDoodleMinScale(editScale);
+        if (mInTranslateAnimator == null) {
+            mInTranslateAnimator = ObjectAnimator.ofFloat(view, "translationY", 0, -view.getMeasuredHeight() - DimenUtils.dp2px(this, 9)).setDuration(200);
+            mInTranslateAnimator.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
                     flFinish.setVisibility(View.GONE);
@@ -1102,15 +1114,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-
-                    if (isFirst){
-                        editScale = animScale * cropScale;
-                        editTransX = scaleAnimTransX;
-                        editTransY = scaleAnimTranY;
-                        editRect .set(mDoodleView.getDoodleBound());
-                        isFirst = false;
-
-                    }
                     switch (CURRENT_MODE) {
                         case MODE_ERASER:
                             mDoodle.setPen(DoodlePen.ERASER);
@@ -1131,18 +1134,24 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                             mDoodle.setShape(DoodleShape.HAND_WRITE);
                             break;
                         case MODE_CROP:
-                            if (mCropViewRect == null) {
-                                mCropViewRect = new RectF(mDoodleView.getDoodleBound());
-                            }
-                            float ratio = mDoodleView.getDoodleBound().width() / mDoodleView.getDoodleBound().height();
-
                             initUCropFrame();
-                            mUCropFrame.setOriginRect(mCropViewRect);
+                            float ratio = 1f;
+                            if (mCropViewRect == null) {
+                                mUCropFrame.setOriginRect(editRect);
+                                ratio = editRect.width() / editRect.height();
+                            } else {
+                                mUCropFrame.setOriginRect(mCropViewRect);
+                                ratio = mCropViewRect.width() / mCropViewRect.height();
+                            }
                             mUCropFrame.setTargetAspectRatio(ratio);
                             mSelectedRatio = ratio;
                             break;
                     }
-                    mDoodleView.setDoodleScaleAndTrans(animScale * cropScale, scaleAnimTransX , scaleAnimTranY);
+                    if (mCropViewRect == null) {
+                        mDoodleView.setDoodleScaleAndTrans(editScale, editTransX + cropTransX, editTransY + cropTransY);
+                    } else {
+                        mDoodleView.setDoodleScaleAndTrans(cropScale, cropTransX, cropTransY);
+                    }
                     //resetBitmap(true, view.getMeasuredHeight());
 
                 }
@@ -1159,59 +1168,61 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             });
 
         }
-        inAnimatorSet.start();
+        mInTranslateAnimator.start();
 
 
     }
 
 
-    private void changeDoodleSize(int height) {
+    private void changeCurrentDoodleEdit(int height) {
         RectF doodleBound = mDoodleView.getDoodleBound();
 
         float w = doodleBound.width();
         float h = doodleBound.height();
 
-        switchScreenHeight = screenHeight - height - DimenUtils.dp2px(this, 9);
 
         float nw = w * 1f / screenWidth * 1f;
         float nh = h * 1f / switchScreenHeight * 1f;
         float scale = 1f;
+        float centerWidth = 0f;
+        float centerHeight = 0f;
+        float centerX = 0f;
+        float centerY = 0f;
         if (nw > nh) {
             scale = 1 / nw;
-            mCenterWidth = screenWidth;
-            mCenterHeight = (int) (h * scale);
+            centerWidth = screenWidth;
+            centerHeight = (int) (h * scale);
         } else {
             scale = 1 / nh;
-            mCenterWidth = (int) (w * scale);
-            mCenterHeight = switchScreenHeight;
+            centerWidth = (int) (w * scale);
+            centerHeight = switchScreenHeight;
         }
-        animScale = scale;
 
-        if (animScale < 1) {
-            mDoodleView.setDoodleMinScale(animScale);
+        cropScale = scale;
+        if (scale < 1) {
+            mDoodleView.setDoodleMinScale(scale);
         }
 
         // 使图片居中
-        centerX = (screenWidth - mCenterWidth) / 2f;
-        centerY = (switchScreenHeight - mCenterHeight) / 2f;
+        centerX = (screenWidth - centerWidth) / 2f;
+        centerY = (switchScreenHeight - centerHeight) / 2f;
 
         switch (mDoodleView.getDoodleRotation()) {
             case 0:
-                scaleAnimTransX = centerX - doodleBound.left;
-                scaleAnimTranY = centerY - doodleBound.top;
+                cropTransX = centerX - doodleBound.left;
+                cropTransY = centerY - doodleBound.top;
                 break;
             case 90:
-                scaleAnimTransX = centerY - doodleBound.top;
-                scaleAnimTranY = centerX - doodleBound.left;
+                cropTransX = centerY - doodleBound.top;
+                cropTransY = centerX - doodleBound.left;
                 break;
             case 180:
-                scaleAnimTransX = centerX - doodleBound.left;
-                scaleAnimTranY = centerY - doodleBound.top + height;
+                cropTransX = centerX - doodleBound.left;
+                cropTransY = centerY - doodleBound.top + height;
                 break;
             case 270:
-                scaleAnimTransX = centerY - doodleBound.top + height;
-                scaleAnimTranY = centerX - doodleBound.left;
-
+                cropTransX = centerY - doodleBound.top + height;
+                cropTransY = centerX - doodleBound.left;
                 break;
         }
 
@@ -1230,112 +1241,57 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         float scale = 1f;
         if (nw > nh) {
             scale = 1 / nw;
-            mCenterWidth = screenWidth;
-            mCenterHeight = (int) (h * scale);
+            editWidth = screenWidth;
+            editHeight = (int) (h * scale);
         } else {
             scale = 1 / nh;
-            mCenterWidth = (int) (w * scale);
-            mCenterHeight = switchScreenHeight;
+            editWidth = (int) (w * scale);
+            editHeight = switchScreenHeight;
         }
-        animScale = scale;
+        editScale = scale;
 
-        mDoodleView.setEditScale(animScale);
+        mDoodleView.setEditScale(editScale);
 
-        if (animScale < 1) {
-            mDoodleView.setDoodleMinScale(animScale);
+        if (editScale < 1) {
+            mDoodleView.setDoodleMinScale(editScale);
         }
 
         // 使图片居中
-        centerX = (screenWidth - mCenterWidth) / 2f;
-        centerY = (switchScreenHeight - mCenterHeight) / 2f;
+        editX = (screenWidth - editWidth) / 2f;
+        editY = (switchScreenHeight - editHeight) / 2f;
 
         switch (mDoodleView.getDoodleRotation()) {
             case 0:
-                scaleAnimTransX = centerX - origin.left;
-                scaleAnimTranY = centerY - origin.top;
+                editTransX = editX - origin.left;
+                editTransY = editY - origin.top;
                 break;
             case 90:
-                scaleAnimTransX = centerY - origin.top;
-                scaleAnimTranY = centerX - origin.left;
+                editTransX = editX - origin.top;
+                editTransY = editY - origin.left;
                 break;
             case 180:
-                scaleAnimTransX = centerX - origin.left;
-                scaleAnimTranY = centerY - origin.top + height;
+                editTransX = editX - origin.left;
+                editTransY = editY - origin.top + height;
                 break;
             case 270:
-                scaleAnimTransX = centerY - origin.top + height;
-                scaleAnimTranY = centerX - origin.left;
-
+                editTransX = editX - origin.top + height;
+                editTransY = editX - origin.left;
                 break;
         }
+
+        editRect.set(editX, editY, editX + editWidth, editY + editHeight);
 
 
     }
 
     public void editViewAnimOut(View view, final BaseEditFragment fragment) {
-        boolean isReverse = false;
-        if (cropTransX != -1 && cropTransY != -1) {
-            scaleAnimTransX = cropTransX;
-            scaleAnimTranY = cropTransY;
-            isReverse = true;
-        } else {
-            getChangeEdit(view.getMeasuredHeight());
-            isReverse = false;
-        }
-        if (mOutScaleAnimator == null) {
-            mOutScaleAnimator = new ValueAnimator();
-            mOutScaleAnimator.setDuration(200);
-            final boolean finalIsReverse = isReverse;
-            mOutScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    float fraction = 1 - animation.getAnimatedFraction();
-                    if (finalIsReverse) {
-                        fraction = 1 - fraction;
-                    }
-                    //mDoodle.setDoodleTranslation(scaleAnimTransX * fraction, scaleAnimTranY * fraction);
 
-                }
-            });
-
-            mOutScaleAnimator.addListener(new Animator.AnimatorListener() {
+        if (mOutTranslateAnimator == null) {
+            mOutTranslateAnimator = ObjectAnimator.ofFloat(view, "translationY", -view.getMeasuredHeight() - DimenUtils.dp2px(this, 9), 0).setDuration(200);
+            mOutTranslateAnimator.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
-                    mDoodleView.setDoodleScaleAndTrans(1, 0, 0);
-                     /*if (finalIsReverse) {
-                        mDoodle.setDoodleTranslation(scaleAnimTransX, scaleAnimTranY);
-                    }else {
-                        mDoodle.setDoodleTranslation(0, 0);
-                    }*/
-                }
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
-        }
-        mOutScaleAnimator.setFloatValues(animScale * cropScale, cropScale);
-
-        if (outAnimatorSet == null) {
-            ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(view, "translationY", -view.getMeasuredHeight() - DimenUtils.dp2px(this, 9), 0).setDuration(200);
-            outAnimatorSet = new AnimatorSet();
-            outAnimatorSet.playTogether(translateAnimator, mOutScaleAnimator);
-            outAnimatorSet.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    //mDoodleView.resetBitmapLocation(1.0f, doodleOriginCenterScale, doodleOriginTransX, doodleOriginTransY, doodleOriginCenterWidth, doodleOriginCenterHeight);
-                    //mDoodleView.setDoodleScale(1 / animScale, 0, 0);
                 }
 
                 @Override
@@ -1344,8 +1300,14 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                         fragmentManager.beginTransaction().hide(fragment).commit();
                         mDoodleView.setEditMode(true);
                     }
-                    mDoodleView.setDoodleMinScale(cropScale);
                     flFinish.setVisibility(View.VISIBLE);
+                    if (mCropViewRect == null || mCropViewRect.isEmpty()) {
+                        mDoodleView.setDoodleMinScale(1);
+                        mDoodleView.setDoodleScaleAndTrans(1, 0, 0);
+                    } else {
+                        mDoodleView.setDoodleMinScale(1);
+                        mDoodleView.setDoodleScaleAndTrans(cropScale, cropTransX, cropTransY);
+                    }
                 }
 
                 @Override
@@ -1359,7 +1321,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 }
             });
         }
-        outAnimatorSet.start();
+        mOutTranslateAnimator.start();
 
     }
 
@@ -1369,13 +1331,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             List<IDoodleItem> allItem = null;
             List<IDoodleItem> allRedoItem = null;
             if (CURRENT_MODE == MODE_SCRAWL || CURRENT_MODE == MODE_ERASER) {
-                /*allItem = mDoodle.getAllItem();
-
-                if (allItem == null) {
-                    allItem = mDoodle.getDoodleBeforeDrawItem();
-                } else {
-                    allItem.addAll(mDoodle.getDoodleBeforeDrawItem());
-                }*/
                 allItem = mDoodleView.getUnDoItem();
                 allRedoItem = mDoodle.getAllRedoItem();
             } else if (CURRENT_MODE == MODE_MOSAIC || CURRENT_MODE == MODE_MOSAIC_ERASER) {
@@ -1402,15 +1357,15 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void refreshWipeShowEnable(){
-        if (editFragment != null  ){
+    private void refreshWipeShowEnable() {
+        if (editFragment != null) {
             if (editFragment instanceof EditScrawlFragment) {
                 if (mDoodleView.getUnDoItem().size() > 0) {
                     ((EditScrawlFragment) editFragment).refreshWipeStatue(true);
                 } else {
                     ((EditScrawlFragment) editFragment).refreshWipeStatue(false);
                 }
-            }else if (editFragment instanceof EditMosaicFragment){
+            } else if (editFragment instanceof EditMosaicFragment) {
                 if (mDoodleView.getMosaicBeforeDrawItem().size() > 0) {
                     ((EditMosaicFragment) editFragment).refreshWipeStatue(true);
                 } else {
@@ -1448,8 +1403,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
                 @Override
                 public void onCropRectUpdated(RectF cropRect) {
-                    if (isReset){
-                        isReset = false;
+                    if (isCropReset) {
+                        isCropReset = false;
                         return;
                     }
                     int centerWidth = (int) (mDoodleView.getCenterWidth() * mDoodleView.getRotateScale());
@@ -1475,8 +1430,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                         mDoodleView.setDoodleMinScale(sh);
                     }
                     resetDoodleCropLocation(cropRect);
-                    if (editFragment != null && editFragment instanceof EditCropFragment){
-                        ((EditCropFragment)editFragment).onRefreshOrigin(true);
+                    if (editFragment != null && editFragment instanceof EditCropFragment) {
+                        ((EditCropFragment) editFragment).onRefreshOrigin(true);
                     }
                 }
 
@@ -1498,36 +1453,36 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
                     cropScale = scale * mDoodleView.getDoodleScale();
 
-                    mPivotX = 0f;
-                    mPivotY = 0f;
+                    float pivotX = 0f;
+                    float pivotY = 0f;
 
 
                     switch (mDoodleView.getDoodleRotation()) {
                         case 0:
-                            mPivotX = (tempRect.left - doodleBound.left) / mDoodleView.getAllScale();
-                            mPivotY = (tempRect.bottom - doodleBound.top) / mDoodleView.getAllScale();
-                            mDoodle.setDoodleScale(cropScale, mPivotX, mPivotY);
+                            pivotX = (tempRect.left - doodleBound.left) / mDoodleView.getAllScale();
+                            pivotY = (tempRect.bottom - doodleBound.top) / mDoodleView.getAllScale();
+                            mDoodle.setDoodleScale(cropScale, pivotX, pivotY);
                             cropTransX = (cropViewRect.left - tempRect.left) + mDoodleView.getDoodleTranslationX();
                             cropTransY = (cropViewRect.bottom - tempRect.bottom) + mDoodleView.getDoodleTranslationY();
                             break;
                         case 90:
-                            mPivotX = (tempRect.bottom - doodleBound.top) / mDoodleView.getAllScale();
-                            mPivotY = (doodleBound.right - tempRect.left) / mDoodleView.getAllScale();
-                            mDoodle.setDoodleScale(cropScale, mPivotX, mPivotY);
+                            pivotX = (tempRect.bottom - doodleBound.top) / mDoodleView.getAllScale();
+                            pivotY = (doodleBound.right - tempRect.left) / mDoodleView.getAllScale();
+                            mDoodle.setDoodleScale(cropScale, pivotX, pivotY);
                             cropTransX = (cropViewRect.bottom - tempRect.bottom) + mDoodleView.getDoodleTranslationX();
                             cropTransY = (tempRect.left - cropViewRect.left) + mDoodleView.getDoodleTranslationY();
                             break;
                         case 180:
-                            mPivotX = (doodleBound.right - tempRect.left) / mDoodleView.getAllScale();
-                            mPivotY = (doodleBound.bottom - tempRect.bottom) / mDoodleView.getAllScale();
-                            mDoodle.setDoodleScale(cropScale, mPivotX, mPivotY);
+                            pivotX = (doodleBound.right - tempRect.left) / mDoodleView.getAllScale();
+                            pivotY = (doodleBound.bottom - tempRect.bottom) / mDoodleView.getAllScale();
+                            mDoodle.setDoodleScale(cropScale, pivotX, pivotY);
                             cropTransX = (tempRect.left - cropViewRect.left) + mDoodleView.getDoodleTranslationX();
                             cropTransY = (tempRect.bottom - cropViewRect.bottom) + mDoodleView.getDoodleTranslationY();
                             break;
                         case 270:
-                            mPivotX = (doodleBound.bottom - rectF.bottom) / mDoodleView.getAllScale();
-                            mPivotY = (tempRect.left - doodleBound.left) / mDoodleView.getAllScale();
-                            mDoodle.setDoodleScale(cropScale, mPivotX, mPivotY);
+                            pivotX = (doodleBound.bottom - rectF.bottom) / mDoodleView.getAllScale();
+                            pivotY = (tempRect.left - doodleBound.left) / mDoodleView.getAllScale();
+                            mDoodle.setDoodleScale(cropScale, pivotX, pivotY);
                             cropTransX = (tempRect.bottom - cropViewRect.bottom) + mDoodleView.getDoodleTranslationX();
                             cropTransY = (cropViewRect.left - tempRect.left) + mDoodleView.getDoodleTranslationY();
                             break;
@@ -1536,8 +1491,8 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
 
                     mDoodle.setDoodleTranslation(cropTransX, cropTransY);
-                    if (editFragment != null && editFragment instanceof EditCropFragment){
-                        ((EditCropFragment)editFragment).onRefreshOrigin(true);
+                    if (editFragment != null && editFragment instanceof EditCropFragment) {
+                        ((EditCropFragment) editFragment).onRefreshOrigin(true);
                     }
                 }
 
@@ -1552,12 +1507,12 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     protected void onPause() {
         super.onPause();
         if (isFinishing()) {
-            if (inAnimatorSet != null) {
-                inAnimatorSet.cancel();
+            if (mInTranslateAnimator != null) {
+                mInTranslateAnimator.cancel();
             }
 
-            if (outAnimatorSet != null) {
-                outAnimatorSet.cancel();
+            if (mOutTranslateAnimator != null) {
+                mOutTranslateAnimator.cancel();
             }
         }
     }
@@ -1657,25 +1612,18 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             }
 
         }
-        mCropTransAnimY = y - mDoodleView.getCentreTranY();
-        mDoodle.setDoodleTranslation(x - mDoodleView.getCentreTranX(), mCropTransAnimY);
+
+        mDoodle.setDoodleTranslation(x - mDoodleView.getCentreTranX(), y - mDoodleView.getCentreTranY());
     }
 
     private void cleanAnim() {
-        if (mInScaleAnimator != null) {
-            mInScaleAnimator.cancel();
+        if (mInTranslateAnimator != null) {
+            mInTranslateAnimator.cancel();
         }
 
-        if (mOutScaleAnimator != null) {
-            mOutScaleAnimator.cancel();
+        if (mOutTranslateAnimator != null) {
+            mOutTranslateAnimator.cancel();
         }
 
-        if (inAnimatorSet != null) {
-            inAnimatorSet.cancel();
-        }
-
-        if (outAnimatorSet != null) {
-            outAnimatorSet.cancel();
-        }
     }
 }
