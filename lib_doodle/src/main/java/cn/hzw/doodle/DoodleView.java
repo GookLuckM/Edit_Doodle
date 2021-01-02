@@ -799,6 +799,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     @Override
     public void setDoodleCropRect(RectF rect, int type) {
         if (rect != null) {
+            //EditPhotoActivity onDone方法调用后,确定裁剪时传入cropRect
             if (mCropRect == null) {
                 this.mCropRect = new RectF(rect);
                 resetDoodleBitmap();
@@ -808,10 +809,14 @@ public class DoodleView extends FrameLayout implements IDoodle {
             }
         } else {
             if (type == 1) {
+                //重新进入裁剪界面,需要显示全部图片
+                // 由于可能取消裁剪 因为记录上次裁剪范围
                 mPreCropRect = new RectF(mCropRect);
                 mCropRect = null;
                 mBitmapCropRect = null;
             } else {
+                //裁剪未保存 点击X退出时调用
+                //恢复到上次裁剪的状态
                 mCropRect = new RectF(mPreCropRect);
                 resetDoodleBitmap();
             }
