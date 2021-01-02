@@ -563,6 +563,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             startActivityForResult(new Intent(EditPhotoActivity.this, AddTextActivity.class), EDIT_TEXT_REQUEST_CODE);
         } else if (v.getId() == R.id.iv_crop) {
             CURRENT_MODE = MODE_CROP;
+            //进入裁剪界面后,如果点击X退出,裁剪不生效,需要还原至进入前状态.
             mPreRatio = mDoodle.getDoodleRotation();
             if (mCropViewRect != null) {
                 mPreCropRect = new RectF(mCropViewRect);
@@ -835,11 +836,13 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     public void onRotate() {
         // 旋转图片
         mDoodle.setDoodleRotation(mDoodle.getDoodleRotation() + 90);
+        //由于setDoodleRotation是将图片旋转后,按照屏幕宽高进行缩放
+        //此时仍然在裁剪界面,需重新计算旋转后按照screenWidth和screenHeight - fragment.height比例缩放后的参数并将图片缩放平移到中间位置
         changeCurrentDoodleEdit(editLayout.getMeasuredHeight());
         mDoodleView.setDoodleScaleAndTrans(cropScale, cropTransX, cropTransY);
-        mDoodleView.setRotateOriginBound(mDoodleView.getDoodleBound());
         if (mUCropFrame != null) {
-            mUCropFrame.setOriginRect(mDoodleView.getRotateOriginDoodleBound());
+            //重新计算,裁剪框的最大范围和显示宽高比
+            mUCropFrame.setOriginRect(mDoodleView.getDoodleBound());
             float ratio = -1f;
             switch (mDoodle.getDoodleRotation()) {
                 case 0:
@@ -1136,11 +1139,11 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                         case MODE_CROP:
                             initUCropFrame();
                             float ratio = 1f;
+
+                            mUCropFrame.setOriginRect(editRect);
                             if (mCropViewRect == null) {
-                                mUCropFrame.setOriginRect(editRect);
                                 ratio = editRect.width() / editRect.height();
                             } else {
-                                mUCropFrame.setOriginRect(mCropViewRect);
                                 ratio = mCropViewRect.width() / mCropViewRect.height();
                             }
                             mUCropFrame.setTargetAspectRatio(ratio);
@@ -1175,11 +1178,11 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
 
     private void changeCurrentDoodleEdit(int height) {
+        //此时获取的是图片旋转后,按照屏幕宽高缩放后的范围
         RectF doodleBound = mDoodleView.getDoodleBound();
 
         float w = doodleBound.width();
         float h = doodleBound.height();
-
 
         float nw = w * 1f / screenWidth * 1f;
         float nh = h * 1f / switchScreenHeight * 1f;
@@ -1198,6 +1201,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             centerHeight = switchScreenHeight;
         }
 
+        //由于旋转重置了图片,因此重新计算图片需要缩放的大小
         cropScale = scale;
         if (scale < 1) {
             mDoodleView.setDoodleMinScale(scale);
@@ -1438,10 +1442,19 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 @Override
                 public void onCropRectEnd(RectF rectF) {
                     LogUtil.d("DoodleView", "onCropRectEnd");
+
+                    //未放大前裁剪框范围(屏幕坐标)
                     RectF tempRect = new RectF(rectF);
+
+                    //设置裁剪框比例,会重新根据OverlayView 中originRect 计算并居中显示
                     mUCropFrame.setTargetAspectRatio(rectF.width() * 1f / rectF.height() * 1f);
+
+                    //放大居中之后,裁剪框范围(屏幕坐标)
                     RectF cropViewRect = mUCropFrame.getCropViewRect();
+                    //当前图片显示范围
                     RectF doodleBound = mDoodleView.getDoodleBound();
+
+                    //计算裁剪框从最初显示位置,到放大并居中显示后的缩放比例
                     float sw = tempRect.width() * 1f / cropViewRect.width();
                     float sh = tempRect.height() * 1f / cropViewRect.height();
                     float scale = 1f;
@@ -1451,12 +1464,24 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                         scale = 1f / sh;
                     }
 
+                    //由于进入裁剪时,图片已被缩放,所以图片的缩放比例应该乘以当前已被缩放的比例
                     cropScale = scale * mDoodleView.getDoodleScale();
 
+                    //将图片按照裁剪框的左下角为锚点缩放  计算后为点在 原图上的坐标
                     float pivotX = 0f;
                     float pivotY = 0f;
 
 
+
+                    /**屏幕坐标右为X正方向、下为Y轴正方向
+
+                     0: 画布及图片坐标方向与屏幕坐标相同
+
+                     90: 画布及图片坐标 下为X轴正方向 左为Y轴正方向
+
+                     180: 画布及图片坐标 右为X轴正方向 上为Y轴正方向
+
+                     270: 画布及图片坐标 上为X轴正方向 右为Y轴正方向**/
                     switch (mDoodleView.getDoodleRotation()) {
                         case 0:
                             pivotX = (tempRect.left - doodleBound.left) / mDoodleView.getAllScale();
