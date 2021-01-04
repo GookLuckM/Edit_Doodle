@@ -329,6 +329,7 @@ public class EditScrawlFragment extends BaseEditFragment implements ScrawlColors
             } else {
                 btnScrawlWipe.setImageResource(R.drawable.icon_wipe_selector);
                 btnScrawlWipe.setClickable(true);
+                btnScrawlWipe.setSelected(false);
             }
         }
     }

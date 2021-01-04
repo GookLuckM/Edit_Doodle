@@ -69,7 +69,7 @@ import cn.hzw.doodle.util.StatusBarUtil;
 import cn.hzw.doodle.util.Util;
 
 
-public class EditPhotoActivity extends AppCompatActivity implements View.OnClickListener, ScrawlColorsAdapter.OnColorClickListener, IEditListener {
+public class EditPhotoActivity extends AppCompatActivity implements View.OnClickListener, IEditListener {
 
     private static final int EDIT_TEXT_REQUEST_CODE = 9999;
 
@@ -578,15 +578,11 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    @Override
-    public void onColorClick(String color) {
-        selectedColor = Color.parseColor(color);
-        mDoodle.setColor(new DoodleColor(Color.parseColor(color)));
-    }
 
     @Override
     public void setColor(int color) {
         selectedColor = color;
+        CURRENT_MODE = MODE_SCRAWL;
         mDoodle.setPen(DoodlePen.BRUSH);
         mDoodle.setShape(selectedShape);
         mDoodle.setColor(new DoodleColor(color));
@@ -710,17 +706,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void resetDoodleCropSize(RectF cropViewRect) {
-        RectF doodleBound = mDoodleView.getDoodleBound();
-        float sw = cropViewRect.width() * 1f / doodleBound.width();
-        float sh = cropViewRect.height() * 1f / doodleBound.height();
-        if (sw > sh) {
-            cropScale = 1f / sw;
-        } else {
-            cropScale = 1f / sh;
-        }
-    }
-
 
     public void showFragment(String showTag) {
         List<Fragment> fragments = fragmentManager.getFragments();
@@ -784,10 +769,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         llEdit.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void onDown() {
-
-    }
 
     @Override
     public void onPre() {
@@ -976,11 +957,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             return res;
         }
 
-        @Override
-        public void clear() {
-            super.clear();
-            mTouchGestureListener.setSelectedItem(null);
-        }
+
 
         @Override
         public void addItem(IDoodleItem item) {
@@ -1087,8 +1064,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 boolean isShowTextBg = data.getBooleanExtra(AddTextActivity.RESULT_IS_DRAW_TEXT_BG, false);
                 Rect resultTextRect = data.getParcelableExtra(AddTextActivity.RESULT_RECT);
                 mDoodle.setColor(new DoodleColor(textSelectedColor));
-                mDoodle.setTextRect(resultTextRect);
-                mDoodle.setIsDrawTextBg(isShowTextBg);
                 boolean isEdit = data.getBooleanExtra(AddTextActivity.EXTRA_IS_EDIT, false);
                 if (isEdit) {
                     if (editText != null) {
@@ -1151,7 +1126,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                             break;
                     }
                     if (mCropViewRect == null) {
-                        mDoodleView.setDoodleScaleAndTrans(editScale, editTransX + cropTransX, editTransY + cropTransY);
+                        mDoodleView.setDoodleScaleAndTrans(editScale, editTransX, editTransY);
                     } else {
                         mDoodleView.setDoodleScaleAndTrans(cropScale, cropTransX, cropTransY);
                     }
@@ -1253,8 +1228,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             editHeight = switchScreenHeight;
         }
         editScale = scale;
-
-        mDoodleView.setEditScale(editScale);
 
         if (editScale < 1) {
             mDoodleView.setDoodleMinScale(editScale);

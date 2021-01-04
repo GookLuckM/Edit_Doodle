@@ -21,8 +21,6 @@ public interface IEditListener {
 
     public void onDone();
 
-    public void onDown();
-
     public void onPre();
 
     public void onNext();

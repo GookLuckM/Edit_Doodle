@@ -147,24 +147,6 @@ public interface IDoodle {
      */
     public void setColor(IDoodleColor color);
 
-    /**
-     * 设置是否显示文字背景
-     *
-     * @param isDrawTextBg
-     */
-    public void setIsDrawTextBg(boolean isDrawTextBg);
-
-    /**
-     * 设置是否显示文字背景
-     *
-     * @return
-     */
-    public boolean getIsDrawTextBg();
-
-
-    public void setTextRect(Rect rect);
-
-    public Rect getTextRect();
 
     /**
      * 获取颜色
@@ -294,10 +276,7 @@ public interface IDoodle {
      */
     public void save();
 
-    /**
-     * 清楚所有涂鸦
-     */
-    public void clear();
+
 
     /**
      * 置顶item

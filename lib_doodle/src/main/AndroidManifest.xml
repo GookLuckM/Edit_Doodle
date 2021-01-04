@@ -12,9 +12,6 @@
         <activity android:name="cn.hzw.doodle.ui.AddTextActivity"
             android:theme="@style/TranslucentTheme"
             android:windowSoftInputMode="adjustResize|stateVisible"/>
-        <activity android:name=".DoodleActivity"
-            android:configChanges="screenSize|orientation|keyboardHidden|navigation|keyboard"
-            />
     </application>
 
 

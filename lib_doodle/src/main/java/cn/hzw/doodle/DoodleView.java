@@ -98,8 +98,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private float mSize;
     private int mSizeIndex;
     private IDoodleColor mColor; // 画笔底色
-    private boolean isDrawTextBg;
-    private Rect resultTextRect;
+
+
 
     private boolean isJustDrawOriginal; // 是否只绘制原图
 
@@ -111,12 +111,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private List<IDoodleItem> mShapeStack = new ArrayList<>();
     private List<IDoodleItem> mMosaicItemStack = new ArrayList<>();
     private List<IDoodleItem> mTextItemStack = new ArrayList<>();
-    /*private List<IDoodleItem> mRedoItemStack = new ArrayList<>();
-    private List<IDoodleItem> mShapeRedoItemStack = new ArrayList<>();*/
     private List<IDoodleItem> mMosaicRedoItemStack = new ArrayList<>();
     private List<IDoodleItem> mTextRedoItemStack = new ArrayList<>();
-
-
     private List<IDoodleItem> mUnDoItemStack = new ArrayList<>();
     private List<IDoodleItem> mReDoItemStack = new ArrayList<>();
 
@@ -127,14 +123,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private RectF mPreCropRect;
 
 
-    /* private boolean mEnableZoomer = false; // 放大镜功能
-     private boolean mEnableOverview = true; // 全图预览功能，建立在放大镜功能开启的前提下
-     private float mLastZoomerY;
-     private float mZoomerRadius;
-     private Path mZoomerPath;
-     private float mZoomerScale = 0; // 放大镜的倍数
-     private Paint mZooomerPaint, mZoomerTouchPaint;
-     private int mZoomerHorizonX; // 放大器的位置的x坐标，使其水平居中*/
     private boolean mIsScrollingDoodle = false; // 是否正在滑动，只要用于标志触摸时才显示放大镜
     private boolean mIsScaleDoodle = false; // 是否正在滑动，只要用于标志触摸时才显示放大镜
 
@@ -145,12 +133,18 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private IDoodleTouchDetector mDefaultTouchDetector;
     private Map<IDoodlePen, IDoodleTouchDetector> mTouchDetectorMap = new HashMap<>();
 
+
+    private BackgroundView mBackgroundView;
     private ForegroundView mForegroundView;
+    private ShapeView shapeView;
+    private TextView textView;
+
+
+
     private RectF mDoodleBound = new RectF();
     private PointF mTempPoint = new PointF();
-    private RectF rotateOriginBound = new RectF();
 
-    private Map<Integer, RectF> rotateOriginBoundMaps = new HashMap<>();
+
 
     private boolean mIsEditMode = false; //是否是编辑模式，可移动缩放涂鸦
     private boolean mIsSaving = false;
@@ -172,19 +166,15 @@ public class DoodleView extends FrameLayout implements IDoodle {
     private Bitmap mDoodleBitmap;
     private int mFlags = 0;
     private Canvas mDoodleBitmapCanvas;
-    private BackgroundView mBackgroundView;
+
     private Rect mBitmapCropRect;
-    private TextView textView;
-    private ShapeView shapeView;
+
 
 
     public DoodleView(Context context, Bitmap bitmap, IDoodleListener listener) {
         this(context, bitmap, false, listener, null);
     }
 
-    public DoodleView(Context context, Bitmap bitmap, IDoodleListener listener, IDoodleTouchDetector defaultDetector) {
-        this(context, bitmap, false, listener, defaultDetector);
-    }
 
     public DoodleView(Context context, Bitmap bitmap, boolean optimizeDrawing, IDoodleListener listener) {
         this(context, bitmap, optimizeDrawing, listener, null);
@@ -222,24 +212,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mOptimizeDrawing = optimizeDrawing;
 
         mScale = 1f;
-       /* mColor = new DoodleColor(Color.RED);
-
-        mPen = DoodlePen.BRUSH;
-        mShape = DoodleShape.HAND_WRITE;*/
-
-        /*mZooomerPaint = new Paint();
-        mZooomerPaint.setColor(0xaaffffff);
-        mZooomerPaint.setStyle(Paint.Style.STROKE);
-        mZooomerPaint.setAntiAlias(true);
-        mZooomerPaint.setStrokeJoin(Paint.Join.ROUND);
-        mZooomerPaint.setStrokeCap(Paint.Cap.ROUND);// 圆滑
-        mZooomerPaint.setStrokeWidth(Util.dp2px(getContext(), 10));
-
-        mZoomerTouchPaint = new Paint();
-        mZoomerTouchPaint.setStyle(Paint.Style.STROKE);
-        mZoomerTouchPaint.setAntiAlias(true);
-        mZoomerTouchPaint.setStrokeJoin(Paint.Join.ROUND);
-        mZoomerTouchPaint.setStrokeCap(Paint.Cap.ROUND);// 圆滑*/
 
         mDefaultTouchDetector = defaultDetector;
 
@@ -325,12 +297,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         mScale = 1;
 
         initDoodleBitmap();
-
-        rotateOriginBound.left = mCentreTranX;
-        rotateOriginBound.top = mCentreTranY;
-        rotateOriginBound.right = mCentreTranX + mCenterWidth;
-        rotateOriginBound.bottom = mCentreTranY + mCenterHeight;
-
 
         refreshWithBackground();
     }
@@ -458,16 +424,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
-    public void setRotateOriginBound(RectF rectF) {
-        if (rotateOriginBound != null) {
-            rotateOriginBound.set(rectF);
-        }
-    }
-
-    public RectF getRotateOriginDoodleBound() {
-        return rotateOriginBound;
-    }
-
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
@@ -501,80 +457,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         int count = canvas.save();
         super.dispatchDraw(canvas);
         canvas.restoreToCount(count);
-
-
-        /*if (mIsScrollingDoodle
-                && mEnableZoomer && mZoomerScale > 0) { //启用放大镜
-            canvas.save(); // ***
-
-            float unitSize = getUnitSize();
-            if (mTouchY <= mZoomerRadius * 2) { // 在放大镜的范围内， 把放大镜放在底部
-                mLastZoomerY = getHeight() - mZoomerRadius * 2;
-            } else if (mTouchY >= getHeight() - mZoomerRadius * 2) {
-                mLastZoomerY = 0;
-            }
-            canvas.translate(mZoomerHorizonX, mLastZoomerY);
-            canvas.clipPath(mZoomerPath);
-            canvas.drawColor(0xff000000);
-
-            canvas.save();
-            float scale = mZoomerScale / mScale; // 除以mScale，无论当前图片缩放多少，都产生图片在居中状态下缩放mAmplifierScale倍的效果
-            canvas.scale(scale, scale);
-            canvas.translate(-mTouchX + mZoomerRadius / scale, -mTouchY + mZoomerRadius / scale);
-            // draw inner
-            super.dispatchDraw(canvas);
-            // 触摸点
-            float left = getAllTranX();
-            float top = getAllTranY();
-            // 画布和图片共用一个坐标系，只需要处理屏幕坐标系到图片（画布）坐标系的映射关系
-            canvas.translate(left, top); // 偏移画布
-            scale = getAllScale();
-            canvas.scale(scale, scale); // 缩放画布
-            mZoomerTouchPaint.setStrokeWidth(unitSize / 2);
-            float radius = mSize / 2 - unitSize / 2;
-            float radius2 = radius - unitSize / 2;
-            if (radius <= 1) {
-                radius = 1;
-                radius2 = radius / 2;
-                mZoomerTouchPaint.setStrokeWidth(mSize);
-            }
-            mZoomerTouchPaint.setColor(0xaa000000);
-            drawCircle(canvas, toX(mTouchX), toY(mTouchY), radius, mZoomerTouchPaint);
-            mZoomerTouchPaint.setColor(0xaaffffff);
-            drawCircle(canvas, toX(mTouchX), toY(mTouchY), radius2, mZoomerTouchPaint);
-            canvas.restore();
-
-            // 画放大器的边框
-            drawCircle(canvas, mZoomerRadius, mZoomerRadius, mZoomerRadius, mZooomerPaint);
-
-            canvas.restore(); // ***
-
-            // overview
-            canvas.save();
-            canvas.translate(mZoomerHorizonX, mLastZoomerY);
-            scale = (mZoomerRadius / 2) / getWidth();
-            canvas.scale(scale, scale);
-            float strokeWidth = 1 / scale;
-            canvas.clipRect(-strokeWidth, -strokeWidth, getWidth() + strokeWidth, getHeight() + strokeWidth);
-            canvas.drawColor(0x88888888);
-            canvas.save();
-            float tempScale = mScale;
-            float tempTransX = mTransX;
-            float tempTransY = mTransY;
-            mScale = 1;
-            mTransX = mTransY = 0;
-            super.dispatchDraw(canvas);
-            mScale = tempScale;
-            mTransX = tempTransX;
-            mTransY = tempTransY;
-            canvas.restore();
-            mZoomerTouchPaint.setStrokeWidth(strokeWidth);
-            mZoomerTouchPaint.setColor(0xaa000000);
-            drawRect(canvas, 0, 0, getWidth(), getHeight(), mZoomerTouchPaint);
-            mZoomerTouchPaint.setColor(0xaaffffff);
-            drawRect(canvas, strokeWidth, strokeWidth, getWidth() - strokeWidth, getHeight() - strokeWidth, mZoomerTouchPaint);
-            canvas.restore();
-        }*/
 
     }
 
@@ -709,34 +591,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
     private void refreshDoodleBitmap(boolean drawAll) {
-        if (!mOptimizeDrawing) {
-            return;
-        }
-
-        initDoodleBitmap();
-        List<IDoodleItem> items = null;
-        List<IDoodleItem> mosaicItems = null;
-        if (drawAll) {
-            items = mItemStack;
-            mosaicItems = mMosaicItemStack;
-        } else {
-            items = new ArrayList<>(mItemStack);
-            mosaicItems = new ArrayList<>(mMosaicItemStack);
-            items.removeAll(mItemStackOnViewCanvas);
-            mosaicItems.removeAll(mMosaicItemStackOnViewCanvas);
-        }
-
-        for (IDoodleItem item : mosaicItems) {
-            item.draw(mDoodleBitmapCanvas);
-        }
-
-        for (IDoodleItem item : items) {
-            item.draw(mDoodleBitmapCanvas);
-        }
-
-    }
-
-    private void saveDoodleBitmap(boolean drawAll) {
         if (!mOptimizeDrawing) {
             return;
         }
@@ -938,23 +792,22 @@ public class DoodleView extends FrameLayout implements IDoodle {
                     addFlag(FLAG_RESET_BACKGROUND);
                 } else {
                     addItem(item);
+                    return;
                 }
             }
-        } else if (item.getPen().equals(DoodlePen.BRUSH)) {
-            if (mShapeStackOnViewCanvas.remove(item)) {
-                addItem(item);
-            }
-        } else if (item.getPen().equals(DoodlePen.MOSAIC) || item.getPen().equals(DoodlePen.MOSAIC_ERASER)) {
+        }  else if (item.getPen().equals(DoodlePen.MOSAIC) || item.getPen().equals(DoodlePen.MOSAIC_ERASER)) {
             if (mMosaicItemStackOnViewCanvas.remove(item)) {
                 if (mMosaicItemStack.contains(item)) {
                     addFlag(FLAG_RESET_BACKGROUND);
                 } else {
                     addItem(item);
+                    return;
                 }
             }
         } else if (item.getPen().equals(DoodlePen.TEXT)) {
             if (mTextItemStackOnViewCanvas.remove(item)) {
                 addItem(item);
+                return;
             }
         }
 
@@ -1044,19 +897,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
                 }
 
 
-                //}
-
-
-
-                /*if (mCropRect != null && !mCropRect.isEmpty()){
-                    Rect rect = new Rect();
-                    rect.left = (int) mCropRect.left;
-                    rect.top = (int) mCropRect.top;
-                    rect.right = (int) mCropRect.right;
-                    rect.bottom = (int) mCropRect.bottom;
-                    savedBitmap = savedBitmap.createBitmap(savedBitmap, rect.left, rect.top, rect.width(), rect.height());
-
-                }*/
 
                 return savedBitmap;
             }
@@ -1077,34 +917,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         }.execute();
     }
 
-    /**
-     * 清屏
-     */
-    @Override
-    public void clear() {
-       /* List<IDoodleItem> temp = new ArrayList<>(mItemStack);
-        mItemStack.clear();
-        mMosaicItemStack.clear();
-        mTextItemStack.clear();
-        mRedoItemStack.clear();
-        mMosaicRedoItemStack.clear();
-        mTextRedoItemStack.clear();
-        mItemStackOnViewCanvas.clear();
-        mMosaicItemStackOnViewCanvas.clear();
-        mTextItemStackOnViewCanvas.clear();
-        mPendingItemsDrawToBitmap.clear();
-        mMosaicPendingItemsDrawToBitmap.clear();
-        mTextPendingItemsDrawToBitmap.clear();
-
-        for (int i = temp.size() - 1; i >= 0; i--) {
-            IDoodleItem item = temp.get(i);
-            item.onRemove();
-        }
-
-        addFlag(FLAG_RESET_BACKGROUND);
-
-        refresh();*/
-    }
 
     @Override
     public boolean undo() {
@@ -1226,33 +1038,9 @@ public class DoodleView extends FrameLayout implements IDoodle {
     @Override
     public void setColor(IDoodleColor color) {
         mColor = color;
-        refresh();
+        //refresh();
     }
 
-    @Override
-    public void setIsDrawTextBg(boolean isDrawTextBg) {
-        this.isDrawTextBg = isDrawTextBg;
-    }
-
-    @Override
-    public boolean getIsDrawTextBg() {
-        return isDrawTextBg;
-    }
-
-    @Override
-    public void setTextRect(Rect rect) {
-        resultTextRect = new Rect();
-        //resultTextRect = rect;
-        resultTextRect.left = 0;
-        resultTextRect.top = 0;
-        resultTextRect.right = rect.right - rect.left;
-        resultTextRect.bottom = rect.bottom - rect.top;
-    }
-
-    @Override
-    public Rect getTextRect() {
-        return resultTextRect;
-    }
 
     @Override
     public IDoodleColor getColor() {
@@ -1307,98 +1095,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
 
 
-    public void setDoodleToRect(RectF origin,RectF result , SwitchBean switchBean){
-        LogUtil.d("DoodleView", "onCropRectEnd");
-
-        mScale = switchBean.scale;
-        mTransX = switchBean.mTransX;
-        mTransY = switchBean.mTransY;
-        RectF doodleBound = getDoodleBound();
-        float sw = origin.width() * 1f / result.width();
-        float sh = origin.height() * 1f / result.height();
-        float scale = 1f;
-        if (sw > sh) {
-            scale = 1f / sw;
-        } else {
-            scale = 1f / sh;
-        }
-
-        float resultScale = scale * getDoodleScale();
-
-        if (resultScale < mMinScale){
-            mMinScale = resultScale;
-        }
-
-        float pivotX = 0f;
-        float pivotY = 0f;
-        float tranX = 0f;
-        float tranY = 0f;
-        float touchX = 0f;
-        float touchY = 0f;
-
-        switch (getDoodleRotation()) {
-            case 0:
-                pivotX = (origin.left - doodleBound.left) / getAllScale();
-                pivotY = (origin.bottom - doodleBound.top) / getAllScale();
-                touchX = toTouchX(pivotX);
-                touchY = toTouchY(pivotY);
-                this.mScale = resultScale;
-
-                // 缩放后，偏移图片，以产生围绕某个点缩放的效果
-                tranX = toTransX(touchX, pivotX);
-                tranY = toTransY(touchY, pivotY);
-                mTransX = (result.left - origin.left) + tranX;
-                mTransY = (result.bottom - origin.bottom) + tranY;
-                break;
-            case 90:
-                pivotX = (origin.bottom - doodleBound.top) / getAllScale();
-                pivotY = (doodleBound.right - origin.left) / getAllScale();
-                touchX = toTouchX(pivotX);
-                touchY = toTouchY(pivotY);
-                this.mScale = resultScale;
-
-                // 缩放后，偏移图片，以产生围绕某个点缩放的效果
-                tranX = toTransX(touchX, pivotX);
-                tranY = toTransY(touchY, pivotY);
-                mTransX = (result.bottom - origin.bottom) + tranX;
-                mTransY = (origin.left - result.left) + tranY;
-                break;
-            case 180:
-                pivotX = (doodleBound.right - origin.left) / getAllScale();
-                pivotY = (doodleBound.bottom - origin.bottom) / getAllScale();
-                touchX = toTouchX(pivotX);
-                touchY = toTouchY(pivotY);
-                this.mScale = resultScale;
-
-                // 缩放后，偏移图片，以产生围绕某个点缩放的效果
-                tranX = toTransX(touchX, pivotX);
-                tranY = toTransY(touchY, pivotY);
-                mTransX = (origin.left - result.left) + tranX;
-                mTransY = (origin.bottom - result.bottom) + tranY;
-                break;
-            case 270:
-                pivotX = (doodleBound.bottom - origin.bottom) / getAllScale();
-                pivotY = (origin.left - doodleBound.left) / getAllScale();
-                touchX = toTouchX(pivotX);
-                touchY = toTouchY(pivotY);
-                this.mScale = resultScale;
-
-                // 缩放后，偏移图片，以产生围绕某个点缩放的效果
-                tranX = toTransX(touchX, pivotX);
-                tranY = toTransY(touchY, pivotY);
-                mTransX = (origin.bottom - result.bottom) + tranX;
-                mTransY = (result.left - origin.left) + tranY;
-                break;
-
-        }
-
-        refreshWithBackground();
-
-
-
-
-    }
-
 
     @Override
     public float getDoodleScale() {
@@ -1417,7 +1113,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         }
         IDoodlePen old = mPen;
         mPen = pen;
-        refresh();
+        //refresh();
     }
 
     @Override
@@ -1436,7 +1132,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
             throw new RuntimeException("Shape can't be null");
         }
         mShape = shape;
-        refresh();
+        //refresh();
     }
 
     @Override
@@ -1490,7 +1186,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
         if (index != -1) {
             mSizeIndex = index;
         }
-        refresh();
+        //refresh();
     }
 
     @Override
@@ -1521,55 +1217,8 @@ public class DoodleView extends FrameLayout implements IDoodle {
         return mIsDrawableOutside;
     }
 
-    /**
-     * 设置放大镜的倍数，当小于等于0时表示不使用放大器功能
-     *
-     * @param scale
-     */
-   /* @Override
-    public void setZoomerScale(float scale) {
-        mZoomerScale = scale;
-        refresh();
-    }
 
-    @Override
-    public float getZoomerScale() {
-        return mZoomerScale;
-    }
 
-    *//**
-     * 设置是否开启放大镜
-     *
-     * @param enable
-     *//*
-    public void enableZoomer(boolean enable) {
-        mEnableZoomer = enable;
-    }
-
-    *//**
-     * 是否开启放大镜
-     *//*
-    public boolean isEnableZoomer() {
-        return mEnableZoomer;
-    }*/
-
-    /**
-     * 设置是否开启全图预览功能，开启后可以在放大镜功能下显示全图涂鸦
-     *
-     * @param enableOverview
-     *//*
-    public void enableOverview(boolean enableOverview) {
-        mEnableOverview = enableOverview;
-    }
-
-    *//**
-     * 是否开启全图预览功能
-     *
-     * @return
-     *//*
-    public boolean isEnableOverview() {
-        return mEnableOverview;
-    }*/
 
     /**
      * 是否正在滚动涂鸦，只要用于标志触摸时才显示放大镜
@@ -1775,21 +1424,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
         return mItemStack.size();
     }
 
-
-    public int getShapeCount() {
-        return mShapeStack.size();
-    }
-
-
-    public int getMosaicItemCount() {
-        return mMosaicRedoItemStack.size();
-    }
-
-
-    public int getTextItemCount() {
-        return mTextItemStack.size();
-    }
-
     @Override
     public List<IDoodleItem> getAllItem() {
         return new ArrayList<>(mItemStack);
@@ -1825,24 +1459,11 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
-    public List<IDoodleItem> getShapeBeforeDrawItem() {
-        return new ArrayList<>(mShapeStackOnViewCanvas);
-    }
-
     @Override
     public int getRedoItemCount() {
         return mReDoItemStack.size();
     }
 
-
-    public int getMosaicRedoItemCount() {
-        return mMosaicRedoItemStack.size();
-    }
-
-
-    public int getTextRedoItemCount() {
-        return mTextRedoItemStack.size();
-    }
 
     @Override
     public List<IDoodleItem> getAllRedoItem() {
@@ -1898,20 +1519,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
     }
 
 
-    public void setEditScale(float editScale) {
 
-    }
-
-
-    public RectF switchCropToCanvas(RectF cropRect) {
-
-        RectF rectF = new RectF();
-        rectF.left = toX(cropRect.left);
-        rectF.right = toX(cropRect.right);
-        rectF.top = toY(cropRect.top);
-        rectF.bottom = toX(cropRect.bottom);
-        return rectF;
-    }
 
     /**
      * 是否为编辑模式
@@ -2080,90 +1688,6 @@ public class DoodleView extends FrameLayout implements IDoodle {
                 }
             }
 
-            /*for (IDoodleItem item : textItems) {
-                if (!item.isNeedClipOutside()) { // 1.不需要裁剪
-                    if (canvasClipped) {
-                        canvas.restore();
-                    }
-                    item.draw(canvas);
-                    if (canvasClipped) { // 2.恢复裁剪
-                        canvas.save();
-                        if (mCropRect != null && !mCropRect.isEmpty()) {
-                            canvas.clipRect(mBitmapCropRect);
-                        } else {
-                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-                        }
-
-                    }
-                } else {
-                    item.draw(canvas);
-                }
-            }*/
-
-            // draw at the top
-            /*for (IDoodleItem item : mosaicItems) {
-                if (!item.isNeedClipOutside()) { // 1.不需要裁剪
-                    if (canvasClipped) {
-                        canvas.restore();
-                    }
-                    item.drawAtTheTop(canvas);
-                    if (canvasClipped) { // 2.恢复裁剪
-                        canvas.save();
-                        if (mCropRect != null && !mCropRect.isEmpty()) {
-                            canvas.clipRect(mBitmapCropRect);
-                        } else {
-                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-                        }
-
-                    }
-                } else {
-                    item.drawAtTheTop(canvas);
-                }
-            }*/
-
-            // draw at the top
-            /*for (IDoodleItem item : items) {
-                if (!item.isNeedClipOutside()) { // 1.不需要裁剪
-                    if (canvasClipped) {
-                        canvas.restore();
-                    }
-                    item.drawAtTheTop(canvas);
-                    if (canvasClipped) { // 2.恢复裁剪
-                        canvas.save();
-                        if (mCropRect != null && !mCropRect.isEmpty()) {
-                            canvas.clipRect(mBitmapCropRect);
-                        } else {
-                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-                        }
-
-                    }
-                } else {
-                    item.drawAtTheTop(canvas);
-                }
-            }*/
-
-
-            /*// draw at the top
-            for (IDoodleItem item : textItems) {
-                if (!item.isNeedClipOutside()) { // 1.不需要裁剪
-                    if (canvasClipped) {
-                        canvas.restore();
-                    }
-                    item.drawAtTheTop(canvas);
-                    if (canvasClipped) { // 2.恢复裁剪
-                        canvas.save();
-                        if (mCropRect != null && !mCropRect.isEmpty()) {
-                            canvas.clipRect(mBitmapCropRect);
-                        } else {
-                            canvas.clipRect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-                        }
-
-                    }
-                } else {
-                    item.drawAtTheTop(canvas);
-                }
-            }
-            canvas.restoreToCount(saveCount);*/
 
             if (mPen != null) {
                 mPen.drawHelpers(canvas, DoodleView.this);

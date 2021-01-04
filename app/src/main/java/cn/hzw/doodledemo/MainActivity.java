@@ -22,11 +22,9 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 
-import cn.hzw.doodle.DoodleActivity;
 import cn.hzw.doodle.DoodleParams;
 import cn.hzw.doodle.DoodleView;
 import cn.hzw.doodle.ui.EditPhotoActivity;
@@ -108,18 +106,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        findViewById(R.id.btn_mosaic).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), MosaicDemo.class));
-            }
-        });
-        findViewById(R.id.btn_scale_gesture).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), ScaleGestureItemDemo.class));
-            }
-        });
         mPath = (TextView) findViewById(R.id.img_path);
     }
 
@@ -167,20 +153,6 @@ public class MainActivity extends Activity {
                     //DoodleActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
                 }
 
-            }
-        } else if (requestCode == REQ_CODE_DOODLE) {
-            if (data == null) {
-                return;
-            }
-            if (resultCode == DoodleActivity.RESULT_OK) {
-                String path = data.getStringExtra(DoodleActivity.KEY_IMAGE_PATH);
-                if (TextUtils.isEmpty(path)) {
-                    return;
-                }
-                //ImageLoader.getInstance(this).display(findViewById(R.id.img), path);
-                mPath.setText(path);
-            } else if (resultCode == DoodleActivity.RESULT_ERROR) {
-                Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_SHORT).show();
             }
         }
     }

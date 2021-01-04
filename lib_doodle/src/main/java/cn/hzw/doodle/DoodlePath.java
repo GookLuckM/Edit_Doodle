@@ -436,6 +436,7 @@ public class DoodlePath extends DoodleRotatableItemBase {
 
                 if (getPen() == DoodlePen.MOSAIC) {
                     adjustMosaic();
+                    return;
                 } else {
                     if (getPen() == DoodlePen.COPY) {
                         // 根据旋转值获取正确的旋转底图
@@ -456,6 +457,7 @@ public class DoodlePath extends DoodleRotatableItemBase {
                     mBitmapColorMatrix.preScale(level, level);
                     color.setMatrix(mBitmapColorMatrix);
                     refresh();
+                    return;
                 }
             }
         }
