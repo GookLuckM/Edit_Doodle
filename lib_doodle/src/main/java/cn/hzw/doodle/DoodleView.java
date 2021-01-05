@@ -121,6 +121,7 @@ public class DoodleView extends FrameLayout implements IDoodle {
 
     private RectF mCropRect;
     private RectF mPreCropRect;
+    private Rect mPreBitmapRect;
 
 
     private boolean mIsScrollingDoodle = false; // 是否正在滑动，只要用于标志触摸时才显示放大镜
@@ -665,13 +666,14 @@ public class DoodleView extends FrameLayout implements IDoodle {
                 //重新进入裁剪界面,需要显示全部图片
                 // 由于可能取消裁剪 因为记录上次裁剪范围
                 mPreCropRect = new RectF(mCropRect);
+                mPreBitmapRect = new Rect(mBitmapCropRect);
                 mCropRect = null;
                 mBitmapCropRect = null;
             } else {
                 //裁剪未保存 点击X退出时调用
                 //恢复到上次裁剪的状态
                 mCropRect = new RectF(mPreCropRect);
-                resetDoodleBitmap();
+                mBitmapCropRect = new Rect(mPreBitmapRect);
             }
         }
 

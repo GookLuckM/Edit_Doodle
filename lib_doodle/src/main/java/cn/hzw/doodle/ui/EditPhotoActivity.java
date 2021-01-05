@@ -1,7 +1,6 @@
 package cn.hzw.doodle.ui;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -159,10 +158,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     private float cropScale = 1f;
 
 
-    private float preCropScale;
-    private float preCropTransX;
-    private float preCropTransY;
-    private RectF mPreCropRect;
+
     private int mPreRatio = 0;
 
 
@@ -186,6 +182,13 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     private DoodleText editText;
     private ObjectAnimator mInTranslateAnimator;
     private ObjectAnimator mOutTranslateAnimator;
+    private RectF preDoodleBound;
+    private float preScale;
+    private float preTransX;
+    private float preTransY;
+    private float preRotateScale;
+    private float preRotateTranX;
+    private float preRotateTranY;
 
 
     @Override
@@ -565,12 +568,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             CURRENT_MODE = MODE_CROP;
             //进入裁剪界面后,如果点击X退出,裁剪不生效,需要还原至进入前状态.
             mPreRatio = mDoodle.getDoodleRotation();
-            if (mCropViewRect != null) {
-                mPreCropRect = new RectF(mCropViewRect);
-                preCropScale = cropScale;
-                preCropTransX = cropTransX;
-                preCropTransY = cropTransY;
-            }
             mDoodleView.setEditMode(true);
             llEdit.setVisibility(View.GONE);
             mDoodle.setDoodleCropRect(null, 1);
@@ -652,18 +649,10 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 hideFragment(MODE_MOSAIC);
                 break;
             case MODE_CROP:
-                if (mPreCropRect != null) {
-                    if (mCropViewRect == null) {
-                        mCropViewRect = new RectF(mPreCropRect);
-                    } else {
-                        mCropViewRect.set(mPreCropRect);
-                    }
-                    cropScale = preCropScale;
-                    cropTransX = preCropTransX;
-                    cropTransY = preCropTransY;
-                }
                 mDoodleView.setDoodleCropRect(null, 2);
-                mDoodleView.setDoodleRotation(mPreRatio);
+                if (mPreRatio != mDoodleView.getDoodleRotation()) {
+                    mDoodleView.setDoodleRotation(mPreRatio);
+                }
                 hideFragment(MODE_CROP);
                 break;
         }
@@ -694,24 +683,32 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                     } else {
                         mCropViewRect.set(mUCropFrame.getCropViewRect());
                     }
-                    //resetDoodleCropSize(mCropViewRect);
+
+
                     mDoodleView.setDoodleCropRect(mCropViewRect, 0);
                     if (mUCropFrame.getVisibility() == View.VISIBLE) {
                         mUCropFrame.setVisibility(View.GONE);
                     }
-
-
                 }
                 cropScale = mDoodleView.getDoodleScale();
                 cropTransX = mDoodleView.getDoodleTranslationX();
                 cropTransY = mDoodleView.getDoodleTranslationY();
+
+                preDoodleBound = new RectF(mDoodleView.getDoodleBound());
+                preScale = mDoodleView.getDoodleScale();
+                preTransX = mDoodleView.getDoodleTranslationX();
+                preTransY = mDoodleView.getDoodleTranslationY();
+
+                preRotateScale = mDoodleView.getRotateScale();
+                preRotateTranX = mDoodleView.getRotateTranX();
+                preRotateTranY = mDoodleView.getRotateTranY();
                 hideFragment(MODE_CROP);
                 break;
         }
     }
 
 
-    public void setScale(RectF rectF){
+    public void setCropScaleToScreen(RectF rectF){
         float sw = rectF.width()/screenWidth;
         float sh = rectF.height()/screenHeight;
         float scale = 1f;
@@ -732,14 +729,45 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
         float pivotX = 0f;
         float pivotY = 0f;
-        RectF doodleBound = mDoodleView.getDoodleBound();
-        pivotX = (rectF.left -doodleBound.left) / mDoodleView.getAllScale();
-        pivotY = (rectF.bottom -doodleBound.top)/ mDoodleView.getAllScale();
-        mDoodleView.setDoodleScale( scale * mDoodleView.getDoodleScale(),pivotX,pivotY);
-        float transX = (left - rectF.left) + mDoodleView.getDoodleTranslationX();
-        float transY = (top + height - rectF.bottom) + mDoodleView.getDoodleTranslationY();
+        RectF doodleBound = new RectF(preDoodleBound);
 
-        mDoodleView.setDoodleTranslation(transX,transY);
+        float transX = 0;
+        float transY = 0;
+        float transArr[];
+
+        switch (mDoodleView.getDoodleRotation()){
+                case 0:
+                    pivotX = (rectF.left - doodleBound.left) / (mDoodleView.getCenterScale() * preScale * preRotateScale);
+                    pivotY = (rectF.bottom -doodleBound.top)/  (mDoodleView.getCenterScale() * preScale * preRotateScale);
+                    transArr = toSetScale(pivotX, pivotY, scale * cropScale);
+                    transX = (left - rectF.left) + transArr[0];
+                    transY = (top + height - rectF.bottom) + transArr[1];
+                    break;
+                case 90:
+                    pivotX = (doodleBound.bottom - rectF.top) / (mDoodleView.getCenterScale() * preScale * preRotateScale);
+                    pivotY = (rectF.right -doodleBound.left)/  (mDoodleView.getCenterScale() * preScale * preRotateScale);
+                    transArr = toSetScale(pivotX, pivotY, scale * cropScale);
+                    transX = ( top + height - rectF.bottom) + transArr[0];
+                    transY = (rectF.left - left) + transArr[1];
+                    break;
+                case 180:
+                    pivotX = (doodleBound.right - rectF.left) / (mDoodleView.getCenterScale() * preScale * preRotateScale);
+                    pivotY = (doodleBound.bottom - rectF.bottom)/  (mDoodleView.getCenterScale() * preScale * preRotateScale);
+                    transArr = toSetScale(pivotX, pivotY, scale * cropScale);
+                    transX = (rectF.left - left) + transArr[0];
+                    transY = (rectF.bottom - (top + height)) + transArr[1];
+                    break;
+                case 270:
+                    pivotX = (doodleBound.bottom - rectF.bottom) / (mDoodleView.getCenterScale() * preScale * preRotateScale);
+                    pivotY = (rectF.left - doodleBound.left)/  (mDoodleView.getCenterScale() * preScale * preRotateScale);
+                    transArr = toSetScale(pivotX, pivotY, scale * cropScale);
+                    transX = (rectF.bottom - (top + height)) + transArr[0];
+                    transY = (left - rectF.left) + transArr[1];
+                    break;
+
+        }
+        mDoodleView.setDoodleMinScale(scale * cropScale);
+        mDoodleView.setDoodleScaleAndTrans(scale * cropScale ,transX,transY);
     }
 
 
@@ -1319,7 +1347,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                         mDoodleView.setDoodleMinScale(1);
                         mDoodleView.setDoodleScaleAndTrans(1, 0, 0);
                     } else {
-                       setScale(mCropViewRect);
+                       setCropScaleToScreen(mCropViewRect);
                     }
                 }
 
@@ -1514,7 +1542,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                             cropTransY = (tempRect.bottom - cropViewRect.bottom) + mDoodleView.getDoodleTranslationY();
                             break;
                         case 270:
-                            pivotX = (doodleBound.bottom - rectF.bottom) / mDoodleView.getAllScale();
+                            pivotX = (doodleBound.bottom - tempRect.bottom) / mDoodleView.getAllScale();
                             pivotY = (tempRect.left - doodleBound.left) / mDoodleView.getAllScale();
                             mDoodle.setDoodleScale(cropScale, pivotX, pivotY);
                             cropTransX = (tempRect.bottom - cropViewRect.bottom) + mDoodleView.getDoodleTranslationX();
@@ -1659,5 +1687,21 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             mOutTranslateAnimator.cancel();
         }
 
+    }
+
+
+    private float[] toSetScale(float pivotX,float pivotY,float scale){
+        System.out.println("touchX" + mDoodleView.toTouchX(pivotX));
+        System.out.println("touchY" + mDoodleView.toTouchY(pivotY));
+        float touchX = pivotX * mDoodleView.getCenterScale() * preScale * preRotateScale + mDoodleView.getCentreTranX()+ preTransX+ preRotateTranX;
+        float touchY = pivotY * mDoodleView.getCenterScale() * preScale * preRotateScale + mDoodleView.getCentreTranY()+ preTransY+ preRotateTranY;
+
+        float[] transArr = new float[2];
+
+
+        // 缩放后，偏移图片，以产生围绕某个点缩放的效果
+        transArr[0] = - pivotX * mDoodleView.getCenterScale() * scale  * preRotateScale + touchX -  mDoodleView.getCentreTranX() - preRotateTranX;
+        transArr[1] = - pivotY * mDoodleView.getCenterScale() * scale  * preRotateScale + touchY -  mDoodleView.getCentreTranY()- preRotateTranY;
+        return transArr;
     }
 }
