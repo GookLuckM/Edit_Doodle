@@ -656,11 +656,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
             //EditPhotoActivity onDone方法调用后,确定裁剪时传入cropRect
             if (mCropRect == null) {
                 this.mCropRect = new RectF(rect);
-                resetDoodleBitmap();
             } else {
                 mCropRect.set(rect);
-                resetDoodleBitmap();
             }
+            resetDoodleBitmap();
         } else {
             if (type == 1) {
                 //重新进入裁剪界面,需要显示全部图片
@@ -952,14 +951,14 @@ public class DoodleView extends FrameLayout implements IDoodle {
     public void cleanDoodle() {
         if (mItemStackOnViewCanvas.size() > 0 || mShapeStackOnViewCanvas.size() > 0) {
             for (IDoodleItem item : mItemStackOnViewCanvas) {
-                mUnDoItemStack.remove(item);
+               //mUnDoItemStack.remove(item);
                 mItemStack.remove(item);
-                mReDoItemStack.remove(item);
+                //mReDoItemStack.remove(item);
             }
             for (IDoodleItem item : mShapeStackOnViewCanvas) {
-                mUnDoItemStack.remove(item);
+                //mUnDoItemStack.remove(item);
                 mShapeStack.remove(item);
-                mReDoItemStack.remove(item);
+                //mReDoItemStack.remove(item);
             }
             mItemStackOnViewCanvas.clear();
             mShapeStackOnViewCanvas.clear();
@@ -967,6 +966,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
             //refresh();
         }
 
+    }
+
+    public void cleanShapeDrawingStack(){
+        mShapeStackOnViewCanvas.clear();
     }
 
     @Override

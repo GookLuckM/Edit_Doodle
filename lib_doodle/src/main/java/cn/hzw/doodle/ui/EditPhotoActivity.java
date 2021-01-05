@@ -677,6 +677,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 for (IDoodleItem iDoodleItem : mDoodleView.getDoodleBeforeDrawItem()) {
                     mDoodleView.notifyItemFinishedDrawing(iDoodleItem);
                 }
+                mDoodleView.cleanShapeDrawingStack();
                 hideFragment(MODE_SCRAWL);
                 break;
             case MODE_MOSAIC_ERASER:
@@ -701,9 +702,44 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
 
 
                 }
+                cropScale = mDoodleView.getDoodleScale();
+                cropTransX = mDoodleView.getDoodleTranslationX();
+                cropTransY = mDoodleView.getDoodleTranslationY();
                 hideFragment(MODE_CROP);
                 break;
         }
+    }
+
+
+    public void setScale(RectF rectF){
+        float sw = rectF.width()/screenWidth;
+        float sh = rectF.height()/screenHeight;
+        float scale = 1f;
+        float height = 0f;
+        float width = 0f;
+        if (sw  > sh){
+            scale = 1f/sw;
+            width = screenWidth;
+            height = rectF.height() * scale;
+        }else {
+            scale = 1f/sh;
+            width = rectF.width() *scale;
+            height = screenHeight;
+        }
+
+        float left = (screenWidth - width) / 2f;
+        float top  = (screenHeight - height) / 2f;
+
+        float pivotX = 0f;
+        float pivotY = 0f;
+        RectF doodleBound = mDoodleView.getDoodleBound();
+        pivotX = (rectF.left -doodleBound.left) / mDoodleView.getAllScale();
+        pivotY = (rectF.bottom -doodleBound.top)/ mDoodleView.getAllScale();
+        mDoodleView.setDoodleScale( scale * mDoodleView.getDoodleScale(),pivotX,pivotY);
+        float transX = (left - rectF.left) + mDoodleView.getDoodleTranslationX();
+        float transY = (top + height - rectF.bottom) + mDoodleView.getDoodleTranslationY();
+
+        mDoodleView.setDoodleTranslation(transX,transY);
     }
 
 
@@ -741,6 +777,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             fragmentTransaction.add(R.id.frag_view, editFragment, showTag);
         } else {
             refreshWipeShowEnable();
+            refreshEditBackOrNextStatus();
             // 找到了，表示已经被add了，所以直接show
             fragmentTransaction.show(editFragment);
         }
@@ -1282,8 +1319,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                         mDoodleView.setDoodleMinScale(1);
                         mDoodleView.setDoodleScaleAndTrans(1, 0, 0);
                     } else {
-                        mDoodleView.setDoodleMinScale(1);
-                        mDoodleView.setDoodleScaleAndTrans(cropScale, cropTransX, cropTransY);
+                       setScale(mCropViewRect);
                     }
                 }
 

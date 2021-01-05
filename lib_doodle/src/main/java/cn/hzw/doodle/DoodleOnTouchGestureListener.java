@@ -375,6 +375,7 @@ public class DoodleOnTouchGestureListener extends TouchGestureDetector.OnTouchGe
     public void onScaleEnd(ScaleGestureDetectorApi27 detector) {
         mDoodle.setIsScaleDoodle(false);
         if (mOverlayView != null && mOverlayView.getVisibility() == View.VISIBLE) {
+            mOverlayView.getOverlayViewChangeListener().onCropRectEnd(mOverlayView.getCropViewRect());
             RectF cropViewRect = mOverlayView.getCropViewRect();
             RectF bound = mDoodle.getDoodleBound();
             limitCropBound(cropViewRect, bound);

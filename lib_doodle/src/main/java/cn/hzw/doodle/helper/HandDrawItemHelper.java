@@ -1,6 +1,7 @@
 package cn.hzw.doodle.helper;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import cn.hzw.doodle.core.IDoodle;
@@ -16,12 +17,15 @@ public class HandDrawItemHelper  {
 
     private List<IDoodleItem> handDrawItemStack = new ArrayList<>();
 
+    private List<IDoodleItem> shapeItemStack = new ArrayList<>();
+
+    private List<IDoodleItem> currentEditShapeItemStack = new ArrayList<>();
 
     private List<IDoodleItem> currentEditItemStack = new ArrayList<>();
 
+    private List<IDoodleItem> pendingEditItemStack = new ArrayList<>();
 
     private List<IDoodleItem> undoItemStack = new ArrayList<>();
-
 
     private List<IDoodleItem> redoItemStack = new ArrayList<>();
 
@@ -36,27 +40,67 @@ public class HandDrawItemHelper  {
 
     public void drawingAddToStack(IDoodleItem item){
         currentEditItemStack.add(item);
+        undoItemStack.add(item);
     }
 
 
     public void finishAddToStack(IDoodleItem item){
-        if (!handDrawItemStack.contains(item)) {
-            handDrawItemStack.add(item);
+        /*if (currentEditItemStack.remove(item)) {
+            if (handDrawItemStack.contains(item)) {
+                addFlag(FLAG_RESET_BACKGROUND);
+            } else {
+                addItem(item);
+                return;
+            }
+        }*/
+    }
+
+    public void clearCurrentHandDrawStack(){
+        for (IDoodleItem item : currentEditItemStack){
+            handDrawItemStack.remove(item);
+            undoItemStack.remove(item);
+            redoItemStack.remove(item);
         }
+        currentEditItemStack.clear();
+    }
+
+    public void clearCurrentShapeStack(){
+        for (IDoodleItem item : currentEditShapeItemStack){
+            shapeItemStack.remove(item);
+            undoItemStack.remove(item);
+            redoItemStack.remove(item);
+        }
+        currentEditShapeItemStack.clear();
     }
 
 
     public void undoItemStack(){
-        IDoodleItem remove = undoItemStack.remove(0);
-        redoItemStack.add(0,remove);
-
-
+        List<IDoodleItem> list = new ArrayList<>(undoItemStack);
+        for (int i = list.size() - 1; i >= 0; i--) {
+            IDoodleItem item = list.get(i);
+            removeHandDrawItem(item);
+            redoItemStack.add(0, item);
+            break;
+        }
     }
 
 
-    public void redoItemStatck(){
-        IDoodleItem remove = redoItemStack.remove(0);
-        undoItemStack.add(0,remove);
+    public void redoItemStack(){
+        if (redoItemStack.isEmpty()) {
+            return;
+        }
+        Iterator<IDoodleItem> iterator = redoItemStack.iterator();
+        while (iterator.hasNext()) {
+            IDoodleItem item = iterator.next();
+            iterator.remove();
+            redoItemInner(item);
+            break;
+        }
+    }
+
+    public void redoItemInner(IDoodleItem iDoodleItem){
+        currentEditItemStack.add(iDoodleItem);
+        undoItemStack.add(iDoodleItem);
     }
 
 
@@ -74,5 +118,30 @@ public class HandDrawItemHelper  {
         }
 
         redoItemStack.clear();
+    }
+
+
+    public void removeHandDrawItem(IDoodleItem doodleItem){
+        currentEditItemStack.remove(doodleItem);
+        pendingEditItemStack.remove(doodleItem);
+        handDrawItemStack.remove(doodleItem);
+        undoItemStack.remove(doodleItem);
+    }
+
+
+    public boolean handDrawItemIsAdd(IDoodleItem iDoodleItem){
+        if (currentEditItemStack.contains(iDoodleItem)){
+            return true;
+        }
+        return false;
+    }
+
+
+    public boolean isResetHandDraw(IDoodleItem iDoodleItem){
+        if (handDrawItemStack.contains(iDoodleItem)){
+            return true;
+        }
+
+        return false;
     }
 }
