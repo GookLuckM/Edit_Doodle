@@ -26,7 +26,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_mosaic_wipe"
         app:layout_constraintLeft_toLeftOf="@+id/btn_mosaic_wipe"
         app:layout_constraintRight_toRightOf="@id/btn_mosaic_wipe"
-        android:text="擦除"
+        android:text="@string/doodle_erase"
         android:textColor="#666666"
         />
 
@@ -50,7 +50,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_mosaic_size"
         app:layout_constraintLeft_toLeftOf="@+id/btn_mosaic_size"
         app:layout_constraintRight_toRightOf="@id/btn_mosaic_size"
-        android:text="大小"
+        android:text="@string/doodle_size"
         android:textColor="#666666"
         android:textSize="9sp"/>
 
@@ -74,7 +74,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_mosaic_thick"
         app:layout_constraintLeft_toLeftOf="@+id/btn_mosaic_thick"
         app:layout_constraintRight_toRightOf="@id/btn_mosaic_thick"
-        android:text="粗粒度"
+        android:text="@string/doodle_mosaic_large"
         android:textColor="#666666"
         android:textSize="9sp"/>
 
@@ -98,7 +98,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_mosaic_thin"
         app:layout_constraintLeft_toLeftOf="@+id/btn_mosaic_thin"
         app:layout_constraintRight_toRightOf="@id/btn_mosaic_thin"
-        android:text="细粒度"
+        android:text="@string/doodle_mosaic_small"
         android:textColor="#666666"
         android:textSize="9sp"/>
 

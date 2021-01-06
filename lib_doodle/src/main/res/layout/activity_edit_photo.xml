@@ -52,7 +52,7 @@
             android:id="@+id/tv_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="拖动到此处删除"
+            android:text="@string/doodle_drag_to_delete"
             android:textColor="@android:color/white"
             android:textSize="10sp" />
 
@@ -120,7 +120,7 @@
                 android:paddingTop="4dp"
                 android:paddingRight="13dp"
                 android:paddingBottom="4dp"
-                android:text="完成"
+                android:text="@string/doodle_done"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -136,7 +136,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginTop="8dp"
             android:visibility="invisible"
-            android:text="> Jason"/>
+            android:text=""/>
     </RelativeLayout>
 
 
@@ -159,7 +159,7 @@
             android:id="@+id/tv_finish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="取消"
+            android:text="@string/doodle_cancel"
             android:textColor="@android:color/white"
             android:textSize="14sp"
             android:layout_marginLeft="13dp"

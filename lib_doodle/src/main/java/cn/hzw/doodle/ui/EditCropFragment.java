@@ -24,7 +24,7 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
 
     @Override
     protected void init() {
-        setTitle("裁切旋转");
+        setTitle(getString(R.string.doodle_crop));
         mOriginRatio = getArguments().getFloat(EXTRA_ORIGIN_RATIO);
         String[] cropRatio = getResources().getStringArray(R.array.crop_ratio);
         cropRatioList = Arrays.asList(cropRatio);
@@ -48,7 +48,7 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
 
     @Override
     protected void initView() {
-        btnRotate = rootView.findViewById(R.id.iv_rotate);
+        /*btnRotate = rootView.findViewById(R.id.iv_rotate);
         btnRotate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +57,7 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
                     mEditListener.onRotate();
                 }
             }
-        });
+        });*/
         RecyclerView rvRatioList = rootView.findViewById(R.id.rv_ratios);
 
         mCropRatioAdapter = new CropRatioAdapter(getContext(),cropRatioList,cropRatioFloatList,cropRatioIconList);
@@ -93,19 +93,19 @@ public class EditCropFragment extends BaseEditFragment  implements CropRatioAdap
 
     public void onRefreshOrigin(boolean isShow){
         if (isShow){
-            setTitle("还原");
+            setTitle(getString(R.string.doodle_reset));
             tvCurrentControl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mEditListener != null) {
                         mEditListener.resetDoodle();
                     }
-                    setTitle("裁切旋转");
+                    setTitle(getString(R.string.doodle_crop));
                     tvCurrentControl.setClickable(false);
                 }
             });
         }else{
-            setTitle("裁切旋转");
+            setTitle(getString(R.string.doodle_crop));
             tvCurrentControl.setClickable(false);
         }
     }

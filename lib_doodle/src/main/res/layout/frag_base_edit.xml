@@ -36,7 +36,7 @@
         android:id="@+id/tv_current_control"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="涂鸦"
+        android:text="@string/doodle"
         android:textColor="#333333"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/iv_close"

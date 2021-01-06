@@ -8,20 +8,17 @@
         <item>#04C160</item>
         <item>#11AEFF</item>
     </string-array>
-
     <string-array name="color_names">
-        <item>Grey</item>
-        <item>Black</item>
-        <item>Red</item>
-        <item>Yellow</item>
-        <item>Green</item>
-        <item>Blue</item>
+        <item>浅灰</item>
+        <item>黑色</item>
+        <item>红色</item>
+        <item>黄色</item>
+        <item>绿色</item>
+        <item>蓝色</item>
     </string-array>
-
-
     <string-array name="crop_ratio">
-        <item>Original</item>
-        <item>Free</item>
+        <item>原始</item>
+        <item>自由</item>
         <item>1:1</item>
         <item>3:4</item>
         <item>4:3</item>

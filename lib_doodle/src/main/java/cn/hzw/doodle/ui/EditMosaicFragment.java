@@ -32,7 +32,7 @@ public class EditMosaicFragment extends BaseEditFragment implements ScrawlColors
 
     @Override
     protected void init() {
-        setTitle("马赛克");
+        setTitle(getString(R.string.doodle_mosaic));
         currentSize = R.id.btn_normal;
         currentLevel = DimenUtils.dp2px(getContext(),8);
 

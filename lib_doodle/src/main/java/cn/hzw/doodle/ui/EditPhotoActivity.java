@@ -249,7 +249,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         initView();
         initParams();
 
-        //Util.setToolbarPaddingTop(this, rlContent, 12);
+        Util.setToolbarPaddingTop(this, rlContent, 12);
         /*
         Whether or not to optimize drawing, it is suggested to open, which can optimize the drawing speed and performance.
         Note: When item is selected for editing after opening, it will be drawn at the top level, and not at the corresponding level until editing is completed.
@@ -437,11 +437,11 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 if (deleteLocation != null && selectableItem.contains(mDoodleView.toX(deleteLocation[0]), mDoodleView.toY(deleteLocation[1]))) {
                     llDeleteRectView.setBackgroundResource(R.drawable.bg_delete_rect_red);
                     ivDelete.setImageResource(R.drawable.icon_delete_open);
-                    tvDelete.setText("松手即可删除");
+                    tvDelete.setText(getString(R.string.doodle_release_to_delete));
                 } else {
                     llDeleteRectView.setBackgroundResource(R.drawable.bg_delete_rect);
                     ivDelete.setImageResource(R.drawable.icon_delete);
-                    tvDelete.setText("拖动到此处删除");
+                    tvDelete.setText(getString(R.string.doodle_drag_to_delete));
                 }
             }
 

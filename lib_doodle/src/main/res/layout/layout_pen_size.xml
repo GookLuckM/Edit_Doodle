@@ -26,7 +26,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_small"
         app:layout_constraintLeft_toLeftOf="@+id/btn_small"
         app:layout_constraintRight_toRightOf="@id/btn_small"
-        android:text="超小"
+        android:text="@string/doodle_size_smaller"
         android:textColor="#666666"
         />
 
@@ -40,7 +40,7 @@
         android:background="@android:color/transparent"
         app:layout_constraintLeft_toRightOf="@+id/btn_small"
         app:layout_constraintRight_toLeftOf="@+id/btn_normal"
-        android:src="@drawable/icon_stroke_small_selector"/>
+        android:src="@drawable/icon_stroke_smaller_selector"/>
 
     <TextView
         android:id="@+id/tv_shape_circle"
@@ -49,7 +49,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_mid"
         app:layout_constraintLeft_toLeftOf="@+id/btn_mid"
         app:layout_constraintRight_toRightOf="@id/btn_mid"
-        android:text="小"
+        android:text="@string/doodle_size_small"
         android:textColor="#666666"
         android:textSize="9sp"/>
 
@@ -72,7 +72,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_normal"
         app:layout_constraintLeft_toLeftOf="@+id/btn_normal"
         app:layout_constraintRight_toRightOf="@id/btn_normal"
-        android:text="标准"
+        android:text="@string/doodle_size_mid"
         android:textColor="#666666"
         android:textSize="9sp"/>
 
@@ -95,7 +95,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_large"
         app:layout_constraintLeft_toLeftOf="@+id/btn_large"
         app:layout_constraintRight_toRightOf="@id/btn_large"
-        android:text="大"
+        android:text="@string/doodle_size_large"
         android:textColor="#666666"
         android:textSize="9sp"/>
 
@@ -132,7 +132,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_larger"
         app:layout_constraintLeft_toLeftOf="@+id/btn_larger"
         app:layout_constraintRight_toRightOf="@id/btn_larger"
-        android:text="超大"
+        android:text="@string/doodle_size_max"
         android:textColor="#666666"
         />
 
