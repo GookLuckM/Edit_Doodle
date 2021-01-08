@@ -29,6 +29,7 @@ public final class PictureConfig {
     public final static int UPDATE_FLAG = 2774;// 预览界面更新选中数据 标识
     public final static int CLOSE_PREVIEW_FLAG = 2770;// 关闭预览界面 标识
     public final static int PREVIEW_DATA_FLAG = 2771;// 预览界面图片 标识
+    public final static int PREVIEW_DATA_UPDATE_FLAG = 2772;// 更新图片编辑状态
     public final static int TYPE_ALL = 0;
     public final static int TYPE_IMAGE = 1;
     public final static int TYPE_VIDEO = 2;

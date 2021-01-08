@@ -114,6 +114,16 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
+
+    public void updateImagesEditStatus(List<LocalMedia> editMedias) {
+        for (LocalMedia localMedia  : editMedias){
+            if (this.images.contains(localMedia) && localMedia.position < images.size()){
+                images.set(localMedia.position,localMedia);
+                notifyItemChanged(localMedia.position);
+            }
+        }
+    }
+
     public List<LocalMedia> getSelectedImages() {
         if (selectImages == null) {
             selectImages = new ArrayList<>();
@@ -164,7 +174,15 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             final ViewHolder contentHolder = (ViewHolder) holder;
             final LocalMedia image = images.get(showCamera ? position - 1 : position);
             image.position = contentHolder.getAdapterPosition();
-            final String path = image.getPath();
+            boolean isEdit = false;
+            String path = image.getPath();
+
+            if (image.isEdit() && !TextUtils.isEmpty(image.getEditPath())){
+                path = image.getEditPath();
+                isEdit = true;
+            }
+
+            String tempPath = path;
             final String pictureType = image.getPictureType();
             if (is_checked_num) {
                 notifyCheckChanged(contentHolder, image);
@@ -203,7 +221,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                 options.placeholder(R.drawable.image_placeholder);
                 Glide.with(context)
                         .asBitmap()
-                        .load(path)
+                        .load(tempPath)
                         .apply(options)
                         .into(contentHolder.iv_picture);
             }
@@ -212,13 +230,13 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                     @Override
                     public void onClick(View v) {
                         // 如原图路径不存在或者路径存在但文件不存在
-                        if (!new File(path).exists()) {
+                        if (!new File(tempPath).exists()) {
                             ToastManage.s(context, PictureMimeType.s(context, mediaMimeType));
                             return;
                         }
                         if(maxSize > 0){
-                            if(path.contains(".gif") || path.contains(".GIF")){
-                                File file = new File(path);
+                            if(tempPath.contains(".gif") || tempPath.contains(".GIF")){
+                                File file = new File(tempPath);
                                 long size = file.length();
                                 if(size > maxSize){
                                     Toast.makeText(context, R.string.chat_gif_too_big_tip, Toast.LENGTH_SHORT).show();
@@ -234,13 +252,13 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                 @Override
                 public void onClick(View v) {
                     // 如原图路径不存在或者路径存在但文件不存在
-                    if (!new File(path).exists()) {
+                    if (!new File(tempPath).exists()) {
                         ToastManage.s(context, PictureMimeType.s(context, mediaMimeType));
                         return;
                     }
                     if(maxSize > 0){
-                        if(path.contains(".gif") || path.contains(".GIF")){
-                            File file = new File(path);
+                        if(tempPath.contains(".gif") || tempPath.contains(".GIF")){
+                            File file = new File(tempPath);
                             long size = file.length();
                             if(size > maxSize){
                                 Toast.makeText(context, R.string.chat_gif_too_big_tip, Toast.LENGTH_SHORT).show();

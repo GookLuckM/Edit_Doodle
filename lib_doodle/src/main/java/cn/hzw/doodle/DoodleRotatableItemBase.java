@@ -106,7 +106,7 @@ public abstract class DoodleRotatableItemBase extends DoodleSelectableItemBase {
 
         // 计算旋转把柄的位置，由于绘制时反向缩放了画布，所以这里也应算上相应的getDoodle().getDoodleScale()
         mRectTemp.set(getBounds());
-        float padding = 22 * getDoodle().getUnitSize();
+        float padding = 22 * getDoodle().getUnitSize() / doodle.getDoodleScale();
         mRectTemp.top -= padding;
         mRectTemp.right -= padding;
         mRectTemp.bottom += padding;

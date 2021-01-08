@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -127,7 +128,7 @@ public class MainActivity extends Activity {
             if (data == null) {
                 return;
             }
-            List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
+           /* List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
 
             if (selectList != null && selectList.size() > 0) {
                 LocalMedia media = selectList.get(0);
@@ -153,6 +154,19 @@ public class MainActivity extends Activity {
                     //DoodleActivity.startActivityForResult(MainActivity.this, params, REQ_CODE_DOODLE);
                 }
 
+            }*/
+
+            File dcimFile = new File(Environment.getExternalStorageDirectory(), "DCIM");
+            if (!dcimFile.exists()) {
+                dcimFile.mkdir();
+            }
+
+            File doodleFile = new File(dcimFile, "Doodle");
+
+            for (File file : doodleFile.listFiles()) {
+                if (file.isFile()) {
+                    file.delete();
+                }
             }
         }
     }

@@ -287,7 +287,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 try {
                     outputStream = new FileOutputStream(file);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 95, outputStream);
-                    ImageUtils.addImage(getContentResolver(), file.getAbsolutePath());
+                    //ImageUtils.addImage(getContentResolver(), file.getAbsolutePath());
                     Intent intent = new Intent();
                     intent.putExtra(KEY_IMAGE_PATH, file.getAbsolutePath());
                     setResult(Activity.RESULT_OK, intent);
@@ -968,7 +968,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                 mDoodle.setSize(mMosaicSize, -1);
                 mDoodle.setColor(DoodlePath.getMosaicColor(mDoodle, mMosaicLevel));
             } else if (pen == DoodlePen.TEXT) {
-                mDoodle.setSize(DimenUtils.dp2px(EditPhotoActivity.this, 28) / mDoodleView.getAllScale(), -1);
+                mDoodle.setSize(DimenUtils.dp2px(EditPhotoActivity.this, 28), -1);
                 mDoodle.setColor(new DoodleColor(textSelectedColor));
             } /*else if (pen == DoodlePen.BITMAP) {
                 Drawable colorBg = mBtnColor.getBackground();
@@ -992,7 +992,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             super.setSize(paintSize, index);
 
             if (mTouchGestureListener.getSelectedItem() != null) {
-                mTouchGestureListener.getSelectedItem().setSize(getSize() / getDoodleScale());
+                mTouchGestureListener.getSelectedItem().setSize(getSize());
             }
         }
 
@@ -1021,7 +1021,6 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             boolean res = super.undo();
             return res;
         }
-
 
 
         @Override
@@ -1138,7 +1137,16 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
                         editText.setText(text);
                     }
                 } else {
-                    createDoodleText(null, 0, screenHeight / 2, text, isShowTextBg, textAlignmentMode);
+                    if (mCropViewRect == null || mCropViewRect.isEmpty()) {
+                        createDoodleText(null, mDoodleView.toX(mDoodleView.getDoodleBound().left), mDoodleView.toY(mDoodleView.getDoodleBound().top + mDoodleView.getDoodleBound().height()/2), text, isShowTextBg, textAlignmentMode);
+                    }else {
+                        Rect bitmapCropRect = mDoodleView.getBitmapCropRect();
+                        if (bitmapCropRect != null && !bitmapCropRect.isEmpty()){
+                            createDoodleText(null, bitmapCropRect.left, bitmapCropRect.top, text, isShowTextBg, textAlignmentMode);
+                        }else {
+                            createDoodleText(null, mDoodleView.toX(mCropViewRect.left), mDoodleView.toY(mCropViewRect.top ), text, isShowTextBg, textAlignmentMode);
+                        }
+                    }
                 }
             }
         }

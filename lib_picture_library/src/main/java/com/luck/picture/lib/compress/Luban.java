@@ -243,7 +243,11 @@ public class Luban implements Handler.Callback {
             }
             this.medias = list;
             for (LocalMedia media : list) {
-                this.mPaths.add(media.isCut() ? media.getCutPath() : media.getPath());
+                if (media.isEdit()){
+                    this.mPaths.add(media.getEditPath());
+                }else {
+                    this.mPaths.add(media.isCut() ? media.getCutPath() : media.getPath());
+                }
             }
             return this;
         }

@@ -114,6 +114,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             }
         }
     };
+    private List<LocalMedia> editMedias;
 
     @Override
     protected void onPause() {
@@ -152,6 +153,9 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                         onResult(medias);
                     }
                 }
+                break;
+            case PictureConfig.PREVIEW_DATA_UPDATE_FLAG:
+                editMedias = obj.medias;
                 break;
         }
     }
@@ -368,6 +372,17 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (adapter != null) {
                     if (images == null) {
                         images = new ArrayList<>();
+                    }
+                    if (editMedias != null && editMedias.size() > 0 && images.size() > 0){
+                        for (LocalMedia localMedia : editMedias) {
+                            if (images.contains(localMedia)) {
+                                int i = images.indexOf(localMedia);
+                                if (i > 0 && i < images.size()) {
+                                    images.set(localMedia.position, localMedia);
+
+                                }
+                            }
+                        }
                     }
                     adapter.bindImagesData(images);
                     tv_empty.setVisibility(images.size() > 0

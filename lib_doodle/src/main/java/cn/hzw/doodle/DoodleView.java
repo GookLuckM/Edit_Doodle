@@ -768,7 +768,9 @@ public class DoodleView extends FrameLayout implements IDoodle {
         } else if (item.getPen().equals(DoodlePen.MOSAIC) || item.getPen().equals(DoodlePen.MOSAIC_ERASER)) {
             mMosaicItemStackOnViewCanvas.add(item);
         } else if (item.getPen().equals(DoodlePen.TEXT)) {
-            mTextItemStack.add(item);
+            if (!mTextItemStack.contains(item)) {
+                mTextItemStack.add(item);
+            }
         }
 
         if (mItemStack.contains(item) || mMosaicItemStack.contains(item)) {
@@ -1930,5 +1932,10 @@ public class DoodleView extends FrameLayout implements IDoodle {
                 mShape.drawHelpers(canvas, DoodleView.this);
             }
         }
+    }
+
+
+    public Rect getBitmapCropRect(){
+        return mBitmapCropRect;
     }
 }

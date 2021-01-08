@@ -129,6 +129,7 @@
                 android:textColor="@color/white"
                 android:textSize="12sp" />
 
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -138,6 +139,18 @@
                 android:textColor="?attr/picture.preview.textColor"
                 android:textSize="14sp" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_photo_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="5dp"
+            android:layout_marginLeft="13dp"
+            android:layout_centerVertical="true"
+            android:text="编辑"
+            android:textColor="?attr/picture.preview.textColor"
+            android:textSize="14sp" />
 
         <View
             android:layout_width="match_parent"

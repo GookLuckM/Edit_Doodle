@@ -28,6 +28,24 @@ public class LocalMedia implements Parcelable {
     private int width;
     private int height;
     private long date;
+    private boolean isEdit;
+    private String editPath;
+
+    public boolean isEdit() {
+        return isEdit;
+    }
+
+    public void setEdit(boolean edit) {
+        isEdit = edit;
+    }
+
+    public String getEditPath() {
+        return editPath;
+    }
+
+    public void setEditPath(String editPath) {
+        this.editPath = editPath;
+    }
 
     public LocalMedia() {
 
@@ -206,6 +224,8 @@ public class LocalMedia implements Parcelable {
         dest.writeInt(this.width);
         dest.writeInt(this.height);
         dest.writeLong(this.date);
+        dest.writeByte(this.isEdit ? (byte) 1 : (byte) 0);
+        dest.writeString(this.editPath);
     }
 
     protected LocalMedia(Parcel in) {
@@ -223,6 +243,8 @@ public class LocalMedia implements Parcelable {
         this.width = in.readInt();
         this.height = in.readInt();
         this.date = in.readLong();
+        this.isEdit = in.readByte() != 0;
+        this.editPath = in.readString();
     }
 
     public static final Parcelable.Creator<LocalMedia> CREATOR = new Parcelable.Creator<LocalMedia>() {

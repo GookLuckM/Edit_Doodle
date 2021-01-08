@@ -18,6 +18,7 @@ package com.luck.picture.lib.adapter;
 
 import android.content.Context;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,7 +77,11 @@ public class PicturePreviewSelectAdapter extends RecyclerView.Adapter<PicturePre
         String path = "";
         LocalMedia photoInfo = list.get(position);
         if (photoInfo != null) {
-            path = photoInfo.getPath();
+            if(photoInfo.isEdit() && !TextUtils.isEmpty(photoInfo.getEditPath())){
+                path = photoInfo.getEditPath();
+            }else {
+                path = photoInfo.getPath();
+            }
         }
         holder.itemView.setTag(photoInfo);
 

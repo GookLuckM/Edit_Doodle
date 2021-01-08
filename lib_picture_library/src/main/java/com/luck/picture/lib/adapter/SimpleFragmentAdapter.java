@@ -6,11 +6,13 @@ import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.Bundle;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
@@ -68,6 +70,11 @@ public class SimpleFragmentAdapter extends PagerAdapter {
     }
 
     @Override
+    public int getItemPosition(@NonNull Object object) {
+        return POSITION_NONE;
+    }
+
+    @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         (container).removeView((View) object);
     }
@@ -93,7 +100,9 @@ public class SimpleFragmentAdapter extends PagerAdapter {
             boolean eqVideo = pictureType.startsWith(PictureConfig.VIDEO);
             iv_play.setVisibility(eqVideo ? View.VISIBLE : View.GONE);
             final String path;
-            if (media.isCut() && !media.isCompressed()) {
+            if (media.isEdit() && !TextUtils.isEmpty(media.getEditPath())){
+                path = media.getEditPath();
+            }else if (media.isCut() && !media.isCompressed()) {
                 // 裁剪过
                 path = media.getCutPath();
             } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {

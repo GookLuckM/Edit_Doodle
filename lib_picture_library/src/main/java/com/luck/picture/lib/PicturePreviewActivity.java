@@ -3,6 +3,7 @@ package com.luck.picture.lib;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -43,6 +44,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.hzw.doodle.DoodleParams;
+import cn.hzw.doodle.DoodleView;
+import cn.hzw.doodle.ui.EditPhotoActivity;
+
 /**
  * author：luck
  * project：PictureSelector
@@ -52,6 +57,9 @@ import java.util.List;
  */
 public class PicturePreviewActivity extends PictureBaseActivity implements
         View.OnClickListener, Animation.AnimationListener, SimpleFragmentAdapter.OnCallBackActivity {
+
+    public static final int REQ_CODE_DOODLE = 101;
+
     private ImageView picture_left_back;
     private TextView tv_title, tv_ok, original_image;
     private View rl_title, select_bar_layout;
@@ -73,6 +81,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     private Handler mHandler;
     private boolean isShow = true;
     private PicturePreviewSelectAdapter picturePreviewSelectAdapter;
+    private int editIndex;
+    private TextView mTvPhotoEdit;
 
     /**
      * EventBus 3.0 回调
@@ -116,6 +126,32 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         select_bar_layout = findViewById(R.id.select_bar_layout);
         layoutOriginal = findViewById(R.id.layout_original);
+
+        mTvPhotoEdit = findViewById(R.id.tv_photo_edit);
+        mTvPhotoEdit.setVisibility(View.VISIBLE);
+        mTvPhotoEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (images != null && images.size() > 0) {
+                    editIndex = viewPager.getCurrentItem();
+                    LocalMedia image = images.get(editIndex);
+                    DoodleParams params = new DoodleParams();
+                    // 图片路径
+                    params.mImagePath = image.isEdit() ? image.getEditPath() : image.getPath();
+                    // 初始画笔大小
+                    params.mPaintUnitSize = DoodleView.DEFAULT_SIZE;
+                    // 画笔颜色
+                    params.mPaintColor = Color.RED;
+                    // 是否支持缩放item
+                    params.mSupportScaleItem = true;
+
+                    params.mOptimizeDrawing = true;
+
+                    EditPhotoActivity.startActivityForResult(PicturePreviewActivity.this, params,EditPhotoActivity.FROM_ALBUM, "",REQ_CODE_DOODLE);
+                }
+            }
+        });
+
 
         picture_left_back.setOnClickListener(this);
         tv_ok = (TextView) findViewById(R.id.tv_ok);
@@ -563,11 +599,48 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                             (Serializable) list));
                     finish();
                     break;
+
                 case UCrop.REQUEST_CROP:
                     if (data != null) {
                         setResult(RESULT_OK, data);
                     }
                     finish();
+                    break;
+                case REQ_CODE_DOODLE:
+                    if (editIndex != -1 && editIndex < images.size()) {
+                        String editPath = data.getStringExtra(EditPhotoActivity.KEY_IMAGE_PATH);
+                        images.get(editIndex).setEdit(true);
+                        images.get(editIndex).setEditPath(editPath);
+                        boolean isSelected = false;
+                        if (selectImages != null && selectImages.size() > 0) {
+                            for (LocalMedia media : selectImages) {
+                                if (media.getPath().equals(images.get(editIndex).getPath())) {
+                                    isSelected = true;
+                                    media.setEdit(true);
+                                    media.setEditPath(editPath);
+                                }
+                            }
+                        }
+                        if (!isSelected) {
+                            check.setSelected(true);
+                            VoiceUtils.playVoice(mContext, config.openClickSound);
+                            // 如果是单选，则清空已选中的并刷新列表(作单一选择)
+                            if (config.selectionMode == PictureConfig.SINGLE) {
+                                singleRadioMediaImage();
+                            }
+                            selectImages.add(images.get(editIndex));
+                            picturePreviewSelectAdapter.notifyDataSetChanged();
+                            recyclerView.scrollToPosition(selectImages.size() - 1);
+                            images.get(editIndex).setNum(selectImages.size());
+                            if (config.checkNumMode) {
+                                check.setText(String.valueOf(images.get(editIndex).getNum()));
+                            }
+                        }
+                        onSelectNumChange(true);
+                        adapter.notifyDataSetChanged();
+                        picturePreviewSelectAdapter.notifyDataSetChanged();
+                        RxBus.getDefault().post(new EventEntity(PictureConfig.PREVIEW_DATA_UPDATE_FLAG, selectImages));
+                    }
                     break;
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
